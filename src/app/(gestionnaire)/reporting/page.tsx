@@ -28,6 +28,8 @@ export default function ReportingPage() {
   const [loading, setLoading] = useState(false);
   const [showPdf, setShowPdf] = useState(false);
   const [pdfData, setPdfData] = useState<any>(null);
+  const [dateDebut, setDateDebut] = useState("");
+  const [dateFin, setDateFin] = useState("");
   const printRef = useRef<HTMLDivElement>(null);
 
   async function handleExcel() {
@@ -37,9 +39,10 @@ export default function ReportingPage() {
       const wb = XLSX.utils.book_new();
 
       // === SUIVI DES PAIEMENTS ===
+      const periodeLabel = dateDebut && dateFin ? `Du ${fmtDate(dateDebut)} au ${fmtDate(dateFin)}` : `Au ${new Date().toLocaleDateString("fr-FR")}`;
       const rows: any[][] = [
         [styledCell("TABLEAU DE SUIVI DES PAIEMENTS IMMOSTAR SCI", TITLE_STYLE)],
-        [styledCell(`Au ${new Date().toLocaleDateString("fr-FR")}`, { font: { italic: true, color: { rgb: "666666" } } })],
+        [styledCell(periodeLabel, { font: { italic: true, color: { rgb: "666666" } } })],
         [],
         [null, null, null, styledCell("LÉGENDE :", { font: { bold: true } })],
         [null, null, null, styledCell("Échéances du mois suivant", { fill: { fgColor: GREEN_BG } })],
@@ -138,16 +141,47 @@ export default function ReportingPage() {
 
       <Card className="gradient-border">
         <CardHeader><CardTitle className="text-sm">📊 Tableau de suivi IMMOSTAR SCI</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">Export professionnel avec couleurs, logo et légendes.</p>
-          <div className="flex gap-3">
-            <Button onClick={handleExcel} disabled={loading} size="lg" className="flex-1">
-              {loading ? "Génération..." : "📥 Excel (coloré)"}
-            </Button>
-            <Button onClick={handlePdf} variant="outline" size="lg" className="flex-1">
-              📄 PDF
-            </Button>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Période du</label>
+              <input type="date" value={dateDebut} onChange={(e) => setDateDebut(e.target.value)} className="w-full border rounded-lg p-2 text-sm bg-card text-foreground" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Au</label>
+              <input type="date" value={dateFin} onChange={(e) => setDateFin(e.target.value)} className="w-full border rounded-lg p-2 text-sm bg-card text-foreground" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Raccourcis</label>
+              <select onChange={(e) => {
+                const now = new Date();
+                if (e.target.value === "mois") { setDateDebut(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-01`); setDateFin(now.toISOString().slice(0,10)); }
+                else if (e.target.value === "trimestre") { const d = new Date(now.getFullYear(), now.getMonth()-2, 1); setDateDebut(d.toISOString().slice(0,10)); setDateFin(now.toISOString().slice(0,10)); }
+                else if (e.target.value === "semestre") { const d = new Date(now.getFullYear(), now.getMonth()-5, 1); setDateDebut(d.toISOString().slice(0,10)); setDateFin(now.toISOString().slice(0,10)); }
+                else if (e.target.value === "annee") { setDateDebut(`${now.getFullYear()}-01-01`); setDateFin(now.toISOString().slice(0,10)); }
+                else if (e.target.value === "tout") { setDateDebut(""); setDateFin(""); }
+              }} className="w-full border rounded-lg p-2 text-sm bg-card text-foreground">
+                <option value="tout">Tout l&apos;historique</option>
+                <option value="mois">Ce mois</option>
+                <option value="trimestre">3 derniers mois</option>
+                <option value="semestre">6 derniers mois</option>
+                <option value="annee">Cette année</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">&nbsp;</label>
+              <div className="flex gap-2">
+                <Button onClick={handleExcel} disabled={loading} className="flex-1" size="sm">
+                  {loading ? "..." : "📥 Excel"}
+                </Button>
+                <Button onClick={handlePdf} variant="outline" size="sm" className="flex-1">
+                  📄 PDF
+                </Button>
+              </div>
+            </div>
           </div>
+          {(dateDebut || dateFin) && <p className="text-xs text-muted-foreground">Période : {dateDebut ? fmtDate(dateDebut) : "début"} → {dateFin ? fmtDate(dateFin) : "aujourd&apos;hui"}</p>}
         </CardContent>
       </Card>
 
