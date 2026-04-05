@@ -1,4 +1,5 @@
 import { getLocataire } from "@/actions/locataires";
+import { getSituationLocataire } from "@/actions/situation";
 import { formatFCFA, formatDate, STATUT_BAIL_LABELS, MODE_PAIEMENT_LABELS } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +11,7 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
   const { id } = await params;
   const loc = await getLocataire(id);
   if (!loc) notFound();
+  const situation = await getSituationLocataire(id);
 
   return (
     <div className="space-y-6">
@@ -21,6 +23,40 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
         </div>
         {loc.statut === "ACTIF" && <ArchiverButton locataireId={loc.id} />}
       </div>
+
+      {situation && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <div className="text-3xl mb-1">{situation.caution.payee ? "✅" : "❌"}</div>
+              <p className="font-medium">Caution</p>
+              <p className="text-sm text-gray-500">{formatFCFA(situation.caution.montant)}</p>
+              <p className="text-xs mt-1">{situation.caution.payee ? "Payée" : "Non payée"}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <div className="text-3xl mb-1">{situation.loyer.aJour ? "✅" : "❌"}</div>
+              <p className="font-medium">Loyer</p>
+              {situation.loyer.aJour ? <p className="text-sm text-green-600">À jour</p> : <p className="text-sm text-red-600">{situation.loyer.moisImpayes} mois — {formatFCFA(situation.loyer.montantDu)}</p>}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <div className="text-3xl mb-1">{situation.charges.aJour ? "✅" : "❌"}</div>
+              <p className="font-medium">Charges</p>
+              {situation.charges.aJour ? <p className="text-sm text-green-600">À jour</p> : <p className="text-sm text-red-600">{formatFCFA(situation.charges.montantDu)}</p>}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <div className={`text-2xl font-bold ${situation.totalDu > 0 ? "text-red-600" : "text-green-600"}`}>{formatFCFA(situation.totalDu)}</div>
+              <p className="font-medium">Total dû</p>
+              {situation.penalites.montant > 0 && <p className="text-xs text-red-500">dont {formatFCFA(situation.penalites.montant)} pénalités</p>}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <ModifierLocataireForm locataire={loc} />
 

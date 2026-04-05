@@ -27,6 +27,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
           <p className="text-gray-500">Appartement {bail.appartement.numero}</p>
         </div>
         <Badge variant="outline" className={statusColor[bail.statut] || ""}>{STATUT_BAIL_LABELS[bail.statut]}</Badge>
+        <Link href={`/baux/${bail.id}/contrat`}><Button variant="outline" size="sm">📄 Contrat PDF</Button></Link>
       </div>
 
       <Card>
