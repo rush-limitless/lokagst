@@ -82,6 +82,7 @@ model Locataire {
   utilisateur Utilisateur?
   emailLogs   EmailLog[]
   maintenances Maintenance[]
+  messages    Message[]
   creeLe      DateTime        @default(now())
   misAJourLe  DateTime        @updatedAt
   @@map("locataires")
@@ -125,6 +126,7 @@ model Bail {
   statut                StatutBail  @default(ACTIF)
   paiements             Paiement[]
   penalites             Penalite[]
+  etatsDesLieux         EtatDesLieux[]
   creeLe                DateTime    @default(now())
   misAJourLe            DateTime    @updatedAt
   @@map("baux")
@@ -238,4 +240,40 @@ enum Priorite {
   BASSE
   NORMALE
   URGENTE
+}
+
+model Message {
+  id           String   @id @default(cuid())
+  locataireId  String
+  locataire    Locataire @relation(fields: [locataireId], references: [id])
+  expediteur   ExpMessage
+  contenu      String
+  lu           Boolean  @default(false)
+  creeLe       DateTime @default(now())
+  @@map("messages")
+}
+
+enum ExpMessage {
+  GESTIONNAIRE
+  LOCATAIRE
+}
+
+model EtatDesLieux {
+  id            String       @id @default(cuid())
+  bailId        String
+  bail          Bail         @relation(fields: [bailId], references: [id])
+  type          TypeEDL
+  date          DateTime     @default(now())
+  pieces        Json         @default("[]")
+  observations  String?
+  photos        String[]
+  signatureLocataire String?
+  signatureGestionnaire String?
+  creeLe        DateTime     @default(now())
+  @@map("etats_des_lieux")
+}
+
+enum TypeEDL {
+  ENTREE
+  SORTIE
 }

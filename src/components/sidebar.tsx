@@ -11,6 +11,8 @@ const navItems = [
   { href: "/baux", label: "Contrats", icon: "📄" },
   { href: "/paiements", label: "Paiements", icon: "💰" },
   { href: "/maintenance", label: "Maintenance", icon: "🔧" },
+  { href: "/messagerie", label: "Messagerie", icon: "💬" },
+  { href: "/exports", label: "Exports", icon: "📥" },
   { href: "/emails", label: "Emails", icon: "📧" },
 ];
 
