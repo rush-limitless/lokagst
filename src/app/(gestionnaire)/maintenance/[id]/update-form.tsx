@@ -12,7 +12,7 @@ export function UpdateMaintenanceForm({ id, currentStatut }: { id: string; curre
 
   async function handleSubmit(formData: FormData) {
     const result = await mettreAJourMaintenance(id, formData);
-    if (result.error) { toast.error(result.error); return; }
+    if ("error" in result) { toast.error(result.error as string); return; }
     toast.success("Ticket mis à jour");
     router.refresh();
   }
