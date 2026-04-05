@@ -8,6 +8,8 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "LokaGest — Gestion Locative",
   description: "Application de gestion des locataires et loyers pour FINSTAR",
+  manifest: "/manifest.json",
+  themeColor: "#003366",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

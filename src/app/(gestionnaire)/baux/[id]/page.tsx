@@ -2,6 +2,7 @@ import { getBail } from "@/actions/baux";
 import { getEtatsDesLieux } from "@/actions/etats-des-lieux";
 import { formatFCFA, formatDate, STATUT_BAIL_LABELS, MODE_PAIEMENT_LABELS } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from "next/navigation";
 import Link from "next/link";

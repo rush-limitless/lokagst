@@ -2,10 +2,12 @@ import { getAppartements } from "@/actions/appartements";
 import { formatFCFA, ETAGE_LABELS } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SearchBar } from "@/components/search-bar";
 import Link from "next/link";
 
-export default async function AppartementsPage() {
-  const appartements = await getAppartements();
+export default async function AppartementsPage({ searchParams }: { searchParams: Promise<{ q?: string; statut?: string }> }) {
+  const { q, statut } = await searchParams;
+  const appartements = await getAppartements({ recherche: q, statut });
 
   return (
     <div className="space-y-6">
@@ -13,19 +15,17 @@ export default async function AppartementsPage() {
         <h1 className="text-2xl font-bold text-blue-950">Appartements</h1>
         <Link href="/appartements/nouveau"><Button>+ Ajouter</Button></Link>
       </div>
-      <p className="text-gray-500">{appartements.length} appartements ({appartements.filter(a => a.statut === "OCCUPE").length} occupés, {appartements.filter(a => a.statut === "LIBRE").length} libres)</p>
+      <div className="flex gap-3 items-center">
+        <SearchBar placeholder="Rechercher par numéro..." />
+        <Link href="/appartements" className={`text-sm px-3 py-1 rounded-full border ${!statut ? "bg-blue-100 text-blue-700" : "text-gray-500"}`}>Tous</Link>
+        <Link href="/appartements?statut=LIBRE" className={`text-sm px-3 py-1 rounded-full border ${statut === "LIBRE" ? "bg-green-100 text-green-700" : "text-gray-500"}`}>Libres</Link>
+        <Link href="/appartements?statut=OCCUPE" className={`text-sm px-3 py-1 rounded-full border ${statut === "OCCUPE" ? "bg-red-100 text-red-700" : "text-gray-500"}`}>Occupés</Link>
+      </div>
+      <p className="text-gray-500 text-sm">{appartements.length} appartement(s)</p>
       <div className="bg-white rounded-lg border overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50 text-left text-sm text-gray-500">
-            <tr>
-              <th className="p-3">Numéro</th>
-              <th className="p-3">Étage</th>
-              <th className="p-3">Type</th>
-              <th className="p-3">Loyer</th>
-              <th className="p-3">Statut</th>
-              <th className="p-3">Locataire</th>
-              <th className="p-3">Actions</th>
-            </tr>
+            <tr><th className="p-3">Numéro</th><th className="p-3">Étage</th><th className="p-3">Type</th><th className="p-3">Loyer</th><th className="p-3">Statut</th><th className="p-3">Locataire</th><th className="p-3">Actions</th></tr>
           </thead>
           <tbody className="divide-y">
             {appartements.map((a) => (
@@ -34,15 +34,12 @@ export default async function AppartementsPage() {
                 <td className="p-3">{ETAGE_LABELS[a.etage]}</td>
                 <td className="p-3">{a.type}</td>
                 <td className="p-3">{formatFCFA(a.loyerBase)}</td>
-                <td className="p-3">
-                  <Badge variant={a.statut === "LIBRE" ? "outline" : "destructive"} className={a.statut === "LIBRE" ? "text-green-600 border-green-600" : ""}>
-                    {a.statut === "LIBRE" ? "Libre" : "Occupé"}
-                  </Badge>
-                </td>
+                <td className="p-3"><Badge variant={a.statut === "LIBRE" ? "outline" : "destructive"} className={a.statut === "LIBRE" ? "text-green-600 border-green-600" : ""}>{a.statut === "LIBRE" ? "Libre" : "Occupé"}</Badge></td>
                 <td className="p-3 text-sm text-gray-500">{a.locataireActuel ? `${a.locataireActuel.prenom} ${a.locataireActuel.nom}` : "—"}</td>
                 <td className="p-3"><Link href={`/appartements/${a.id}`} className="text-blue-600 text-sm hover:underline">Voir</Link></td>
               </tr>
             ))}
+            {appartements.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-gray-500">Aucun résultat</td></tr>}
           </tbody>
         </table>
       </div>
