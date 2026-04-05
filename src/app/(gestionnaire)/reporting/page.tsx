@@ -139,6 +139,14 @@ export default function ReportingPage() {
     <div className="space-y-6 animate-in">
       <h1 className="text-xl md:text-2xl font-bold text-foreground">Reporting</h1>
 
+      {/* Sous-navigation rapports */}
+      <div className="flex gap-2 flex-wrap">
+        <a href="/reporting" className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-full font-medium">📊 Export</a>
+        <a href="/reporting/impayes" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:bg-secondary/80">🔴 Impayés</a>
+        <a href="/reporting/cautions" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:bg-secondary/80">🔒 Cautions</a>
+        <a href="/reporting/classement" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:bg-secondary/80">🏆 Classement</a>
+      </div>
+
       <Card className="gradient-border">
         <CardHeader><CardTitle className="text-sm">📊 Tableau de suivi IMMOSTAR SCI</CardTitle></CardHeader>
         <CardContent className="space-y-4">
