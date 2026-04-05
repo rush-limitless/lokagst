@@ -33,5 +33,5 @@ SMTP_FROM="ImmoGest <email@gmail.com>"
 ```
 
 ## Identifiants par défaut
-- Gestionnaire : `admin@finstar.cm` / `admin123`
+- Gestionnaire : `admin@immostar.cm` / `admin123`
 - Locataire test : `paul.mbarga@email.cm` / `locataire123`

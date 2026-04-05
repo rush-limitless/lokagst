@@ -8,9 +8,9 @@ async function main() {
   const passwordHash = await hash("admin123", 12);
 
   await prisma.utilisateur.upsert({
-    where: { email: "admin@finstar.cm" },
+    where: { email: "admin@immostar.cm" },
     update: {},
-    create: { email: "admin@finstar.cm", motDePasse: passwordHash, role: "GESTIONNAIRE" },
+    create: { email: "admin@immostar.cm", motDePasse: passwordHash, role: "GESTIONNAIRE" },
   });
 
   const apparts = [

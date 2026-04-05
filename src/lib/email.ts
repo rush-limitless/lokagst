@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
 
 export async function sendEmail(to: string, subject: string, html: string) {
   return transporter.sendMail({
-    from: process.env.SMTP_FROM || "ImmoGest <noreply@finstar.cm>",
+    from: process.env.SMTP_FROM || "ImmoGest <noreply@immostar.cm>",
     to,
     subject,
     html,
