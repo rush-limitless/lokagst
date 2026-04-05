@@ -18,7 +18,7 @@ export function RecouvrementChart({ data }: { data: DataPoint[] }) {
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
         <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}%`} />
         <YAxis type="category" dataKey="etage" tick={{ fontSize: 12 }} width={80} />
-        <Tooltip formatter={(value: number) => `${value}%`} />
+        <Tooltip formatter={(value) => `${Number(value)}%`} />
         <Bar dataKey="taux" name="Taux de recouvrement" radius={[0, 6, 6, 0]} barSize={30}>
           {data.map((entry, i) => <Cell key={i} fill={getColor(entry.taux)} />)}
         </Bar>
