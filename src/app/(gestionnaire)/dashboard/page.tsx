@@ -36,14 +36,14 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Welcome banner */}
-      <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8e] rounded-2xl p-6 text-white">
+      <div className="bg-gradient-to-r from-[#0d3b5e] to-[#1B6B9E] rounded-2xl p-6 text-white">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-xl md:text-2xl font-bold">{greeting} 👋</h1>
             <p className="text-blue-200 text-sm mt-1">{now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Link href="/paiements/nouveau"><Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-white border-0">💰 Paiement</Button></Link>
+            <Link href="/paiements/nouveau"><Button size="sm" className="bg-sky-400 hover:bg-sky-500 text-white border-0">💰 Paiement</Button></Link>
             <Link href="/baux/nouveau"><Button size="sm" variant="outline" className="text-white border-white/30 hover:bg-white/10">📄 Bail</Button></Link>
             <Link href="/locataires/nouveau"><Button size="sm" variant="outline" className="text-white border-white/30 hover:bg-white/10">👤 Locataire</Button></Link>
           </div>
@@ -55,7 +55,7 @@ export default async function DashboardPage() {
         <StatCard icon="🏠" iconBg="bg-blue-100" label="Occupation" value={`${stats.appartements.tauxOccupation}%`} sub={`${stats.appartements.occupes}/${stats.appartements.total} appartements`} />
         <StatCard icon="💰" iconBg="bg-emerald-100" label="Revenus du mois" value={formatFCFA(stats.finances.revenusMois)} sub={`sur ${formatFCFA(stats.finances.revenusAttendus)}`} valueColor="text-emerald-600" />
         <StatCard icon="⚠️" iconBg="bg-red-100" label="Impayés" value={formatFCFA(stats.finances.impayesMois)} sub={`${stats.alertes.impayesLocataires.length} locataire(s)`} valueColor="text-red-600" />
-        <StatCard icon="🔑" iconBg="bg-amber-100" label="Libres" value={`${stats.appartements.libres}`} sub="disponibles" valueColor="text-amber-600" />
+        <StatCard icon="🔑" iconBg="bg-sky-100" label="Libres" value={`${stats.appartements.libres}`} sub="disponibles" valueColor="text-sky-600" />
       </div>
 
       {/* Charts */}

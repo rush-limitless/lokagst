@@ -4,7 +4,7 @@ export function DocumentHeader({ titre, numero }: { titre: string; numero?: stri
       <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] text-6xl font-bold text-[#1e3a5f] rotate-[-30deg] pointer-events-none select-none">
         IMMOSTAR SCI
       </div>
-      <h1 className="text-2xl font-bold text-[#1e3a5f]">IMMOSTAR SCI</h1>
+      <h1 className="text-2xl font-bold text-[#1B6B9E]">IMMOSTAR SCI</h1>
       <p className="text-gray-500 text-sm">Société Civile Immobilière</p>
       <p className="text-gray-400 text-xs">Yaoundé — Nkolfoulou</p>
       <h2 className="text-lg font-bold mt-3 uppercase tracking-wide">{titre}</h2>

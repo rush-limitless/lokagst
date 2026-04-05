@@ -13,9 +13,12 @@ export default async function LocataireLayout({ children }: { children: React.Re
     <div className="min-h-screen bg-background text-foreground">
       <header className="bg-card border-b">
         <div className="px-4 py-3 flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-bold text-foreground">ImmoGest</h1>
-            <p className="text-muted-foreground text-xs">Mon espace locataire</p>
+          <div className="flex items-center gap-2">
+            <img src="/logo.jpg" alt="" className="w-8 h-8 rounded" />
+            <div>
+              <h1 className="text-sm font-bold text-foreground">ImmoGest</h1>
+              <p className="text-muted-foreground text-[10px]">Mon espace locataire</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <LangToggle />
