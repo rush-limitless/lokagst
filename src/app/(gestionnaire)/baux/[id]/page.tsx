@@ -1,8 +1,10 @@
 import { getBail } from "@/actions/baux";
+import { getEtatsDesLieux } from "@/actions/etats-des-lieux";
 import { formatFCFA, formatDate, STATUT_BAIL_LABELS, MODE_PAIEMENT_LABELS } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { SignerBailForm } from "./signer-form";
 import { UploadContratForm } from "./upload-contrat-form";
 
@@ -10,6 +12,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
   const { id } = await params;
   const bail = await getBail(id);
   if (!bail) notFound();
+  const edls = await getEtatsDesLieux(id);
 
   const charges = (bail.chargesLocatives as { type: string; montant: number }[]) || [];
   const statusColor: Record<string, string> = { ACTIF: "text-green-600", SUSPENDU: "text-orange-600", RESILIE: "text-red-600", TERMINE: "text-gray-500", EXPIRE: "text-red-600" };
@@ -109,6 +112,47 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
             </div>
           ) : (
             <UploadContratForm bailId={bail.id} />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ÉTATS DES LIEUX */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>États des lieux</CardTitle>
+            <Link href={`/baux/${bail.id}/edl`}><Button variant="outline" size="sm">+ Nouvel EDL</Button></Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {edls.length === 0 ? <p className="text-gray-500 text-sm">Aucun état des lieux</p> : (
+            <div className="space-y-2">
+              {edls.map((e) => {
+                const pieces = (e.pieces as { nom: string; etat: string; observation: string }[]) || [];
+                return (
+                  <div key={e.id} className="border rounded p-3">
+                    <div className="flex justify-between items-center mb-2">
+                      <Badge variant="outline" className={e.type === "ENTREE" ? "text-blue-600" : "text-orange-600"}>{e.type === "ENTREE" ? "Entrée" : "Sortie"}</Badge>
+                      <span className="text-sm text-gray-500">{formatDate(e.date)}</span>
+                      <div className="flex gap-2">
+                        {e.signatureLocataire && <span className="text-xs text-green-600">✅ Locataire</span>}
+                        {e.signatureGestionnaire && <span className="text-xs text-green-600">✅ Gestionnaire</span>}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1 text-xs">
+                      {pieces.map((p, i) => (
+                        <div key={i} className={`p-1 rounded ${p.etat === "Bon état" ? "bg-green-50" : p.etat === "Usure normale" ? "bg-yellow-50" : "bg-red-50"}`}>
+                          <span className="font-medium">{p.nom}</span>: {p.etat}
+                        </div>
+                      ))}
+                    </div>
+                    {e.photos.length > 0 && (
+                      <div className="flex gap-1 mt-2">{e.photos.map((p, i) => <img key={i} src={p} alt="" className="w-12 h-12 rounded object-cover" />)}</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           )}
         </CardContent>
       </Card>

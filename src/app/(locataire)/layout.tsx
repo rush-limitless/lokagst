@@ -18,6 +18,7 @@ export default async function LocataireLayout({ children }: { children: React.Re
           <Link href="/mon-espace" className="text-sm hover:text-blue-300">Accueil</Link>
           <Link href="/mon-espace/bail" className="text-sm hover:text-blue-300">Mon bail</Link>
           <Link href="/mon-espace/paiements" className="text-sm hover:text-blue-300">Mes paiements</Link>
+          <Link href="/mon-espace/maintenance" className="text-sm hover:text-blue-300">🔧 Maintenance</Link>
           <Link href="/mon-espace/messagerie" className="text-sm hover:text-blue-300">💬 Messages</Link>
           <LogoutButton className="text-white border-blue-700 hover:bg-blue-900" />
         </nav>

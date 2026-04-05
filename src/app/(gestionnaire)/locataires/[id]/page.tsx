@@ -3,6 +3,8 @@ import { formatFCFA, formatDate, STATUT_BAIL_LABELS, MODE_PAIEMENT_LABELS } from
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from "next/navigation";
+import { ModifierLocataireForm } from "./modifier-form";
+import { ArchiverButton } from "./archiver-button";
 
 export default async function LocataireDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -11,15 +13,17 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-blue-950">{loc.prenom} {loc.nom}</h1>
-      <Card>
-        <CardContent className="pt-6 grid grid-cols-2 gap-4">
-          <div><span className="text-gray-500 text-sm">Téléphone</span><p className="font-medium">{loc.telephone}</p></div>
-          <div><span className="text-gray-500 text-sm">Email</span><p className="font-medium">{loc.email || "—"}</p></div>
-          <div><span className="text-gray-500 text-sm">CNI</span><p className="font-medium">{loc.numeroCNI || "—"}</p></div>
-          <div><span className="text-gray-500 text-sm">Date d&apos;entrée</span><p className="font-medium">{formatDate(loc.dateEntree)}</p></div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center gap-4">
+        {loc.photo ? <img src={loc.photo} alt="" className="w-16 h-16 rounded-full object-cover" /> : <div className="w-16 h-16 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xl font-bold">{loc.prenom[0]}{loc.nom[0]}</div>}
+        <div>
+          <h1 className="text-2xl font-bold text-blue-950">{loc.prenom} {loc.nom}</h1>
+          <Badge variant="outline" className={loc.statut === "ACTIF" ? "text-green-600" : "text-gray-500"}>{loc.statut}</Badge>
+        </div>
+        {loc.statut === "ACTIF" && <ArchiverButton locataireId={loc.id} />}
+      </div>
+
+      <ModifierLocataireForm locataire={loc} />
+
       {loc.baux.map((b) => (
         <Card key={b.id}>
           <CardHeader><CardTitle>Bail — {STATUT_BAIL_LABELS[b.statut]} <Badge variant="outline" className="ml-2">{b.appartement.numero}</Badge></CardTitle></CardHeader>
