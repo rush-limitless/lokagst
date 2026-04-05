@@ -105,7 +105,7 @@ export default function ReportingPage() {
       });
 
       // Totaux par étage
-      const etages = [...new Set(data.synthese.map((r: any) => r.etage))];
+      const etages = Array.from(new Set(data.synthese.map((r: any) => r.etage)));
       synth.push([]);
       etages.forEach((etage: string) => {
         const locs = data.synthese.filter((r: any) => r.etage === etage);
