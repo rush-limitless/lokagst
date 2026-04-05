@@ -8,8 +8,7 @@ export function LangToggle() {
   return (
     <button
       onClick={() => setLang(lang === "fr" ? "en" : "fr")}
-      className="text-sm font-medium px-2 py-1 border rounded hover:bg-gray-100"
-      title={lang === "fr" ? "Switch to English" : "Passer en français"}
+      className="text-xs font-medium px-2.5 py-1.5 border rounded-lg hover:bg-muted transition-colors text-foreground border-border"
     >
       {lang === "fr" ? "🇬🇧 EN" : "🇫🇷 FR"}
     </button>

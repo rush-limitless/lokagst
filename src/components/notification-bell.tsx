@@ -17,22 +17,22 @@ export function NotificationBell() {
 
   return (
     <div className="relative">
-      <button onClick={() => setOpen(!open)} className="relative text-lg">
+      <button onClick={() => setOpen(!open)} className="relative w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-foreground">
         🔔
         {notifs.count > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">{notifs.count}</span>
+          <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">{notifs.count}</span>
         )}
       </button>
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-8 z-50 w-80 bg-white border rounded-lg shadow-lg max-h-96 overflow-y-auto">
-            <div className="p-3 border-b font-medium text-sm">Notifications ({notifs.count})</div>
+          <div className="absolute right-0 top-10 z-50 w-80 bg-card border rounded-xl shadow-xl max-h-96 overflow-y-auto">
+            <div className="p-3 border-b font-medium text-sm text-foreground">Notifications ({notifs.count})</div>
             {notifs.notifications.length === 0 ? (
-              <p className="p-4 text-sm text-gray-500 text-center">Aucune notification</p>
+              <p className="p-4 text-sm text-muted-foreground text-center">Aucune notification</p>
             ) : (
               notifs.notifications.map((n, i) => (
-                <div key={i} className="p-3 border-b last:border-0 text-sm hover:bg-gray-50 flex gap-2">
+                <div key={i} className="p-3 border-b last:border-0 text-sm hover:bg-muted/50 flex gap-2 text-foreground">
                   <span>{ICONS[n.type]}</span>
                   <span>{n.message}</span>
                 </div>

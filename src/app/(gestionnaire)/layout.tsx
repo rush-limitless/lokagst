@@ -12,17 +12,17 @@ export default async function GestionnaireLayout({ children }: { children: React
   if (!session || session.user.role !== "GESTIONNAIRE") redirect("/login");
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-background text-foreground">
       <Sidebar email={session.user.email || ""} />
-      <main className="flex-1 bg-gray-50 min-w-0">
+      <main className="flex-1 min-w-0">
         <MobileNav />
-        <div className="p-3 md:p-6">
-          <div className="flex justify-end mb-2 gap-2 items-center flex-wrap">
-            <LangToggle />
-            <NotificationBell />
-            <ThemeToggle />
-            <LogoutButton className="text-gray-500 border-gray-300 hover:bg-gray-100 text-xs md:text-sm" />
-          </div>
+        <div className="border-b bg-card px-4 py-3 md:px-6 flex items-center justify-end gap-3">
+          <LangToggle />
+          <NotificationBell />
+          <ThemeToggle />
+          <LogoutButton />
+        </div>
+        <div className="p-4 md:p-6">
           <Breadcrumb />
           {children}
         </div>

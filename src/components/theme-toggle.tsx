@@ -17,7 +17,11 @@ export function ThemeToggle() {
   }
 
   return (
-    <button onClick={toggle} className="text-lg" title={dark ? "Mode clair" : "Mode sombre"}>
+    <button
+      onClick={toggle}
+      className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-foreground"
+      title={dark ? "Mode clair" : "Mode sombre"}
+    >
       {dark ? "☀️" : "🌙"}
     </button>
   );
