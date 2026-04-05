@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { appartementSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
+import { logAction } from "@/lib/audit";
 
 export async function getAppartements(filters?: { etage?: string; statut?: string; recherche?: string }) {
   const where: any = {};
@@ -38,6 +39,7 @@ export async function creerAppartement(formData: FormData) {
   if (exists) return { error: "Ce numéro d'appartement existe déjà" };
 
   await prisma.appartement.create({ data: parsed.data });
+  await logAction("Création", "Appartement", parsed.data.numero, `${parsed.data.type} — ${parsed.data.loyerBase} FCFA`);
   revalidatePath("/appartements");
   return { success: true };
 }
@@ -48,6 +50,7 @@ export async function modifierAppartement(id: string, formData: FormData) {
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
   await prisma.appartement.update({ where: { id }, data: parsed.data });
+  await logAction("Modification", "Appartement", id);
   revalidatePath("/appartements");
   return { success: true };
 }

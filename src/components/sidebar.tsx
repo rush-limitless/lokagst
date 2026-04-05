@@ -13,6 +13,8 @@ const navItems = [
   { href: "/maintenance", label: "Maintenance", icon: "🔧" },
   { href: "/messagerie", label: "Messagerie", icon: "💬" },
   { href: "/exports", label: "Exports", icon: "📥" },
+  { href: "/immeubles", label: "Immeubles", icon: "🏢" },
+  { href: "/audit", label: "Audit", icon: "📝" },
   { href: "/emails", label: "Emails", icon: "📧" },
 ];
 

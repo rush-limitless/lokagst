@@ -33,17 +33,19 @@ enum StatutUtilisateur {
 }
 
 model Appartement {
-  id          String            @id @default(cuid())
-  numero      String            @unique
-  etage       Etage
-  type        TypeAppartement
-  loyerBase   Int
-  description String?
-  statut      StatutAppartement @default(LIBRE)
-  baux        Bail[]
+  id           String            @id @default(cuid())
+  numero       String            @unique
+  etage        Etage
+  type         TypeAppartement
+  loyerBase    Int
+  description  String?
+  statut       StatutAppartement @default(LIBRE)
+  immeubleId   String?
+  immeuble     Immeuble?         @relation(fields: [immeubleId], references: [id])
+  baux         Bail[]
   maintenances Maintenance[]
-  creeLe      DateTime          @default(now())
-  misAJourLe  DateTime          @updatedAt
+  creeLe       DateTime          @default(now())
+  misAJourLe   DateTime          @updatedAt
   @@map("appartements")
 }
 
@@ -276,4 +278,27 @@ model EtatDesLieux {
 enum TypeEDL {
   ENTREE
   SORTIE
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  utilisateur String
+  action      String
+  entite      String
+  entiteId    String?
+  details     String?
+  creeLe      DateTime @default(now())
+  @@map("audit_logs")
+}
+
+model Immeuble {
+  id          String        @id @default(cuid())
+  nom         String
+  adresse     String
+  ville       String
+  quartier    String?
+  appartements Appartement[]
+  creeLe      DateTime      @default(now())
+  misAJourLe  DateTime      @updatedAt
+  @@map("immeubles")
 }
