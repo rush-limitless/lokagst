@@ -57,7 +57,7 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
           <div key={section.title} className="mb-2">
             {!collapsed && <p className="px-4 py-1 text-[10px] uppercase tracking-wider text-sky-400/50 font-semibold">{section.title}</p>}
             {section.items.map((item) => (
-              <Link key={item.href} href={item.href} className={cn("flex items-center gap-3 mx-2 px-3 py-2 rounded-lg transition-all text-sm relative", collapsed && "justify-center px-2", pathname.startsWith(item.href) ? "bg-sky-500/20 text-white font-medium" : "hover:bg-white/5 text-sky-100/70")}>
+              <Link key={item.href} href={item.href} className={cn("flex items-center gap-3 mx-2 px-3 py-2 rounded-lg transition-all text-sm relative", collapsed && "justify-center px-2", pathname.startsWith(item.href) ? "bg-sky-500/20 text-white font-medium nav-active-indicator" : "hover:bg-white/5 text-sky-100/70")}>
                 <span className="text-base">{item.icon}</span>
                 {!collapsed && <span className="flex-1">{item.label}</span>}
                 {!collapsed && item.badge && item.badge > 0 ? <span className="bg-sky-400 text-[10px] text-white rounded-full w-5 h-5 flex items-center justify-center font-bold">{item.badge}</span> : null}

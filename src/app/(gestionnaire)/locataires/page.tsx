@@ -25,7 +25,7 @@ export default async function LocatairesPage({ searchParams }: { searchParams: P
           {/* Mobile cards */}
           <div className="md:hidden space-y-3 stagger-in">
             {locataires.map((l) => (
-              <Link key={l.id} href={`/locataires/${l.id}`} className="block bg-card border rounded-xl p-4 hover:shadow-md transition-all hover:-translate-y-0.5">
+              <Link key={l.id} href={`/locataires/${l.id}`} className="block bg-card border rounded-xl p-4 hover:shadow-md hover-bounce transition-all hover:-translate-y-0.5">
                 <div className="flex items-center gap-3">
                   <UserAvatar nom={l.nom} prenom={l.prenom} photo={l.photo} />
                   <div className="flex-1 min-w-0">

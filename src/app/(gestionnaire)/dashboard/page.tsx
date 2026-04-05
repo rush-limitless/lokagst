@@ -8,20 +8,18 @@ import { RevenusChart } from "@/components/charts/revenus-chart";
 import { OccupationPie } from "@/components/charts/occupation-pie";
 import Link from "next/link";
 
-function StatCard({ icon, iconBg, label, value, sub, valueColor }: { icon: string; iconBg: string; label: string; value: string; sub?: string; valueColor?: string }) {
+function GlassStatCard({ icon, iconBg, label, value, sub, valueColor }: { icon: string; iconBg: string; label: string; value: string; sub?: string; valueColor?: string }) {
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="pt-5 pb-4">
-        <div className="flex items-start gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${iconBg}`}>{icon}</div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</p>
-            <p className={`text-xl md:text-2xl font-bold mt-0.5 ${valueColor || ""}`}>{value}</p>
-            {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
-          </div>
+    <div className="glass rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-0.5">
+      <div className="flex items-start gap-3">
+        <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg shadow-sm hover-bounce ${iconBg}`}>{icon}</div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{label}</p>
+          <p className={`text-xl md:text-2xl font-bold mt-0.5 count-up ${valueColor || "text-foreground"}`}>{value}</p>
+          {sub && <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -32,92 +30,104 @@ export default async function DashboardPage() {
 
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Bonjour" : now.getHours() < 18 ? "Bon après-midi" : "Bonsoir";
+  const pct = stats.appartements.tauxOccupation;
 
   return (
     <div className="space-y-6 animate-in">
-      {/* Welcome banner */}
-      <div className="bg-gradient-to-r from-[#0d3b5e] to-[#1B6B9E] rounded-2xl p-6 text-white">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold">{greeting} 👋</h1>
-            <p className="text-blue-200 text-sm mt-1">{now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
+      {/* Welcome banner with mesh gradient */}
+      <div className="mesh-bg bg-gradient-to-br from-[#0d3b5e] to-[#1B6B9E] rounded-2xl p-6 text-white">
+        <div className="relative z-10">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold">{greeting} 👋</h1>
+              <p className="text-sky-200/80 text-sm mt-1">{now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <Link href="/paiements/nouveau"><Button size="sm" className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm">💰 Paiement</Button></Link>
+              <Link href="/baux/nouveau"><Button size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm" variant="outline">📄 Bail</Button></Link>
+              <Link href="/locataires/nouveau"><Button size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm" variant="outline">👤 Locataire</Button></Link>
+            </div>
           </div>
-          <div className="flex gap-2 flex-wrap">
-            <Link href="/paiements/nouveau"><Button size="sm" className="bg-sky-400 hover:bg-sky-500 text-white border-0">💰 Paiement</Button></Link>
-            <Link href="/baux/nouveau"><Button size="sm" variant="outline" className="text-white border-white/30 hover:bg-white/10">📄 Bail</Button></Link>
-            <Link href="/locataires/nouveau"><Button size="sm" variant="outline" className="text-white border-white/30 hover:bg-white/10">👤 Locataire</Button></Link>
+          {/* Occupation progress bar */}
+          <div className="mt-5 bg-white/10 rounded-full h-2 overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-sky-300 to-emerald-400 rounded-full progress-animated" style={{ width: `${pct}%` }} />
           </div>
+          <p className="text-sky-200/60 text-xs mt-1.5">{pct}% d&apos;occupation — {stats.appartements.occupes}/{stats.appartements.total} appartements</p>
         </div>
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 stagger-in md:gap-4">
-        <StatCard icon="🏠" iconBg="bg-blue-100" label="Occupation" value={`${stats.appartements.tauxOccupation}%`} sub={`${stats.appartements.occupes}/${stats.appartements.total} appartements`} />
-        <StatCard icon="💰" iconBg="bg-emerald-100" label="Revenus du mois" value={formatFCFA(stats.finances.revenusMois)} sub={`sur ${formatFCFA(stats.finances.revenusAttendus)}`} valueColor="text-emerald-600" />
-        <StatCard icon="⚠️" iconBg="bg-red-100" label="Impayés" value={formatFCFA(stats.finances.impayesMois)} sub={`${stats.alertes.impayesLocataires.length} locataire(s)`} valueColor="text-red-600" />
-        <StatCard icon="🔑" iconBg="bg-sky-100" label="Libres" value={`${stats.appartements.libres}`} sub="disponibles" valueColor="text-sky-600" />
+      {/* Glass stat cards */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 stagger-in">
+        <GlassStatCard icon="🏠" iconBg="bg-sky-100 dark:bg-sky-900/40" label="Occupation" value={`${pct}%`} sub={`${stats.appartements.occupes}/${stats.appartements.total}`} />
+        <GlassStatCard icon="💰" iconBg="bg-emerald-100 dark:bg-emerald-900/40" label="Revenus" value={formatFCFA(stats.finances.revenusMois)} sub={`sur ${formatFCFA(stats.finances.revenusAttendus)}`} valueColor="text-emerald-600 dark:text-emerald-400" />
+        <GlassStatCard icon="⚠️" iconBg="bg-red-100 dark:bg-red-900/40" label="Impayés" value={formatFCFA(stats.finances.impayesMois)} sub={`${stats.alertes.impayesLocataires.length} locataire(s)`} valueColor="text-red-600 dark:text-red-400" />
+        <GlassStatCard icon="🔑" iconBg="bg-sky-100 dark:bg-sky-900/40" label="Libres" value={`${stats.appartements.libres}`} sub="disponibles" valueColor="text-sky-600 dark:text-sky-400" />
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 overflow-hidden">
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Évolution des revenus</CardTitle></CardHeader>
           <CardContent><RevenusChart data={evolution} /></CardContent>
         </Card>
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Occupation</CardTitle></CardHeader>
           <CardContent><OccupationPie occupes={stats.appartements.occupes} libres={stats.appartements.libres} /></CardContent>
         </Card>
       </div>
 
-      {/* Alerts + Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Baux expirant bientôt</CardTitle></CardHeader>
-          <CardContent>
-            {stats.alertes.bauxExpirants.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-4 text-center">Aucun dans les 30 prochains jours ✅</p>
-            ) : (
-              <div className="space-y-2">
-                {stats.alertes.bauxExpirants.map((b) => (
-                  <div key={b.bailId} className="flex justify-between items-center p-2.5 bg-orange-50 dark:bg-orange-950/20 rounded-lg text-sm">
-                    <span className="font-medium">{b.locataire} <span className="text-muted-foreground">({b.appartement})</span></span>
-                    <Badge variant="outline" className="text-orange-600 border-orange-300">{b.joursRestants}j</Badge>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Impayés ce mois</CardTitle></CardHeader>
-          <CardContent>
-            {stats.alertes.impayesLocataires.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-4 text-center">Tous à jour ✅</p>
-            ) : (
-              <div className="space-y-2">
-                {stats.alertes.impayesLocataires.map((l) => (
-                  <div key={l.locataireId} className="flex justify-between items-center p-2.5 bg-red-50 dark:bg-red-950/20 rounded-lg text-sm">
-                    <span className="font-medium">{l.nom}</span>
-                    <Badge variant="destructive">{formatFCFA(l.montantDu)}</Badge>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      {/* Alerts + Activity with gradient border on important cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 stagger-in">
+        <div className={stats.alertes.bauxExpirants.length > 0 ? "gradient-border" : ""}>
+          <Card className="h-full">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Baux expirant bientôt</CardTitle></CardHeader>
+            <CardContent>
+              {stats.alertes.bauxExpirants.length === 0 ? (
+                <div className="text-center py-6"><div className="text-3xl mb-2">✅</div><p className="text-muted-foreground text-sm">Aucun dans les 30 prochains jours</p></div>
+              ) : (
+                <div className="space-y-2">
+                  {stats.alertes.bauxExpirants.map((b) => (
+                    <div key={b.bailId} className="flex justify-between items-center p-2.5 bg-orange-50 dark:bg-orange-950/20 rounded-lg text-sm">
+                      <span className="font-medium text-foreground">{b.locataire} <span className="text-muted-foreground">({b.appartement})</span></span>
+                      <Badge variant="outline" className="text-orange-600 border-orange-300">{b.joursRestants}j</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+        <div className={stats.alertes.impayesLocataires.length > 0 ? "gradient-border" : ""}>
+          <Card className="h-full">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Impayés ce mois</CardTitle></CardHeader>
+            <CardContent>
+              {stats.alertes.impayesLocataires.length === 0 ? (
+                <div className="text-center py-6"><div className="text-3xl mb-2">✅</div><p className="text-muted-foreground text-sm">Tous à jour</p></div>
+              ) : (
+                <div className="space-y-2">
+                  {stats.alertes.impayesLocataires.map((l) => (
+                    <div key={l.locataireId} className="flex justify-between items-center p-2.5 bg-red-50 dark:bg-red-950/20 rounded-lg text-sm">
+                      <span className="font-medium text-foreground">{l.nom}</span>
+                      <Badge variant="destructive">{formatFCFA(l.montantDu)}</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Activité récente</CardTitle></CardHeader>
           <CardContent>
             {activites.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-4 text-center">Aucune activité</p>
+              <div className="text-center py-6"><div className="text-3xl mb-2">📭</div><p className="text-muted-foreground text-sm">Aucune activité</p></div>
             ) : (
               <div className="space-y-1.5">
                 {activites.map((a, i) => (
-                  <div key={i} className="flex gap-2 text-sm p-1.5 rounded hover:bg-muted/50">
+                  <div key={i} className="flex gap-2 text-sm p-1.5 rounded hover:bg-muted/50 transition-colors">
                     <span>{a.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="truncate text-xs">{a.message}</p>
+                      <p className="truncate text-xs text-foreground">{a.message}</p>
                       <p className="text-[10px] text-muted-foreground">{formatDate(a.date)}</p>
                     </div>
                   </div>
