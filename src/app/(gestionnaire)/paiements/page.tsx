@@ -30,6 +30,7 @@ export default async function PaiementsPage() {
                 <td className="p-3"><Badge variant={p.statut === "PAYE" ? "outline" : "destructive"} className={p.statut === "PAYE" ? "text-green-600 border-green-600" : ""}>{p.statut === "PAYE" ? "Payé" : "Partiel"}</Badge></td>
                 <td className="p-3 flex gap-2">
                   <Link href={`/paiements/recu?id=${p.id}`} className="text-blue-600 text-sm hover:underline">Reçu</Link>
+                  {p.statut === "PAYE" && <Link href={`/paiements/quittance?id=${p.id}`} className="text-green-600 text-sm hover:underline">Quittance</Link>}
                   <EnvoyerRecuButton paiementId={p.id} />
                 </td>
               </tr>

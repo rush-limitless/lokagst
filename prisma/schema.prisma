@@ -41,6 +41,7 @@ model Appartement {
   description String?
   statut      StatutAppartement @default(LIBRE)
   baux        Bail[]
+  maintenances Maintenance[]
   creeLe      DateTime          @default(now())
   misAJourLe  DateTime          @updatedAt
   @@map("appartements")
@@ -80,6 +81,7 @@ model Locataire {
   baux        Bail[]
   utilisateur Utilisateur?
   emailLogs   EmailLog[]
+  maintenances Maintenance[]
   creeLe      DateTime        @default(now())
   misAJourLe  DateTime        @updatedAt
   @@map("locataires")
@@ -203,4 +205,34 @@ enum TypeEmail {
   RENOUVELLEMENT_BAIL
   EXPIRATION_BAIL
   NON_RENOUVELLEMENT
+}
+
+model Maintenance {
+  id             String            @id @default(cuid())
+  appartementId  String
+  appartement    Appartement       @relation(fields: [appartementId], references: [id])
+  locataireId    String
+  locataire      Locataire         @relation(fields: [locataireId], references: [id])
+  titre          String
+  description    String
+  photos         String[]
+  statut         StatutMaintenance @default(SIGNALE)
+  priorite       Priorite          @default(NORMALE)
+  technicien     String?
+  commentaire    String?
+  creeLe         DateTime          @default(now())
+  misAJourLe     DateTime          @updatedAt
+  @@map("maintenances")
+}
+
+enum StatutMaintenance {
+  SIGNALE
+  EN_COURS
+  RESOLU
+}
+
+enum Priorite {
+  BASSE
+  NORMALE
+  URGENTE
 }
