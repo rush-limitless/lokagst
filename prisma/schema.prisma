@@ -1,13 +1,161 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Utilisateur {
+  id                 String            @id @default(cuid())
+  email              String            @unique
+  motDePasse         String
+  role               Role              @default(LOCATAIRE)
+  statut             StatutUtilisateur @default(ACTIF)
+  tentativesEchouees Int               @default(0)
+  bloqueJusqua       DateTime?
+  locataireId        String?           @unique
+  locataire          Locataire?        @relation(fields: [locataireId], references: [id])
+  creeLe             DateTime          @default(now())
+  misAJourLe         DateTime          @updatedAt
+  @@map("utilisateurs")
+}
+
+enum Role {
+  GESTIONNAIRE
+  LOCATAIRE
+}
+
+enum StatutUtilisateur {
+  ACTIF
+  BLOQUE
+}
+
+model Appartement {
+  id          String            @id @default(cuid())
+  numero      String            @unique
+  etage       Etage
+  type        TypeAppartement
+  loyerBase   Int
+  description String?
+  statut      StatutAppartement @default(LIBRE)
+  baux        Bail[]
+  creeLe      DateTime          @default(now())
+  misAJourLe  DateTime          @updatedAt
+  @@map("appartements")
+}
+
+enum Etage {
+  RDC
+  PREMIER
+  DEUXIEME
+  TROISIEME
+  QUATRIEME
+}
+
+enum TypeAppartement {
+  STUDIO
+  T2
+  T3
+  T4
+}
+
+enum StatutAppartement {
+  LIBRE
+  OCCUPE
+}
+
+model Locataire {
+  id          String          @id @default(cuid())
+  nom         String
+  prenom      String
+  telephone   String
+  email       String?         @unique
+  numeroCNI   String?
+  photo       String?
+  statut      StatutLocataire @default(ACTIF)
+  dateEntree  DateTime
+  dateSortie  DateTime?
+  baux        Bail[]
+  utilisateur Utilisateur?
+  emailLogs   EmailLog[]
+  creeLe      DateTime        @default(now())
+  misAJourLe  DateTime        @updatedAt
+  @@map("locataires")
+}
+
+enum StatutLocataire {
+  ACTIF
+  ARCHIVE
+}
+
+model Bail {
+  id             String      @id @default(cuid())
+  locataireId    String
+  locataire      Locataire   @relation(fields: [locataireId], references: [id])
+  appartementId  String
+  appartement    Appartement @relation(fields: [appartementId], references: [id])
+  dateDebut      DateTime
+  dureeMois      Int
+  dateFin        DateTime
+  montantLoyer   Int
+  montantCaution Int
+  statut         StatutBail  @default(ACTIF)
+  paiements      Paiement[]
+  creeLe         DateTime    @default(now())
+  misAJourLe     DateTime    @updatedAt
+  @@map("baux")
+}
+
+enum StatutBail {
+  ACTIF
+  RESILIE
+  TERMINE
+  EXPIRE
+}
+
+model Paiement {
+  id             String         @id @default(cuid())
+  bailId         String
+  bail           Bail           @relation(fields: [bailId], references: [id])
+  montant        Int
+  moisConcerne   DateTime
+  datePaiement   DateTime       @default(now())
+  modePaiement   ModePaiement
+  statut         StatutPaiement @default(PAYE)
+  resteDu        Int            @default(0)
+  notes          String?
+  creeLe         DateTime       @default(now())
+  @@unique([bailId, moisConcerne])
+  @@map("paiements")
+}
+
+enum ModePaiement {
+  ESPECES
+  MOBILE_MONEY
+  VIREMENT
+}
+
+enum StatutPaiement {
+  PAYE
+  PARTIELLEMENT_PAYE
+}
+
+model EmailLog {
+  id           String      @id @default(cuid())
+  locataireId  String
+  locataire    Locataire   @relation(fields: [locataireId], references: [id])
+  type         TypeEmail
+  sujet        String
+  contenu      String
+  destinataire String
+  envoyeLe     DateTime    @default(now())
+  @@map("email_logs")
+}
+
+enum TypeEmail {
+  RAPPEL_PAIEMENT
+  RECU_PAIEMENT
+  EXPIRATION_BAIL
 }

@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LokaGest — Application de Gestion Locative
 
-## Getting Started
+Application web de gestion des locataires, baux et loyers pour **FINSTAR** (Yaoundé, Nkolfoulou).
 
-First, run the development server:
+## Stack technique
+- **Next.js 14** (App Router, Server Components, Server Actions)
+- **TypeScript** + **Tailwind CSS** + **shadcn/ui**
+- **PostgreSQL** + **Prisma 6**
+- **NextAuth.js v5** (email/mot de passe, rôles)
+- **Recharts** (graphiques dashboard)
+- **Nodemailer** (emails automatiques)
+
+## Démarrage local
 
 ```bash
+npm install
+npx prisma migrate dev
+npx tsx prisma/seed.ts
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Variables d'environnement
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+DATABASE_URL="postgresql://..."
+NEXTAUTH_SECRET="votre-secret"
+NEXTAUTH_URL="https://votre-domaine.vercel.app"
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=587
+SMTP_USER="email@gmail.com"
+SMTP_PASS="mot-de-passe-app"
+SMTP_FROM="LokaGest <email@gmail.com>"
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Identifiants par défaut
+- Gestionnaire : `admin@finstar.cm` / `admin123`
+- Locataire test : `paul.mbarga@email.cm` / `locataire123`
