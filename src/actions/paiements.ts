@@ -46,3 +46,17 @@ export async function enregistrerPaiement(formData: FormData) {
   revalidatePath("/paiements");
   return { success: true };
 }
+
+export async function validerPaiement(id: string) {
+  await prisma.paiement.update({ where: { id }, data: { valide: true } });
+  revalidatePath("/paiements");
+  return { success: true };
+}
+
+export async function rejeterPaiement(id: string) {
+  const paiement = await prisma.paiement.findUnique({ where: { id }, include: { bail: true } });
+  if (!paiement) return { error: "Paiement introuvable" };
+  await prisma.paiement.delete({ where: { id } });
+  revalidatePath("/paiements");
+  return { success: true };
+}

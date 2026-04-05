@@ -33,6 +33,7 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
     ]},
     { title: "Admin", items: [
       { href: "/audit", label: t.audit, icon: "📝" },
+      { href: "/parametres", label: "Paramètres", icon: "⚙️" },
     ]},
   ];
 

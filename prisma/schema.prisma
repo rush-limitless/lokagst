@@ -77,6 +77,9 @@ model Locataire {
   email       String?         @unique
   numeroCNI   String?
   photo       String?
+  garant      String?
+  telGarant   String?
+  notes       String?
   statut      StatutLocataire @default(ACTIF)
   dateEntree  DateTime
   dateSortie  DateTime?
@@ -172,6 +175,7 @@ model Paiement {
   statut         StatutPaiement @default(PAYE)
   resteDu        Int            @default(0)
   preuvePaiement String?
+  valide         Boolean        @default(true)
   notes          String?
   creeLe         DateTime       @default(now())
   @@unique([bailId, moisConcerne])

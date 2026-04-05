@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ModifierLocataireForm } from "./modifier-form";
 import { ArchiverButton } from "./archiver-button";
+import { CreerCompteButton } from "./creer-compte";
 
 export default async function LocataireDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -24,6 +25,7 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
           <Badge variant="outline" className={loc.statut === "ACTIF" ? "text-green-600" : "text-gray-500"}>{loc.statut}</Badge>
         </div>
         {loc.statut === "ACTIF" && <ArchiverButton locataireId={loc.id} />}
+        {loc.statut === "ACTIF" && !loc.utilisateur && <CreerCompteButton locataireId={loc.id} email={loc.email} />}
       </div>
 
       {situation && (

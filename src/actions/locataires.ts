@@ -65,6 +65,22 @@ export async function modifierLocataire(id: string, formData: FormData) {
   return { success: true };
 }
 
+export async function creerCompteLocataire(locataireId: string, email: string) {
+  const { hash } = await import("bcryptjs");
+  const existing = await prisma.utilisateur.findUnique({ where: { email } });
+  if (existing) return { error: "Un compte avec cet email existe déjà" };
+
+  const locataire = await prisma.locataire.findUnique({ where: { id: locataireId } });
+  if (!locataire) return { error: "Locataire introuvable" };
+
+  const mdp = await hash("locataire123", 12);
+  await prisma.utilisateur.create({ data: { email, motDePasse: mdp, role: "LOCATAIRE", locataireId } });
+  if (!locataire.email) await prisma.locataire.update({ where: { id: locataireId }, data: { email } });
+
+  revalidatePath(`/locataires/${locataireId}`);
+  return { success: true, mdpDefaut: "locataire123" };
+}
+
 export async function archiverLocataire(id: string) {
   const bailActif = await prisma.bail.findFirst({ where: { locataireId: id, statut: "ACTIF" } });
   if (bailActif) {

@@ -32,7 +32,7 @@ export async function soumettrePreuvePaiement(formData: FormData) {
   if (existing) {
     await prisma.paiement.update({ where: { id: existing.id }, data: { montant: montantTotal, resteDu, statut, preuvePaiement, modePaiement: modePaiement as any, notes } });
   } else {
-    await prisma.paiement.create({ data: { bailId: bail.id, montant, moisConcerne, modePaiement: modePaiement as any, resteDu, statut, preuvePaiement, notes } });
+    await prisma.paiement.create({ data: { bailId: bail.id, montant, moisConcerne, modePaiement: modePaiement as any, resteDu, statut, preuvePaiement, notes, valide: false } });
   }
 
   revalidatePath("/mon-espace/paiements");

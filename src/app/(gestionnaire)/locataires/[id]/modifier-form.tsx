@@ -53,6 +53,11 @@ export function ModifierLocataireForm({ locataire }: { locataire: any }) {
           <div className="space-y-2"><Label>Téléphone</Label><Input name="telephone" defaultValue={locataire.telephone} /></div>
           <div className="space-y-2"><Label>Email</Label><Input name="email" defaultValue={locataire.email || ""} /></div>
           <div className="space-y-2"><Label>N° CNI</Label><Input name="numeroCNI" defaultValue={locataire.numeroCNI || ""} /></div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2"><Label>Garant</Label><Input name="garant" defaultValue={locataire.garant || ""} placeholder="Nom du garant" /></div>
+            <div className="space-y-2"><Label>Tél. garant</Label><Input name="telGarant" defaultValue={locataire.telGarant || ""} placeholder="6XXXXXXXX" /></div>
+          </div>
+          <div className="space-y-2"><Label>Notes</Label><textarea name="notes" defaultValue={locataire.notes || ""} className="w-full border rounded-md p-2 h-16 text-sm bg-card text-foreground" placeholder="Remarques sur le locataire..." /></div>
           <Button type="submit">Enregistrer les modifications</Button>
         </form>
       </CardContent>
