@@ -32,6 +32,7 @@ export default async function LocataireLayout({ children }: { children: React.Re
           <Link href="/mon-espace/paiements" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full whitespace-nowrap hover:bg-secondary/80 font-medium">💰 Paiements</Link>
           <Link href="/mon-espace/maintenance" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full whitespace-nowrap hover:bg-secondary/80 font-medium">🔧 Maintenance</Link>
           <Link href="/mon-espace/messagerie" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full whitespace-nowrap hover:bg-secondary/80 font-medium">💬 Messages</Link>
+          <Link href="/mon-espace/parametres" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full whitespace-nowrap hover:bg-secondary/80 font-medium">⚙️ Paramètres</Link>
         </nav>
       </header>
       <main className="p-4 max-w-3xl mx-auto">{children}</main>

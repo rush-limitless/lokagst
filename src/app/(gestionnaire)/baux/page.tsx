@@ -24,7 +24,7 @@ export default async function BauxPage({ searchParams }: { searchParams: Promise
       <div className="bg-card rounded-xl border overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs text-muted-foreground uppercase">
-            <tr><th className="p-3 text-left">Locataire</th><th className="p-3">Appart.</th><th className="p-3">Début</th><th className="p-3">Fin</th><th className="p-3 text-right">Total/mois</th><th className="p-3">Statut</th><th className="p-3">Actions</th></tr>
+            <tr><th className="p-3 text-left">Locataire</th><th className="p-3">Appart.</th><th className="p-3">Début</th><th className="p-3">Fin</th><th className="p-3 text-right">Total/mois</th><th className="p-3">Jours rest.</th><th className="p-3">Statut</th><th className="p-3">Actions</th></tr>
           </thead>
           <tbody className="divide-y">
             {baux.map((b) => (
@@ -39,8 +39,13 @@ export default async function BauxPage({ searchParams }: { searchParams: Promise
                 <td className="p-3 text-center text-muted-foreground">{formatDate(b.dateDebut)}</td>
                 <td className="p-3 text-center text-muted-foreground">{formatDate(b.dateFin)}</td>
                 <td className="p-3 text-right font-medium text-foreground">{formatFCFA(b.totalMensuel)}</td>
+                <td className="p-3 text-center"><span className={`text-xs font-medium ${Math.ceil((new Date(b.dateFin).getTime() - Date.now()) / 86400000) < 30 ? "text-red-600" : Math.ceil((new Date(b.dateFin).getTime() - Date.now()) / 86400000) < 90 ? "text-orange-600" : "text-muted-foreground"}`}>{Math.ceil((new Date(b.dateFin).getTime() - Date.now()) / 86400000)}j</span></td>
                 <td className="p-3"><StatusBadge status={b.statut.toLowerCase()} label={STATUT_BAIL_LABELS[b.statut]} /></td>
-                <td className="p-3"><Link href={`/baux/${b.id}`} className="text-primary text-sm hover:underline font-medium">Voir →</Link></td>
+                <td className="p-3">
+                  <div className="flex gap-1">
+                    <Link href={`/baux/${b.id}`} className="text-primary text-xs hover:underline font-medium">Voir</Link>
+                  </div>
+                </td>
               </tr>
             ))}
             {baux.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">Aucun bail</td></tr>}

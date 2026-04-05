@@ -1,44 +1,73 @@
 import { getPaiements } from "@/actions/paiements";
 import { formatFCFA, formatDate, MODE_PAIEMENT_LABELS } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/status-badge";
+import { SearchBar } from "@/components/search-bar";
 import Link from "next/link";
 import { EnvoyerRecuButton } from "./envoyer-recu-button";
 
-export default async function PaiementsPage() {
+export default async function PaiementsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const { q } = await searchParams;
   const paiements = await getPaiements();
 
+  // Filtrer côté serveur par nom locataire si recherche
+  const filtered = q
+    ? paiements.filter((p) => `${p.bail.locataire.prenom} ${p.bail.locataire.nom}`.toLowerCase().includes(q.toLowerCase()))
+    : paiements;
+
+  const totalMois = filtered.filter((p) => {
+    const now = new Date();
+    return new Date(p.moisConcerne).getMonth() === now.getMonth() && new Date(p.moisConcerne).getFullYear() === now.getFullYear();
+  }).reduce((s, p) => s + p.montant, 0);
+
+  const enAttente = filtered.filter((p) => !p.valide).length;
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-blue-950">Paiements</h1>
+    <div className="space-y-6 animate-in">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <h1 className="text-xl md:text-2xl font-bold text-foreground">Paiements</h1>
         <Link href="/paiements/nouveau"><Button>+ Enregistrer</Button></Link>
       </div>
-      <div className="bg-white rounded-lg border overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 text-left text-sm text-gray-500">
-            <tr><th className="p-3">Locataire</th><th className="p-3">Appart.</th><th className="p-3">Mois</th><th className="p-3">Montant</th><th className="p-3">Mode</th><th className="p-3">Statut</th><th className="p-3">Preuve</th><th className="p-3">Actions</th></tr>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="glass rounded-xl p-4 text-center"><div className="text-lg font-bold text-emerald-600">{formatFCFA(totalMois)}</div><p className="text-xs text-muted-foreground">Encaissé ce mois</p></div>
+        <div className="glass rounded-xl p-4 text-center"><div className="text-lg font-bold text-foreground">{filtered.length}</div><p className="text-xs text-muted-foreground">Total paiements</p></div>
+        {enAttente > 0 && <div className="glass rounded-xl p-4 text-center"><div className="text-lg font-bold text-orange-600">{enAttente}</div><p className="text-xs text-muted-foreground">En attente de validation</p></div>}
+      </div>
+
+      <SearchBar placeholder="Filtrer par locataire..." />
+
+      <div className="bg-card rounded-xl border overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 text-xs text-muted-foreground uppercase">
+            <tr><th className="p-3 text-left">Locataire</th><th className="p-3">Appart.</th><th className="p-3">Mois</th><th className="p-3 text-right">Montant</th><th className="p-3">Mode</th><th className="p-3">Statut</th><th className="p-3">Preuve</th><th className="p-3">Actions</th></tr>
           </thead>
           <tbody className="divide-y">
-            {paiements.map((p) => (
-              <tr key={p.id} className="hover:bg-gray-50">
-                <td className="p-3 font-medium">{p.bail.locataire.prenom} {p.bail.locataire.nom}</td>
-                <td className="p-3">{p.bail.appartement.numero}</td>
-                <td className="p-3 text-sm">{formatDate(p.moisConcerne)}</td>
-                <td className="p-3">{formatFCFA(p.montant)}</td>
-                <td className="p-3 text-sm">{MODE_PAIEMENT_LABELS[p.modePaiement]}</td>
-                <td className="p-3"><Badge variant={p.statut === "PAYE" ? "outline" : "destructive"} className={p.statut === "PAYE" ? "text-green-600 border-green-600" : ""}>{p.statut === "PAYE" ? "Payé" : "Partiel"}</Badge></td>
-                <td className="p-3">{p.preuvePaiement ? <a href={p.preuvePaiement} target="_blank" className="text-blue-600 text-sm">📎 Voir</a> : <span className="text-gray-400 text-sm">—</span>}</td>
-                <td className="p-3 flex gap-2">
-                  <Link href={`/paiements/recu?id=${p.id}`} className="text-blue-600 text-sm hover:underline">Reçu</Link>
-                  {p.statut === "PAYE" && <Link href={`/paiements/quittance?id=${p.id}`} className="text-green-600 text-sm hover:underline">Quittance</Link>}
-                  <EnvoyerRecuButton paiementId={p.id} />
+            {filtered.slice(0, 50).map((p) => (
+              <tr key={p.id} className={`hover:bg-muted/30 transition-colors ${!p.valide ? "bg-orange-50/50 dark:bg-orange-950/10" : ""}`}>
+                <td className="p-3 font-medium text-foreground">{p.bail.locataire.prenom} {p.bail.locataire.nom}</td>
+                <td className="p-3 text-center text-muted-foreground">{p.bail.appartement.numero}</td>
+                <td className="p-3 text-center text-muted-foreground">{formatDate(p.moisConcerne)}</td>
+                <td className="p-3 text-right font-medium text-foreground">{formatFCFA(p.montant)}</td>
+                <td className="p-3 text-center text-xs text-muted-foreground">{MODE_PAIEMENT_LABELS[p.modePaiement] || p.modePaiement}</td>
+                <td className="p-3">
+                  {!p.valide ? <StatusBadge status="en_cours" label="En attente" /> : <StatusBadge status={p.statut === "PAYE" ? "paye" : "partiel"} label={p.statut === "PAYE" ? "Payé" : "Partiel"} />}
+                </td>
+                <td className="p-3">{p.preuvePaiement ? <a href={p.preuvePaiement} target="_blank" className="text-primary text-xs">📎 Voir</a> : <span className="text-muted-foreground text-xs">—</span>}</td>
+                <td className="p-3">
+                  <div className="flex gap-1">
+                    <Link href={`/paiements/recu?id=${p.id}`} className="text-primary text-xs hover:underline">Reçu</Link>
+                    {p.statut === "PAYE" && <Link href={`/paiements/quittance?id=${p.id}`} className="text-emerald-600 text-xs hover:underline">Quittance</Link>}
+                    <EnvoyerRecuButton paiementId={p.id} />
+                  </div>
                 </td>
               </tr>
             ))}
+            {filtered.length === 0 && <tr><td colSpan={8} className="p-6 text-center text-muted-foreground">Aucun paiement</td></tr>}
           </tbody>
         </table>
       </div>
+      {filtered.length > 50 && <p className="text-xs text-muted-foreground text-center">Affichage limité aux 50 derniers paiements</p>}
     </div>
   );
 }
