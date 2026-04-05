@@ -1,8 +1,10 @@
 import { getLocataires } from "@/actions/locataires";
 import { ETAGE_LABELS } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/search-bar";
+import { UserAvatar } from "@/components/user-avatar";
+import { StatusBadge } from "@/components/status-badge";
+import { EmptyState } from "@/components/empty-state";
 import Link from "next/link";
 
 export default async function LocatairesPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
@@ -10,36 +12,60 @@ export default async function LocatairesPage({ searchParams }: { searchParams: P
   const locataires = await getLocataires({ statut: "ACTIF", recherche: q });
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-blue-950">Locataires</h1>
+    <div className="space-y-6 animate-in">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <h1 className="text-xl md:text-2xl font-bold text-foreground">Locataires</h1>
         <Link href="/locataires/nouveau"><Button>+ Ajouter</Button></Link>
       </div>
       <SearchBar placeholder="Rechercher un locataire..." />
-      <div className="bg-white rounded-lg border overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 text-left text-sm text-gray-500">
-            <tr><th className="p-3">Locataire</th><th className="p-3">Téléphone</th><th className="p-3">Appartement</th><th className="p-3">Statut</th><th className="p-3">Actions</th></tr>
-          </thead>
-          <tbody className="divide-y">
+      {locataires.length === 0 ? (
+        <EmptyState icon="👤" title={q ? "Aucun résultat" : "Aucun locataire"} description={q ? "Essayez avec un autre terme de recherche" : "Ajoutez votre premier locataire pour commencer"} />
+      ) : (
+        <>
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3 stagger-in">
             {locataires.map((l) => (
-              <tr key={l.id} className="hover:bg-gray-50">
-                <td className="p-3">
-                  <div className="flex items-center gap-3">
-                    {l.photo ? <img src={l.photo} alt="" className="w-9 h-9 rounded-full object-cover" /> : <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-bold">{l.prenom[0]}{l.nom[0]}</div>}
-                    <span className="font-medium">{l.prenom} {l.nom}</span>
+              <Link key={l.id} href={`/locataires/${l.id}`} className="block bg-card border rounded-xl p-4 hover:shadow-md transition-all hover:-translate-y-0.5">
+                <div className="flex items-center gap-3">
+                  <UserAvatar nom={l.nom} prenom={l.prenom} photo={l.photo} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-foreground">{l.prenom} {l.nom}</p>
+                    <p className="text-xs text-muted-foreground">{l.telephone}</p>
                   </div>
-                </td>
-                <td className="p-3">{l.telephone}</td>
-                <td className="p-3">{l.baux[0]?.appartement ? `${l.baux[0].appartement.numero} (${ETAGE_LABELS[l.baux[0].appartement.etage]})` : "—"}</td>
-                <td className="p-3"><Badge variant="outline" className="text-green-600 border-green-600">Actif</Badge></td>
-                <td className="p-3"><Link href={`/locataires/${l.id}`} className="text-blue-600 text-sm hover:underline">Voir</Link></td>
-              </tr>
+                  <div className="text-right">
+                    {l.baux[0]?.appartement && <p className="text-xs font-medium text-foreground">{l.baux[0].appartement.numero}</p>}
+                    <StatusBadge status="actif" label="Actif" />
+                  </div>
+                </div>
+              </Link>
             ))}
-            {locataires.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-gray-500">{q ? "Aucun résultat" : "Aucun locataire"}</td></tr>}
-          </tbody>
-        </table>
-      </div>
+          </div>
+          {/* Desktop table */}
+          <div className="bg-card rounded-xl border overflow-x-auto hidden md:block">
+            <table className="w-full">
+              <thead className="bg-muted/50 text-left text-xs text-muted-foreground uppercase tracking-wider">
+                <tr><th className="p-3">Locataire</th><th className="p-3">Téléphone</th><th className="p-3">Appartement</th><th className="p-3">Statut</th><th className="p-3">Actions</th></tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {locataires.map((l) => (
+                  <tr key={l.id} className="hover:bg-muted/30 transition-colors">
+                    <td className="p-3">
+                      <div className="flex items-center gap-3">
+                        <UserAvatar nom={l.nom} prenom={l.prenom} photo={l.photo} size="sm" />
+                        <span className="font-medium text-foreground">{l.prenom} {l.nom}</span>
+                      </div>
+                    </td>
+                    <td className="p-3 text-sm text-muted-foreground">{l.telephone}</td>
+                    <td className="p-3 text-sm text-foreground">{l.baux[0]?.appartement ? `${l.baux[0].appartement.numero} (${ETAGE_LABELS[l.baux[0].appartement.etage]})` : "—"}</td>
+                    <td className="p-3"><StatusBadge status="actif" label="Actif" /></td>
+                    <td className="p-3"><Link href={`/locataires/${l.id}`} className="text-primary text-sm hover:underline font-medium">Voir →</Link></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </div>
   );
 }

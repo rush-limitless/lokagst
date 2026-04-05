@@ -1,8 +1,9 @@
 import { getAppartements } from "@/actions/appartements";
 import { formatFCFA, ETAGE_LABELS } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/search-bar";
+import { StatusBadge } from "@/components/status-badge";
+import { EmptyState } from "@/components/empty-state";
 import Link from "next/link";
 
 export default async function AppartementsPage({ searchParams }: { searchParams: Promise<{ q?: string; statut?: string }> }) {
@@ -10,39 +11,46 @@ export default async function AppartementsPage({ searchParams }: { searchParams:
   const appartements = await getAppartements({ recherche: q, statut });
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-blue-950">Appartements</h1>
+    <div className="space-y-6 animate-in">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <h1 className="text-xl md:text-2xl font-bold text-foreground">Appartements</h1>
         <Link href="/appartements/nouveau"><Button>+ Ajouter</Button></Link>
       </div>
-      <div className="flex gap-3 items-center">
+      <div className="flex flex-wrap gap-3 items-center">
         <SearchBar placeholder="Rechercher par numéro..." />
-        <Link href="/appartements" className={`text-sm px-3 py-1 rounded-full border ${!statut ? "bg-blue-100 text-blue-700" : "text-gray-500"}`}>Tous</Link>
-        <Link href="/appartements?statut=LIBRE" className={`text-sm px-3 py-1 rounded-full border ${statut === "LIBRE" ? "bg-green-100 text-green-700" : "text-gray-500"}`}>Libres</Link>
-        <Link href="/appartements?statut=OCCUPE" className={`text-sm px-3 py-1 rounded-full border ${statut === "OCCUPE" ? "bg-red-100 text-red-700" : "text-gray-500"}`}>Occupés</Link>
+        <div className="flex gap-1">
+          <Link href="/appartements" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!statut ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Tous</Link>
+          <Link href="/appartements?statut=LIBRE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "LIBRE" ? "bg-emerald-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Libres</Link>
+          <Link href="/appartements?statut=OCCUPE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "OCCUPE" ? "bg-sky-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Occupés</Link>
+        </div>
       </div>
-      <p className="text-gray-500 text-sm">{appartements.length} appartement(s)</p>
-      <div className="bg-white rounded-lg border overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 text-left text-sm text-gray-500">
-            <tr><th className="p-3">Numéro</th><th className="p-3">Étage</th><th className="p-3">Type</th><th className="p-3">Loyer</th><th className="p-3">Statut</th><th className="p-3">Locataire</th><th className="p-3">Actions</th></tr>
-          </thead>
-          <tbody className="divide-y">
-            {appartements.map((a) => (
-              <tr key={a.id} className="hover:bg-gray-50">
-                <td className="p-3 font-medium">{a.numero}</td>
-                <td className="p-3">{ETAGE_LABELS[a.etage]}</td>
-                <td className="p-3">{a.type}</td>
-                <td className="p-3">{formatFCFA(a.loyerBase)}</td>
-                <td className="p-3"><Badge variant={a.statut === "LIBRE" ? "outline" : "destructive"} className={a.statut === "LIBRE" ? "text-green-600 border-green-600" : ""}>{a.statut === "LIBRE" ? "Libre" : "Occupé"}</Badge></td>
-                <td className="p-3 text-sm text-gray-500">{a.locataireActuel ? `${a.locataireActuel.prenom} ${a.locataireActuel.nom}` : "—"}</td>
-                <td className="p-3"><Link href={`/appartements/${a.id}`} className="text-blue-600 text-sm hover:underline">Voir</Link></td>
-              </tr>
-            ))}
-            {appartements.length === 0 && <tr><td colSpan={7} className="p-6 text-center text-gray-500">Aucun résultat</td></tr>}
-          </tbody>
-        </table>
-      </div>
+      <p className="text-sm text-muted-foreground">{appartements.length} appartement(s)</p>
+
+      {appartements.length === 0 ? (
+        <EmptyState icon="🏠" title="Aucun appartement" description="Ajoutez votre premier appartement pour commencer" />
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 stagger-in">
+          {appartements.map((a) => (
+            <Link key={a.id} href={`/appartements/${a.id}`} className="group">
+              <div className={`bg-card border rounded-xl p-4 hover:shadow-lg transition-all hover:-translate-y-1 relative overflow-hidden ${a.statut === "LIBRE" ? "border-emerald-200 dark:border-emerald-900" : "border-sky-200 dark:border-sky-900"}`}>
+                <div className={`absolute top-0 right-0 w-16 h-16 rounded-bl-[40px] ${a.statut === "LIBRE" ? "bg-emerald-50 dark:bg-emerald-950/30" : "bg-sky-50 dark:bg-sky-950/30"}`} />
+                <div className="relative">
+                  <div className="text-2xl font-bold text-foreground">{a.numero}</div>
+                  <p className="text-xs text-muted-foreground mt-1">{ETAGE_LABELS[a.etage]}</p>
+                  <p className="text-xs text-muted-foreground">{a.type}</p>
+                  <p className="text-sm font-semibold text-foreground mt-3">{formatFCFA(a.loyerBase)}</p>
+                  <div className="mt-2">
+                    <StatusBadge status={a.statut === "LIBRE" ? "libre" : "occupe"} label={a.statut === "LIBRE" ? "Libre" : "Occupé"} />
+                  </div>
+                  {a.locataireActuel && (
+                    <p className="text-[10px] text-muted-foreground mt-2 truncate">{a.locataireActuel.prenom} {a.locataireActuel.nom}</p>
+                  )}
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

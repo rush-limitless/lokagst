@@ -34,7 +34,7 @@ export default async function DashboardPage() {
   const greeting = now.getHours() < 12 ? "Bonjour" : now.getHours() < 18 ? "Bon après-midi" : "Bonsoir";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in">
       {/* Welcome banner */}
       <div className="bg-gradient-to-r from-[#0d3b5e] to-[#1B6B9E] rounded-2xl p-6 text-white">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 stagger-in md:gap-4">
         <StatCard icon="🏠" iconBg="bg-blue-100" label="Occupation" value={`${stats.appartements.tauxOccupation}%`} sub={`${stats.appartements.occupes}/${stats.appartements.total} appartements`} />
         <StatCard icon="💰" iconBg="bg-emerald-100" label="Revenus du mois" value={formatFCFA(stats.finances.revenusMois)} sub={`sur ${formatFCFA(stats.finances.revenusAttendus)}`} valueColor="text-emerald-600" />
         <StatCard icon="⚠️" iconBg="bg-red-100" label="Impayés" value={formatFCFA(stats.finances.impayesMois)} sub={`${stats.alertes.impayesLocataires.length} locataire(s)`} valueColor="text-red-600" />

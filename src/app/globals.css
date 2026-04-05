@@ -53,6 +53,29 @@
   body { @apply bg-background text-foreground; }
 }
 
+/* Animations */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in { animation: fade-in-up 0.4s ease-out; }
+
+/* Stagger children animation */
+.stagger-in > * {
+  opacity: 0;
+  animation: fade-in-up 0.4s ease-out forwards;
+}
+.stagger-in > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-in > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-in > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-in > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-in > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-in > *:nth-child(6) { animation-delay: 250ms; }
+
+/* Sticky table headers */
+thead { position: sticky; top: 0; z-index: 10; }
+
 /* Mobile responsive tables */
 table { min-width: 100%; }
 @media (max-width: 768px) {
