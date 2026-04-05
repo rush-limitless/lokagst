@@ -7,9 +7,9 @@ import { StatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import Link from "next/link";
 
-export default async function LocatairesPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const { q } = await searchParams;
-  const locataires = await getLocataires({ statut: "ACTIF", recherche: q });
+export default async function LocatairesPage({ searchParams }: { searchParams: Promise<{ q?: string; statut?: string }> }) {
+  const { q, statut } = await searchParams;
+  const locataires = await getLocataires({ statut: statut || "ACTIF", recherche: q });
 
   return (
     <div className="space-y-6 animate-in">
@@ -17,7 +17,11 @@ export default async function LocatairesPage({ searchParams }: { searchParams: P
         <h1 className="text-xl md:text-2xl font-bold text-foreground">Locataires</h1>
         <Link href="/locataires/nouveau"><Button>+ Ajouter</Button></Link>
       </div>
-      <SearchBar placeholder="Rechercher un locataire..." />
+      <div className="flex gap-3 items-center flex-wrap">
+        <SearchBar placeholder="Rechercher un locataire..." />
+        <Link href="/locataires" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!statut || statut === "ACTIF" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Actifs</Link>
+        <Link href="/locataires?statut=ARCHIVE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "ARCHIVE" ? "bg-orange-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Anciens</Link>
+      </div>
       {locataires.length === 0 ? (
         <EmptyState icon="👤" title={q ? "Aucun résultat" : "Aucun locataire"} description={q ? "Essayez avec un autre terme de recherche" : "Ajoutez votre premier locataire pour commencer"} />
       ) : (
@@ -34,7 +38,7 @@ export default async function LocatairesPage({ searchParams }: { searchParams: P
                   </div>
                   <div className="text-right">
                     {l.baux[0]?.appartement && <p className="text-xs font-medium text-foreground">{l.baux[0].appartement.numero}</p>}
-                    <StatusBadge status="actif" label="Actif" />
+                    <StatusBadge status={l.statut === "ACTIF" ? "actif" : "archive"} label={l.statut === "ACTIF" ? "Actif" : "Archivé"} />
                   </div>
                 </div>
               </Link>
@@ -57,7 +61,7 @@ export default async function LocatairesPage({ searchParams }: { searchParams: P
                     </td>
                     <td className="p-3 text-sm text-muted-foreground">{l.telephone}</td>
                     <td className="p-3 text-sm text-foreground">{l.baux[0]?.appartement ? `${l.baux[0].appartement.numero} (${ETAGE_LABELS[l.baux[0].appartement.etage]})` : "—"}</td>
-                    <td className="p-3"><StatusBadge status="actif" label="Actif" /></td>
+                    <td className="p-3"><StatusBadge status={l.statut === "ACTIF" ? "actif" : "archive"} label={l.statut === "ACTIF" ? "Actif" : "Archivé"} /></td>
                     <td className="p-3"><Link href={`/locataires/${l.id}`} className="text-primary text-sm hover:underline font-medium">Voir →</Link></td>
                   </tr>
                 ))}
