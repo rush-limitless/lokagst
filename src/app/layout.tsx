@@ -10,7 +10,11 @@ export const metadata: Metadata = {
   title: "ImmoGest — Gestion Locative",
   description: "Application de gestion des locataires et loyers pour IMMOSTAR SCI",
   manifest: "/manifest.json",
-  themeColor: "#003366",
+  themeColor: "#1B6B9E",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/icon-192.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
