@@ -5,81 +5,128 @@ import { hash } from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const passwordHash = await hash("admin123", 12);
+  // Nettoyer
+  await prisma.paiement.deleteMany();
+  await prisma.penalite.deleteMany();
+  await prisma.emailLog.deleteMany();
+  await prisma.message.deleteMany();
+  await prisma.etatDesLieux.deleteMany();
+  await prisma.maintenance.deleteMany();
+  await prisma.bail.deleteMany();
+  await prisma.utilisateur.deleteMany();
+  await prisma.locataire.deleteMany();
+  await prisma.appartement.deleteMany();
+  await prisma.immeuble.deleteMany();
+  console.log("Base nettoyée");
 
-  await prisma.utilisateur.upsert({
-    where: { email: "admin@immostar.cm" },
-    update: {},
-    create: { email: "admin@immostar.cm", motDePasse: passwordHash, role: "GESTIONNAIRE" },
-  });
+  // Immeuble
+  const immeuble = await prisma.immeuble.create({ data: { nom: "Résidence La'ag Tchang", adresse: "Nkolfoulou", ville: "Yaoundé", quartier: "Nkolfoulou" } });
 
+  // Admin
+  const adminPwd = await hash("admin123", 12);
+  await prisma.utilisateur.create({ data: { email: "admin@immostar.cm", motDePasse: adminPwd, role: "GESTIONNAIRE" } });
+
+  // Appartements
   const apparts = [
-    { numero: "A1", etage: "RDC" as const, type: "STUDIO" as const, loyerBase: 35000 },
-    { numero: "A2", etage: "RDC" as const, type: "T2" as const, loyerBase: 50000 },
-    { numero: "B1", etage: "PREMIER" as const, type: "T2" as const, loyerBase: 55000 },
-    { numero: "B2", etage: "PREMIER" as const, type: "T3" as const, loyerBase: 70000 },
-    { numero: "C1", etage: "DEUXIEME" as const, type: "STUDIO" as const, loyerBase: 40000 },
-    { numero: "C2", etage: "DEUXIEME" as const, type: "T2" as const, loyerBase: 55000 },
-    { numero: "D1", etage: "TROISIEME" as const, type: "T3" as const, loyerBase: 75000 },
-    { numero: "D2", etage: "TROISIEME" as const, type: "T4" as const, loyerBase: 90000 },
-    { numero: "E1", etage: "QUATRIEME" as const, type: "T2" as const, loyerBase: 60000 },
-    { numero: "E2", etage: "QUATRIEME" as const, type: "T4" as const, loyerBase: 95000 },
+    { numero: "APPART A11", etage: "PREMIER" as const, type: "T3" as const, loyerBase: 150000 },
+    { numero: "APPART A12", etage: "PREMIER" as const, type: "T3" as const, loyerBase: 150000 },
+    { numero: "APPART B13", etage: "PREMIER" as const, type: "T3" as const, loyerBase: 150000 },
+    { numero: "APPART B14", etage: "PREMIER" as const, type: "T3" as const, loyerBase: 150000 },
+    { numero: "APPART A21", etage: "DEUXIEME" as const, type: "T3" as const, loyerBase: 150000 },
+    { numero: "APPART A22", etage: "DEUXIEME" as const, type: "T3" as const, loyerBase: 150000 },
+    { numero: "APPART B23", etage: "DEUXIEME" as const, type: "T3" as const, loyerBase: 150000 },
+    { numero: "APPART B24", etage: "DEUXIEME" as const, type: "T3" as const, loyerBase: 150000 },
+    { numero: "STUDIO A31", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 90000 },
+    { numero: "STUDIO A32", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 90000 },
+    { numero: "CHAMBRE A33", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 40000 },
+    { numero: "CHAMBRE A34", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 45000 },
+    { numero: "CHAMBRE B35", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 40000 },
+    { numero: "CHAMBRE B36", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 40000 },
+    { numero: "STUDIO B37", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 90000 },
+    { numero: "STUDIO B38", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 90000 },
+    { numero: "STUDIO A41", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 80000 },
+    { numero: "STUDIO A42", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 80000 },
+    { numero: "CHAMBRE B44", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 45000 },
+    { numero: "CHAMBRE B45", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 40000 },
+    { numero: "CHAMBRE B46", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 45000 },
+    { numero: "CHAMBRE B43", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 45000 },
+    { numero: "STUDIO B48", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 80000 },
+    { numero: "STUDIO B47", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 80000 },
+    { numero: "STUDIO B01", etage: "RDC" as const, type: "STUDIO" as const, loyerBase: 100000 },
+    { numero: "RDC GAB", etage: "RDC" as const, type: "T2" as const, loyerBase: 50000 },
+    { numero: "RDC IT", etage: "RDC" as const, type: "T4" as const, loyerBase: 300000 },
+    { numero: "RDC SB", etage: "RDC" as const, type: "T3" as const, loyerBase: 150000 },
+    { numero: "ETAGE SB", etage: "PREMIER" as const, type: "T3" as const, loyerBase: 170000 },
   ];
 
   for (const a of apparts) {
-    await prisma.appartement.upsert({ where: { numero: a.numero }, update: {}, create: a });
+    await prisma.appartement.create({ data: { ...a, immeubleId: immeuble.id } });
   }
+  console.log(`${apparts.length} appartements créés`);
 
-  const locatairesData = [
-    { nom: "Mbarga", prenom: "Paul", telephone: "677123456", email: "paul.mbarga@email.cm", appart: "A2", loyer: 50000 },
-    { nom: "Ngo Bassa", prenom: "Marie", telephone: "699876543", email: "marie.ngobassa@email.cm", appart: "B1", loyer: 55000 },
-    { nom: "Fotso", prenom: "Jean", telephone: "655112233", email: "jean.fotso@email.cm", appart: "C2", loyer: 55000 },
-    { nom: "Eyinga", prenom: "Rose", telephone: "690445566", email: "rose.eyinga@email.cm", appart: "D1", loyer: 75000 },
-    { nom: "Tchinda", prenom: "Samuel", telephone: "678998877", email: "samuel.tchinda@email.cm", appart: "E1", loyer: 60000 },
+  // Locataires + Baux
+  const locataires = [
+    { nom: "TJOMB", prenom: "Suzanne Véronèse Gradiella", tel: "600000001", appart: "APPART A11", loyer: 150000, charges: 7500, caution: 300000, debut: "2025-02-01", duree: 12 },
+    { nom: "ESSOUKA ENGBOM", prenom: "Line", tel: "600000002", appart: "APPART A12", loyer: 150000, charges: 7500, caution: 300000, debut: "2024-06-01", duree: 12 },
+    { nom: "ATG 1", prenom: "", tel: "600000003", appart: "APPART B13", loyer: 150000, charges: 7500, caution: 300000, debut: "2023-07-01", duree: 24 },
+    { nom: "ATG 2", prenom: "", tel: "600000004", appart: "APPART B14", loyer: 150000, charges: 7500, caution: 300000, debut: "2023-07-01", duree: 24 },
+    { nom: "TMCO", prenom: "", tel: "600000005", appart: "APPART A21", loyer: 150000, charges: 7500, caution: 450000, debut: "2023-05-01", duree: 36 },
+    { nom: "NGA NDZANA", prenom: "Marie Thérèse Letissa", tel: "600000006", appart: "APPART A22", loyer: 150000, charges: 7500, caution: 300000, debut: "2024-11-01", duree: 12 },
+    { nom: "ESSOUKA ENGBOM", prenom: "Line (B23)", tel: "600000027", appart: "APPART B23", loyer: 150000, charges: 7500, caution: 300000, debut: "2025-04-01", duree: 12 },
+    { nom: "TCHETGNIA", prenom: "Alex-Ariel", tel: "600000008", appart: "APPART B24", loyer: 150000, charges: 7500, caution: 450000, debut: "2024-03-01", duree: 12 },
+    { nom: "MFOME", prenom: "Soulemanou", tel: "600000028", appart: "STUDIO A31", loyer: 90000, charges: 4500, caution: 180000, debut: "2025-05-01", duree: 12 },
+    { nom: "SAKME EUBRINE", prenom: "Ekuka", tel: "600000029", appart: "STUDIO A32", loyer: 90000, charges: 4500, caution: 180000, debut: "2025-07-01", duree: 12 },
+    { nom: "DJIETCHEU", prenom: "Yvan Cabrel", tel: "600000011", appart: "CHAMBRE A33", loyer: 40000, charges: 2000, caution: 80000, debut: "2023-12-01", duree: 24 },
+    { nom: "ATCHANG", prenom: "Thérèse Nathalie", tel: "600000030", appart: "CHAMBRE A34", loyer: 45000, charges: 2500, caution: 90000, debut: "2025-04-01", duree: 12 },
+    { nom: "DJIMPONG KOM", prenom: "Antoine", tel: "600000013", appart: "CHAMBRE B35", loyer: 40000, charges: 2000, caution: 80000, debut: "2024-01-01", duree: 24 },
+    { nom: "ADA BILE", prenom: "Christine", tel: "600000014", appart: "CHAMBRE B36", loyer: 40000, charges: 2000, caution: 80000, debut: "2024-01-01", duree: 24 },
+    { nom: "BITIMBHE", prenom: "Fred Aurélien", tel: "600000015", appart: "STUDIO B37", loyer: 90000, charges: 4500, caution: 180000, debut: "2023-08-01", duree: 24 },
+    { nom: "MBAKOP WATMOU", prenom: "Kevin Victoire", tel: "600000016", appart: "STUDIO B38", loyer: 90000, charges: 4500, caution: 180000, debut: "2024-07-01", duree: 12 },
+    { nom: "TOUA MEKA", prenom: "Michèle Sixtine", tel: "600000017", appart: "STUDIO A41", loyer: 80000, charges: 4000, caution: 160000, debut: "2023-06-01", duree: 24 },
+    { nom: "SOP", prenom: "Gaël Brice", tel: "600000018", appart: "STUDIO A42", loyer: 80000, charges: 4000, caution: 160000, debut: "2023-05-01", duree: 24 },
+    { nom: "ANANFACK", prenom: "Aris Vinceslas", tel: "600000019", appart: "CHAMBRE B44", loyer: 45000, charges: 2500, caution: 90000, debut: "2023-12-01", duree: 24 },
+    { nom: "MOUMOITE", prenom: "Denise", tel: "600000020", appart: "CHAMBRE B45", loyer: 40000, charges: 2000, caution: 80000, debut: "2023-10-01", duree: 24 },
+    { nom: "DZALI DIKAPA", prenom: "Aimyll Prosperre", tel: "600000021", appart: "CHAMBRE B46", loyer: 45000, charges: 2500, caution: 90000, debut: "2024-10-01", duree: 12 },
+    { nom: "KAMNING", prenom: "Falone-Valera", tel: "600000022", appart: "CHAMBRE B43", loyer: 45000, charges: 2500, caution: 90000, debut: "2024-01-01", duree: 24 },
+    { nom: "KOUNCHOU KOUNCHOU", prenom: "Lévi Boris", tel: "600000023", appart: "STUDIO B48", loyer: 80000, charges: 4000, caution: 160000, debut: "2023-05-01", duree: 24 },
+    { nom: "FOWE WETCHOUGA", prenom: "Bernard", tel: "600000024", appart: "STUDIO B47", loyer: 80000, charges: 4000, caution: 160000, debut: "2023-05-01", duree: 24 },
+    { nom: "BELLA BILAI", prenom: "Ghislain", tel: "600000025", appart: "STUDIO B01", loyer: 100000, charges: 5000, caution: 200000, debut: "2023-12-01", duree: 24 },
+    { nom: "GAB", prenom: "", tel: "600000026", appart: "RDC GAB", loyer: 50000, charges: 2500, caution: 100000, debut: "2023-11-01", duree: 24 },
+    { nom: "IT", prenom: "", tel: "600000009", appart: "RDC IT", loyer: 300000, charges: 15000, caution: 900000, debut: "2023-05-01", duree: 36 },
+    { nom: "MAMOUDOU", prenom: "Moussa", tel: "600000031", appart: "RDC SB", loyer: 155000, charges: 5000, caution: 310000, debut: "2025-07-01", duree: 12 },
+    { nom: "ONANA", prenom: "Lydie Sylvie", tel: "600000010", appart: "ETAGE SB", loyer: 170000, charges: 8500, caution: 340000, debut: "2024-05-01", duree: 12 },
   ];
 
-  const locatairePassword = await hash("locataire123", 12);
+  for (const l of locataires) {
+    const appart = await prisma.appartement.findUnique({ where: { numero: l.appart } });
+    if (!appart) { console.log("Appart non trouvé:", l.appart); continue; }
 
-  for (const l of locatairesData) {
-    const appartement = await prisma.appartement.findUnique({ where: { numero: l.appart } });
-    if (!appartement) continue;
-
-    const locataire = await prisma.locataire.upsert({
-      where: { email: l.email },
-      update: {},
-      create: { nom: l.nom, prenom: l.prenom, telephone: l.telephone, email: l.email, dateEntree: new Date("2026-01-01") },
+    const locataire = await prisma.locataire.create({
+      data: { nom: l.nom, prenom: l.prenom || l.nom, telephone: l.tel, dateEntree: new Date(l.debut) },
     });
 
-    await prisma.utilisateur.upsert({
-      where: { email: l.email },
-      update: {},
-      create: { email: l.email, motDePasse: locatairePassword, role: "LOCATAIRE", locataireId: locataire.id },
-    });
+    const dateDebut = new Date(l.debut);
+    const dateFin = new Date(dateDebut);
+    dateFin.setMonth(dateFin.getMonth() + l.duree);
+    const totalCharges = l.charges;
+    const totalMensuel = l.loyer + l.charges;
 
-    await prisma.appartement.update({ where: { id: appartement.id }, data: { statut: "OCCUPE" } });
-
-    const bail = await prisma.bail.create({
+    await prisma.bail.create({
       data: {
-        locataireId: locataire.id, appartementId: appartement.id,
-        dateDebut: new Date("2026-01-01"), dureeMois: 12, dateFin: new Date("2026-12-31"),
-        montantLoyer: l.loyer, montantCaution: l.loyer * 2,
+        locataireId: locataire.id, appartementId: appart.id,
+        dateDebut, dureeMois: l.duree, dateFin,
+        montantLoyer: l.loyer, montantCaution: l.caution, cautionPayee: true,
+        totalCharges, totalMensuel,
+        chargesLocatives: [{ type: "Charges", montant: l.charges }],
+        jourLimitePaiement: 5, periodicite: "MENSUEL",
       },
     });
 
-    for (let m = 0; m < 3; m++) {
-      await prisma.paiement.create({
-        data: {
-          bailId: bail.id, montant: l.loyer,
-          moisConcerne: new Date(2026, m, 1), datePaiement: new Date(2026, m, 5),
-          modePaiement: m % 2 === 0 ? "VIREMENT_BANCAIRE" : "ORANGE_MONEY",
-        },
-      });
-    }
+    await prisma.appartement.update({ where: { id: appart.id }, data: { statut: "OCCUPE" } });
+    console.log("OK:", l.prenom || l.nom, l.nom, "-", l.appart);
   }
 
   console.log("Seed terminé !");
 }
 
-main()
-  .catch((e) => { console.error(e); process.exit(1); })
-  .finally(() => prisma.$disconnect());
+main().catch((e) => { console.error(e); process.exit(1); }).finally(() => prisma.$disconnect());
