@@ -5,15 +5,16 @@ import { appartementSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
 import { logAction } from "@/lib/audit";
 
-export async function getAppartements(filters?: { etage?: string; statut?: string; recherche?: string }) {
+export async function getAppartements(filters?: { etage?: string; statut?: string; recherche?: string; immeubleId?: string }) {
   const where: any = {};
   if (filters?.etage) where.etage = filters.etage;
   if (filters?.statut) where.statut = filters.statut;
   if (filters?.recherche) where.numero = { contains: filters.recherche, mode: "insensitive" };
+  if (filters?.immeubleId) where.immeubleId = filters.immeubleId;
 
   const appartements = await prisma.appartement.findMany({
     where,
-    include: { baux: { where: { statut: "ACTIF" }, include: { locataire: { select: { nom: true, prenom: true } } } } },
+    include: { baux: { where: { statut: "ACTIF" }, include: { locataire: { select: { nom: true, prenom: true } } } }, immeuble: { select: { id: true, nom: true } } },
     orderBy: { numero: "asc" },
   });
 

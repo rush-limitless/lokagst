@@ -1,4 +1,5 @@
 import { getAppartements } from "@/actions/appartements";
+import { getImmeubles } from "@/actions/immeubles";
 import { formatFCFA, ETAGE_LABELS } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/search-bar";
@@ -6,9 +7,12 @@ import { StatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import Link from "next/link";
 
-export default async function AppartementsPage({ searchParams }: { searchParams: Promise<{ q?: string; statut?: string }> }) {
-  const { q, statut } = await searchParams;
-  const appartements = await getAppartements({ recherche: q, statut });
+export default async function AppartementsPage({ searchParams }: { searchParams: Promise<{ q?: string; statut?: string; immeuble?: string }> }) {
+  const { q, statut, immeuble } = await searchParams;
+  const [appartements, immeubles] = await Promise.all([
+    getAppartements({ recherche: q, statut, immeubleId: immeuble }),
+    getImmeubles(),
+  ]);
 
   return (
     <div className="space-y-6 animate-in">
@@ -19,10 +23,20 @@ export default async function AppartementsPage({ searchParams }: { searchParams:
       <div className="flex flex-wrap gap-3 items-center">
         <SearchBar placeholder="Rechercher par numéro..." />
         <div className="flex gap-1">
-          <Link href="/appartements" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!statut ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Tous</Link>
+          <Link href="/appartements" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!statut && !immeuble ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Tous</Link>
           <Link href="/appartements?statut=LIBRE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "LIBRE" ? "bg-emerald-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Libres</Link>
           <Link href="/appartements?statut=OCCUPE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "OCCUPE" ? "bg-sky-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Occupés</Link>
         </div>
+      </div>
+      {/* Filtre par immeuble */}
+      <div className="flex gap-2 flex-wrap">
+        <span className="text-xs text-muted-foreground py-1">Immeuble :</span>
+        <Link href={`/appartements${statut ? `?statut=${statut}` : ""}`} className={`text-xs px-3 py-1 rounded-full border transition-colors ${!immeuble ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Tous</Link>
+        {immeubles.map((i) => (
+          <Link key={i.id} href={`/appartements?immeuble=${i.id}${statut ? `&statut=${statut}` : ""}`} className={`text-xs px-3 py-1 rounded-full border transition-colors ${immeuble === i.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>
+            {i.nom} ({i._count.appartements})
+          </Link>
+        ))}
       </div>
       <p className="text-sm text-muted-foreground">{appartements.length} appartement(s)</p>
 
@@ -38,6 +52,7 @@ export default async function AppartementsPage({ searchParams }: { searchParams:
                   <div className="text-2xl font-bold text-foreground">{a.numero}</div>
                   <p className="text-xs text-muted-foreground mt-1">{ETAGE_LABELS[a.etage]}</p>
                   <p className="text-xs text-muted-foreground">{a.type}</p>
+                  {a.immeuble && <p className="text-[10px] text-primary mt-1">{a.immeuble.nom}</p>}
                   <p className="text-sm font-semibold text-foreground mt-3">{formatFCFA(a.loyerBase)}</p>
                   <div className="mt-2">
                     <StatusBadge status={a.statut === "LIBRE" ? "libre" : "occupe"} label={a.statut === "LIBRE" ? "Libre" : "Occupé"} />
