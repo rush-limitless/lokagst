@@ -35,9 +35,9 @@ export async function enregistrerPaiement(formData: FormData) {
 
   let paiement;
   if (existing) {
-    paiement = await prisma.paiement.update({ where: { id: existing.id }, data: { montant: montantTotal, resteDu, statut, modePaiement: parsed.data.modePaiement, notes: parsed.data.notes } });
+    paiement = await prisma.paiement.update({ where: { id: existing.id }, data: { montant: montantTotal, resteDu, statut, modePaiement: parsed.data.modePaiement, preuvePaiement: parsed.data.preuvePaiement || existing.preuvePaiement, notes: parsed.data.notes } });
   } else {
-    paiement = await prisma.paiement.create({ data: { bailId: parsed.data.bailId, montant: parsed.data.montant, moisConcerne: parsed.data.moisConcerne, modePaiement: parsed.data.modePaiement, resteDu, statut, notes: parsed.data.notes } });
+    paiement = await prisma.paiement.create({ data: { bailId: parsed.data.bailId, montant: parsed.data.montant, moisConcerne: parsed.data.moisConcerne, modePaiement: parsed.data.modePaiement, resteDu, statut, preuvePaiement: parsed.data.preuvePaiement || null, notes: parsed.data.notes } });
   }
 
   // Envoi automatique du reçu par email

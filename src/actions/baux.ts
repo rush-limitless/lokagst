@@ -40,6 +40,15 @@ export async function creerBail(formData: FormData) {
   const dateFin = new Date(parsed.data.dateDebut);
   dateFin.setMonth(dateFin.getMonth() + parsed.data.dureeMois);
 
+  // Règle du 15 : si signature après le 15, premier loyer = mois suivant
+  const dateDebut = new Date(parsed.data.dateDebut);
+  let datePremierLoyer: Date;
+  if (dateDebut.getDate() > 15) {
+    datePremierLoyer = new Date(dateDebut.getFullYear(), dateDebut.getMonth() + 1, 1);
+  } else {
+    datePremierLoyer = new Date(dateDebut.getFullYear(), dateDebut.getMonth(), 1);
+  }
+
   // Parse charges
   let charges: { type: string; montant: number }[] = [];
   try {
@@ -57,6 +66,8 @@ export async function creerBail(formData: FormData) {
       dateFin,
       montantLoyer: parsed.data.montantLoyer,
       montantCaution: parsed.data.montantCaution,
+      datePremierLoyer: datePremierLoyer,
+      periodicite: parsed.data.periodicite as any,
       chargesLocatives: charges,
       totalCharges,
       totalMensuel,

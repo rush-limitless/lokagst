@@ -31,24 +31,20 @@ export const bailSchema = z.object({
   dureeMois: z.coerce.number().int().positive("Durée requise"),
   montantLoyer: z.coerce.number().int().positive("Loyer requis"),
   montantCaution: z.coerce.number().int().min(0, "Caution invalide"),
-  // Charges locatives (JSON string)
+  periodicite: z.enum(["MENSUEL", "TRIMESTRIEL", "SEMESTRIEL", "ANNUEL"]).default("MENSUEL"),
   chargesLocatives: z.string().optional(),
-  // Modalités de paiement
   jourLimitePaiement: z.coerce.number().int().min(1).max(28).default(5),
   delaiGrace: z.coerce.number().int().min(0).default(5),
   penaliteType: z.enum(["POURCENTAGE", "MONTANT_FIXE"]).default("POURCENTAGE"),
   penaliteMontant: z.coerce.number().int().min(0).default(5),
   penaliteRecurrente: z.coerce.boolean().default(false),
-  // Renouvellement
   renouvellementAuto: z.coerce.boolean().default(false),
   dureeRenouvellement: z.coerce.number().int().optional(),
   augmentationLoyer: z.coerce.number().int().optional(),
   preavisNonRenouv: z.coerce.number().int().default(30),
-  // Résiliation
   preavisResiliation: z.coerce.number().int().default(30),
   seuilMiseEnDemeure: z.coerce.number().int().default(2),
   seuilSuspension: z.coerce.number().int().default(3),
-  // Clauses
   clausesParticulieres: z.string().optional(),
 });
 
@@ -56,6 +52,7 @@ export const paiementSchema = z.object({
   bailId: z.string().min(1, "Bail requis"),
   montant: z.coerce.number().int().positive("Montant requis"),
   moisConcerne: z.coerce.date(),
-  modePaiement: z.enum(["ESPECES", "MOBILE_MONEY", "VIREMENT"]),
+  modePaiement: z.enum(["VIREMENT_BANCAIRE", "ORANGE_MONEY"]),
+  preuvePaiement: z.string().optional(),
   notes: z.string().optional(),
 });

@@ -40,7 +40,20 @@ export const STATUT_BAIL_LABELS: Record<string, string> = {
 };
 
 export const MODE_PAIEMENT_LABELS: Record<string, string> = {
-  ESPECES: "Espèces",
-  MOBILE_MONEY: "Mobile Money",
-  VIREMENT: "Virement",
+  VIREMENT_BANCAIRE: "Virement bancaire",
+  ORANGE_MONEY: "Orange Money",
+};
+
+export const PERIODICITE_LABELS: Record<string, string> = {
+  MENSUEL: "Mensuel",
+  TRIMESTRIEL: "Trimestriel (3 mois)",
+  SEMESTRIEL: "Semestriel (6 mois)",
+  ANNUEL: "Annuel (12 mois)",
+};
+
+export const PERIODICITE_MOIS: Record<string, number> = {
+  MENSUEL: 1,
+  TRIMESTRIEL: 3,
+  SEMESTRIEL: 6,
+  ANNUEL: 12,
 };

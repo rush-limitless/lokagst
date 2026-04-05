@@ -106,10 +106,13 @@ model Bail {
   dateFin               DateTime
   montantLoyer          Int
   montantCaution        Int
+  cautionPayee          Boolean     @default(false)
+  datePremierLoyer      DateTime?
   chargesLocatives      Json        @default("[]")
   totalCharges          Int         @default(0)
   totalMensuel          Int         @default(0)
   jourLimitePaiement    Int         @default(5)
+  periodicite           Periodicite @default(MENSUEL)
   delaiGrace            Int         @default(5)
   penaliteType          PenaliteType @default(POURCENTAGE)
   penaliteMontant       Int         @default(5)
@@ -139,6 +142,13 @@ enum PenaliteType {
   MONTANT_FIXE
 }
 
+enum Periodicite {
+  MENSUEL
+  TRIMESTRIEL
+  SEMESTRIEL
+  ANNUEL
+}
+
 enum StatutBail {
   ACTIF
   SUSPENDU
@@ -161,6 +171,7 @@ model Paiement {
   modePaiement   ModePaiement
   statut         StatutPaiement @default(PAYE)
   resteDu        Int            @default(0)
+  preuvePaiement String?
   notes          String?
   creeLe         DateTime       @default(now())
   @@unique([bailId, moisConcerne])
@@ -168,9 +179,8 @@ model Paiement {
 }
 
 enum ModePaiement {
-  ESPECES
-  MOBILE_MONEY
-  VIREMENT
+  VIREMENT_BANCAIRE
+  ORANGE_MONEY
 }
 
 enum StatutPaiement {

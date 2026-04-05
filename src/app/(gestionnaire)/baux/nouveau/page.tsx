@@ -73,6 +73,19 @@ export default function NouveauBail() {
               <div className="space-y-2"><Label>Durée (mois)</Label><Input name="dureeMois" type="number" min="1" defaultValue="12" required /></div>
               <div className="space-y-2"><Label>Caution (FCFA)</Label><Input name="montantCaution" type="number" min="0" defaultValue="0" required /></div>
             </div>
+            <div className="space-y-2">
+              <Label>Périodicité de paiement</Label>
+              <select name="periodicite" className="w-full border rounded-md p-2">
+                <option value="MENSUEL">Mensuel</option>
+                <option value="TRIMESTRIEL">Trimestriel (3 mois)</option>
+                <option value="SEMESTRIEL">Semestriel (6 mois)</option>
+                <option value="ANNUEL">Annuel (12 mois)</option>
+              </select>
+              <p className="text-xs text-gray-500">Les factures et reçus seront émis selon cette périodicité</p>
+            </div>
+            <div className="bg-blue-50 p-3 rounded text-sm text-blue-800">
+              <strong>Règle :</strong> Si le contrat est signé avant le 15 du mois → le locataire paye le mois entier. Après le 15 → le reste du mois est offert, le loyer commence le mois suivant.
+            </div>
           </CardContent>
         </Card>
 
