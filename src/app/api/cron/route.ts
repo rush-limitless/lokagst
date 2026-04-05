@@ -15,10 +15,23 @@ export async function GET(req: NextRequest) {
   const moisCourant = new Date(now.getFullYear(), now.getMonth(), 1);
   const results = { factures: 0, rappels: 0, impayes: 0, penalites: 0, misesDemeure: 0, suspensions: 0, renouvellements: 0, expirations: 0 };
 
-  // Envoi des factures le 1er du mois
+  // Envoi des factures le 1er du mois + rapport mensuel au gestionnaire
   if (jour === 1) {
     const facturesResult = await envoyerFacturesMensuelles();
     results.factures = facturesResult.envoyes;
+
+    // Envoyer rapport mensuel au gestionnaire
+    const admin = await prisma.utilisateur.findFirst({ where: { role: "GESTIONNAIRE" } });
+    if (admin) {
+      const moisPrec = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const label = moisPrec.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+      const bauxA = await prisma.bail.findMany({ where: { statut: "ACTIF" }, include: { paiements: true } });
+      const totalRegle = bauxA.reduce((s, b) => s + b.paiements.filter(p => new Date(p.moisConcerne).getMonth() === moisPrec.getMonth() && new Date(p.moisConcerne).getFullYear() === moisPrec.getFullYear()).reduce((a, p) => a + p.montant, 0), 0);
+      const totalAttendu = bauxA.reduce((s, b) => s + b.totalMensuel, 0);
+      const sujet = `Rapport mensuel IMMOSTAR SCI — ${label}`;
+      const contenu = `<div style="font-family:Arial;max-width:600px;margin:0 auto"><div style="background:#1B6B9E;color:white;padding:20px;text-align:center"><h1 style="margin:0">IMMOSTAR SCI</h1><p style="margin:5px 0 0;opacity:0.8">Rapport mensuel — ${label}</p></div><div style="padding:20px;border:1px solid #eee"><table style="width:100%;border-collapse:collapse"><tr style="border-bottom:1px solid #eee"><td style="padding:8px;color:#666">Revenus encaissés</td><td style="padding:8px;font-weight:bold;color:#2e7d32">${totalRegle.toLocaleString("fr-FR")} FCFA</td></tr><tr style="border-bottom:1px solid #eee"><td style="padding:8px;color:#666">Revenus attendus</td><td style="padding:8px;font-weight:bold">${totalAttendu.toLocaleString("fr-FR")} FCFA</td></tr><tr><td style="padding:8px;color:#666">Taux de recouvrement</td><td style="padding:8px;font-weight:bold;color:${totalAttendu > 0 && totalRegle / totalAttendu >= 0.8 ? "#2e7d32" : "#c62828"}">${totalAttendu > 0 ? Math.round(totalRegle / totalAttendu * 100) : 0}%</td></tr></table><p style="margin-top:15px;color:#666;font-size:12px">Connectez-vous à ImmoGest pour le rapport détaillé.</p></div></div>`;
+      try { await sendEmail(admin.email, sujet, contenu); } catch {}
+    }
   }
 
   const bauxActifs = await prisma.bail.findMany({

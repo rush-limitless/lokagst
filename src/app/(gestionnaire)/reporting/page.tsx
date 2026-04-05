@@ -145,6 +145,8 @@ export default function ReportingPage() {
         <a href="/reporting/impayes" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:bg-secondary/80">🔴 Impayés</a>
         <a href="/reporting/cautions" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:bg-secondary/80">🔒 Cautions</a>
         <a href="/reporting/classement" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:bg-secondary/80">🏆 Classement</a>
+        <a href="/reporting/rentabilite" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:bg-secondary/80">💹 Rentabilité</a>
+        <a href="/reporting/comparaison" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:bg-secondary/80">🔄 Comparaison</a>
       </div>
 
       <Card className="gradient-border">
