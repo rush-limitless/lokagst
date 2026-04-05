@@ -31,11 +31,10 @@ export async function getMonBail() {
   const locataireId = await getLocataireId();
   if (!locataireId) return null;
 
-  const bail = await prisma.bail.findFirst({
+  return prisma.bail.findFirst({
     where: { locataireId, statut: "ACTIF" },
     include: { appartement: true },
   });
-  return bail;
 }
 
 export async function getMesPaiements() {
