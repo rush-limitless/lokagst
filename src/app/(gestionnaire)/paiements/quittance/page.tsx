@@ -23,7 +23,7 @@ export default function QuittancePage() {
       </div>
       <div className="bg-white border rounded-lg p-8 print:border-none">
         <div className="text-center border-b-2 border-blue-950 pb-4 mb-6">
-          <h1 className="text-2xl font-bold text-blue-950">FINSTAR</h1>
+          <h1 className="text-2xl font-bold text-blue-950">IMMOSTAR SCI</h1>
           <p className="text-gray-500">Yaoundé — Nkolfoulou</p>
           <h2 className="text-xl font-bold mt-4">QUITTANCE DE LOYER</h2>
           <p className="text-sm text-gray-400">N° {data.numero}</p>
@@ -63,7 +63,7 @@ export default function QuittancePage() {
         <div className="flex justify-between mt-8 pt-4 border-t">
           <div>
             <p className="text-sm text-gray-500">Le bailleur</p>
-            <p className="font-medium mt-1">FINSTAR</p>
+            <p className="font-medium mt-1">IMMOSTAR SCI</p>
             <div className="mt-8 border-b border-gray-300 w-40"></div>
             <p className="text-xs text-gray-400 mt-1">Signature</p>
           </div>

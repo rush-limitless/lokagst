@@ -24,7 +24,7 @@ export async function envoyerFacturesMensuelles() {
     const contenu = `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
         <div style="background:#003366;color:white;padding:20px;text-align:center">
-          <h1 style="margin:0">FINSTAR</h1>
+          <h1 style="margin:0">IMMOSTAR SCI</h1>
           <p style="margin:5px 0 0;opacity:0.8">Facture de loyer</p>
         </div>
         <div style="padding:20px;border:1px solid #eee">
@@ -39,7 +39,7 @@ export async function envoyerFacturesMensuelles() {
           </table>
           <p style="color:#666">Date limite de paiement : <strong>le ${bail.jourLimitePaiement} ${moisLabel}</strong></p>
           <p style="color:#999;font-size:12px">En cas de retard, une pénalité de ${bail.penaliteMontant}${bail.penaliteType === "POURCENTAGE" ? "%" : " FCFA"} sera appliquée après ${bail.delaiGrace} jours de grâce.</p>
-          <p>Cordialement,<br><strong>La gestion FINSTAR</strong></p>
+          <p>Cordialement,<br><strong>La gestion IMMOSTAR SCI</strong></p>
         </div>
       </div>`;
 

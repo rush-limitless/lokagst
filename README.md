@@ -1,6 +1,6 @@
 # LokaGest — Application de Gestion Locative
 
-Application web de gestion des locataires, baux et loyers pour **FINSTAR** (Yaoundé, Nkolfoulou).
+Application web de gestion des locataires, baux et loyers pour **IMMOSTAR SCI** (Yaoundé, Nkolfoulou).
 
 ## Stack technique
 - **Next.js 14** (App Router, Server Components, Server Actions)

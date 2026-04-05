@@ -9,7 +9,7 @@ export default async function MaMessagerie() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold text-blue-950">Messagerie</h1>
-      <p className="text-sm text-gray-500">Échangez avec la gestion FINSTAR</p>
+      <p className="text-sm text-gray-500">Échangez avec la gestion IMMOSTAR SCI</p>
       <ChatBox locataireId={session.user.locataireId} role="LOCATAIRE" />
     </div>
   );

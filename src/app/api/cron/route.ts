@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
       if (!dejaEnvoyee) {
         const totalDu = moisImpayes * bail.totalMensuel + bail.penalites.filter((p) => !p.payee).reduce((s, p) => s + p.montant, 0);
         const sujet = `MISE EN DEMEURE — ${moisImpayes} mois d'impayés`;
-        const contenu = `<div style="font-family:Arial;max-width:600px;margin:0 auto;border:2px solid red;padding:20px"><h2 style="color:red">MISE EN DEMEURE</h2><p>Monsieur/Madame ${bail.locataire.prenom} ${bail.locataire.nom},</p><p>Nous constatons que vous avez <strong>${moisImpayes} mois d'impayés</strong> pour l'appartement ${bail.appartement.numero}.</p><p>Montant total dû : <strong>${totalDu.toLocaleString()} FCFA</strong></p><p>Vous disposez de <strong>15 jours</strong> pour régulariser votre situation, faute de quoi votre bail sera suspendu.</p><p>La gestion FINSTAR</p></div>`;
+        const contenu = `<div style="font-family:Arial;max-width:600px;margin:0 auto;border:2px solid red;padding:20px"><h2 style="color:red">MISE EN DEMEURE</h2><p>Monsieur/Madame ${bail.locataire.prenom} ${bail.locataire.nom},</p><p>Nous constatons que vous avez <strong>${moisImpayes} mois d'impayés</strong> pour l'appartement ${bail.appartement.numero}.</p><p>Montant total dû : <strong>${totalDu.toLocaleString()} FCFA</strong></p><p>Vous disposez de <strong>15 jours</strong> pour régulariser votre situation, faute de quoi votre bail sera suspendu.</p><p>La gestion IMMOSTAR SCI</p></div>`;
         try {
           await sendEmail(bail.locataire.email, sujet, contenu);
           await prisma.emailLog.create({ data: { locataireId: bail.locataireId, type: "MISE_EN_DEMEURE", sujet, contenu, destinataire: bail.locataire.email } });

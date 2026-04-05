@@ -25,7 +25,7 @@ export function Sidebar({ email }: { email: string }) {
     <aside className="w-64 bg-blue-950 text-white flex-shrink-0 hidden md:flex flex-col">
       <div className="p-6 border-b border-blue-900">
         <h1 className="text-xl font-bold">LokaGest</h1>
-        <p className="text-blue-300 text-sm">FINSTAR</p>
+        <p className="text-blue-300 text-sm">IMMOSTAR SCI</p>
       </div>
       <nav className="flex-1 p-4 space-y-1">
         {navItems.map((item) => (

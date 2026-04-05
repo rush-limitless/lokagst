@@ -23,13 +23,13 @@ export function genererEmailRappel(prenom: string, nom: string, montant: number,
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
         <div style="background:#003366;color:white;padding:20px;text-align:center">
           <h1 style="margin:0">LokaGest</h1>
-          <p style="margin:5px 0 0;opacity:0.8">FINSTAR — Gestion Locative</p>
+          <p style="margin:5px 0 0;opacity:0.8">IMMOSTAR SCI — Gestion Locative</p>
         </div>
         <div style="padding:20px;border:1px solid #eee">
           <p>Bonjour <strong>${prenom} ${nom}</strong>,</p>
           <p>Nous vous rappelons que votre loyer du mois de <strong>${mois}</strong> d'un montant de <strong>${montant.toLocaleString("fr-FR")} FCFA</strong> n'a pas encore été réglé.</p>
           <p>Merci de procéder au paiement dans les meilleurs délais.</p>
-          <p>Cordialement,<br>La gestion FINSTAR</p>
+          <p>Cordialement,<br>La gestion IMMOSTAR SCI</p>
         </div>
       </div>`,
   };
@@ -42,7 +42,7 @@ export function genererEmailRecu(prenom: string, nom: string, montant: number, m
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
         <div style="background:#003366;color:white;padding:20px;text-align:center">
           <h1 style="margin:0">LokaGest</h1>
-          <p style="margin:5px 0 0;opacity:0.8">FINSTAR — Reçu de paiement</p>
+          <p style="margin:5px 0 0;opacity:0.8">IMMOSTAR SCI — Reçu de paiement</p>
         </div>
         <div style="padding:20px;border:1px solid #eee">
           <p>Bonjour <strong>${prenom} ${nom}</strong>,</p>
@@ -55,7 +55,7 @@ export function genererEmailRecu(prenom: string, nom: string, montant: number, m
             <tr><td style="padding:8px;color:#666">Date</td><td style="padding:8px">${date}</td></tr>
           </table>
           <p>Merci pour votre paiement.</p>
-          <p>Cordialement,<br>La gestion FINSTAR</p>
+          <p>Cordialement,<br>La gestion IMMOSTAR SCI</p>
         </div>
       </div>`,
   };

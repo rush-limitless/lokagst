@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "LokaGest — Gestion Locative",
-  description: "Application de gestion des locataires et loyers pour FINSTAR",
+  description: "Application de gestion des locataires et loyers pour IMMOSTAR SCI",
   manifest: "/manifest.json",
   themeColor: "#003366",
 };

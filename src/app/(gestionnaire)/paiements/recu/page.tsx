@@ -23,7 +23,7 @@ export default function RecuPage() {
       </div>
       <div id="recu" className="bg-white border rounded-lg p-8 print:border-none print:shadow-none">
         <div className="text-center border-b pb-4 mb-6">
-          <h1 className="text-2xl font-bold text-blue-950">FINSTAR</h1>
+          <h1 className="text-2xl font-bold text-blue-950">IMMOSTAR SCI</h1>
           <p className="text-gray-500">Yaoundé — Nkolfoulou</p>
           <h2 className="text-xl font-bold mt-4">REÇU DE PAIEMENT</h2>
           <p className="text-sm text-gray-400">N° {data.id.slice(-8).toUpperCase()}</p>
@@ -51,7 +51,7 @@ export default function RecuPage() {
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-500">Date : {data.datePaiement}</p>
-            <p className="text-xs text-gray-400 mt-2">LokaGest — FINSTAR</p>
+            <p className="text-xs text-gray-400 mt-2">LokaGest — IMMOSTAR SCI</p>
           </div>
         </div>
       </div>

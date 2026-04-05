@@ -29,7 +29,7 @@ export function CreerImmeubleForm() {
       <CardContent>
         <form action={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2"><Label>Nom</Label><Input name="nom" placeholder="Résidence FINSTAR" required /></div>
+            <div className="space-y-2"><Label>Nom</Label><Input name="nom" placeholder="Résidence IMMOSTAR SCI" required /></div>
             <div className="space-y-2"><Label>Ville</Label><Input name="ville" placeholder="Yaoundé" required /></div>
           </div>
           <div className="grid grid-cols-2 gap-4">
