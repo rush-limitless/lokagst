@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
-// @ts-expect-error xlsx-js-style has no types
 import XLSX from "xlsx-js-style";
 
 const ETAGE_LABELS: Record<string, string> = { RDC: "RDC", PREMIER: "ETAGE 1", DEUXIEME: "ETAGE 2", TROISIEME: "ETAGE 3", QUATRIEME: "ETAGE 4" };
