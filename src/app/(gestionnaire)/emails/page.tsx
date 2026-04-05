@@ -47,7 +47,7 @@ export default async function EmailsPage() {
         </Card>
       </div>
 
-      <div className="bg-white rounded-lg border overflow-hidden">
+      <div className="bg-card rounded-xl border overflow-x-auto table-scroll">
         <table className="w-full">
           <thead className="bg-gray-50 text-left text-sm text-gray-500">
             <tr>

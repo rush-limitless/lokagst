@@ -37,7 +37,7 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
 
       <SearchBar placeholder="Filtrer par locataire..." />
 
-      <div className="bg-card rounded-xl border overflow-x-auto">
+      <div className="bg-card rounded-xl border overflow-x-auto table-scroll">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs text-muted-foreground uppercase">
             <tr><th className="p-3 text-left">Locataire</th><th className="p-3">Appart.</th><th className="p-3">Mois</th><th className="p-3 text-right">Montant</th><th className="p-3">Mode</th><th className="p-3">Statut</th><th className="p-3">Preuve</th><th className="p-3">Actions</th></tr>

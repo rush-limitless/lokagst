@@ -29,7 +29,7 @@ export default async function MaintenancePage() {
           </div>
         ))}
       </div>
-      <div className="bg-white rounded-lg border overflow-hidden">
+      <div className="bg-card rounded-xl border overflow-x-auto table-scroll">
         <table className="w-full">
           <thead className="bg-gray-50 text-left text-sm text-gray-500">
             <tr><th className="p-3">Date</th><th className="p-3">Locataire</th><th className="p-3">Appart.</th><th className="p-3">Titre</th><th className="p-3">Priorité</th><th className="p-3">Statut</th><th className="p-3">Actions</th></tr>

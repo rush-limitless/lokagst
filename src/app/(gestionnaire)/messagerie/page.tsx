@@ -12,7 +12,7 @@ export default async function MessageriePage({ searchParams }: { searchParams: P
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-blue-950">Messagerie</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg border divide-y md:col-span-1 max-h-[600px] overflow-y-auto">
+        <div className="bg-white rounded-lg border divide-y md:col-span-1 max-h-[600px] overflow-y-auto table-scroll">
           {conversations.map((c) => (
             <Link key={c.id} href={`/messagerie?id=${c.id}`} className={`flex items-center gap-3 p-3 hover:bg-gray-50 ${c.id === id ? "bg-blue-50" : ""}`}>
               {c.photo ? <img src={c.photo} alt="" className="w-9 h-9 rounded-full object-cover" /> : <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">{c.prenom[0]}{c.nom[0]}</div>}

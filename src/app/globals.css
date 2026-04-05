@@ -179,8 +179,9 @@
 /* Sticky table headers */
 thead { position: sticky; top: 0; z-index: 10; }
 
-/* Mobile responsive tables */
+/* Scrollable tables */
 table { min-width: 100%; }
+.table-scroll { max-height: 600px; overflow-y: auto; }
 @media (max-width: 768px) {
   .bg-white.rounded-lg.border { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   table { min-width: 600px; }

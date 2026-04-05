@@ -21,7 +21,7 @@ export default async function BauxPage({ searchParams }: { searchParams: Promise
         <Link href="/baux?statut=SUSPENDU" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "SUSPENDU" ? "bg-orange-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Suspendus</Link>
         <Link href="/baux?statut=EXPIRE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "EXPIRE" ? "bg-red-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Expirés</Link>
       </div>
-      <div className="bg-card rounded-xl border overflow-x-auto">
+      <div className="bg-card rounded-xl border overflow-x-auto table-scroll">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs text-muted-foreground uppercase">
             <tr><th className="p-3 text-left">Locataire</th><th className="p-3">Appart.</th><th className="p-3">Début</th><th className="p-3">Fin</th><th className="p-3 text-right">Total/mois</th><th className="p-3">Jours rest.</th><th className="p-3">Statut</th><th className="p-3">Actions</th></tr>
