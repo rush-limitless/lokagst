@@ -3,23 +3,25 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: "📊" },
-  { href: "/appartements", label: "Appartements", icon: "🏠" },
-  { href: "/locataires", label: "Locataires", icon: "👤" },
-  { href: "/baux", label: "Contrats", icon: "📄" },
-  { href: "/paiements", label: "Paiements", icon: "💰" },
-  { href: "/maintenance", label: "Maintenance", icon: "🔧" },
-  { href: "/messagerie", label: "Messagerie", icon: "💬" },
-  { href: "/exports", label: "Exports", icon: "📥" },
-  { href: "/immeubles", label: "Immeubles", icon: "🏢" },
-  { href: "/audit", label: "Audit", icon: "📝" },
-  { href: "/emails", label: "Emails", icon: "📧" },
-];
+import { useI18n } from "@/lib/i18n";
 
 export function Sidebar({ email }: { email: string }) {
   const pathname = usePathname();
+  const { t } = useI18n();
+
+  const navItems = [
+    { href: "/dashboard", label: t.dashboard, icon: "📊" },
+    { href: "/appartements", label: t.appartements, icon: "🏠" },
+    { href: "/locataires", label: t.locataires, icon: "👤" },
+    { href: "/baux", label: t.contrats, icon: "📄" },
+    { href: "/paiements", label: t.paiements, icon: "💰" },
+    { href: "/maintenance", label: t.maintenance, icon: "🔧" },
+    { href: "/messagerie", label: t.messagerie, icon: "💬" },
+    { href: "/exports", label: t.exports, icon: "📥" },
+    { href: "/immeubles", label: t.immeubles, icon: "🏢" },
+    { href: "/audit", label: t.audit, icon: "📝" },
+    { href: "/emails", label: t.emails, icon: "📧" },
+  ];
 
   return (
     <aside className="w-64 bg-blue-950 text-white flex-shrink-0 hidden md:flex flex-col">
@@ -27,16 +29,9 @@ export function Sidebar({ email }: { email: string }) {
         <h1 className="text-xl font-bold">ImmoGest</h1>
         <p className="text-blue-300 text-sm">IMMOSTAR SCI</p>
       </div>
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm",
-              pathname.startsWith(item.href) ? "bg-blue-800 text-white font-medium" : "hover:bg-blue-900 text-blue-100"
-            )}
-          >
+          <Link key={item.href} href={item.href} className={cn("flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm", pathname.startsWith(item.href) ? "bg-blue-800 text-white font-medium" : "hover:bg-blue-900 text-blue-100")}>
             <span>{item.icon}</span>{item.label}
           </Link>
         ))}
@@ -50,18 +45,24 @@ export function Sidebar({ email }: { email: string }) {
 
 export function MobileNav() {
   const pathname = usePathname();
+  
+
+  const navItems = [
+    { href: "/dashboard", icon: "📊" },
+    { href: "/appartements", icon: "🏠" },
+    { href: "/locataires", icon: "👤" },
+    { href: "/baux", icon: "📄" },
+    { href: "/paiements", icon: "💰" },
+    { href: "/maintenance", icon: "🔧" },
+    { href: "/messagerie", icon: "💬" },
+  ];
 
   return (
     <header className="bg-white border-b px-6 py-4 md:hidden flex items-center justify-between">
       <h1 className="text-lg font-bold text-blue-950">ImmoGest</h1>
       <nav className="flex gap-2">
         {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn("text-lg", pathname.startsWith(item.href) ? "opacity-100" : "opacity-50")}
-            title={item.label}
-          >
+          <Link key={item.href} href={item.href} className={cn("text-lg", pathname.startsWith(item.href) ? "opacity-100" : "opacity-50")}>
             {item.icon}
           </Link>
         ))}

@@ -4,6 +4,7 @@ import { Sidebar, MobileNav } from "@/components/sidebar";
 import { LogoutButton } from "@/components/logout-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NotificationBell } from "@/components/notification-bell";
+import { LangToggle } from "@/components/lang-toggle";
 import { Breadcrumb } from "@/components/breadcrumb";
 
 export default async function GestionnaireLayout({ children }: { children: React.ReactNode }) {
@@ -17,6 +18,7 @@ export default async function GestionnaireLayout({ children }: { children: React
         <MobileNav />
         <div className="p-6">
           <div className="flex justify-end mb-2 gap-3 items-center">
+            <LangToggle />
             <NotificationBell />
             <ThemeToggle />
             <LogoutButton className="text-gray-500 border-gray-300 hover:bg-gray-100" />
