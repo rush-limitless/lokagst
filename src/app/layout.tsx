@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "LokaGest — Gestion Locative",
+  title: "ImmoGest — Gestion Locative",
   description: "Application de gestion des locataires et loyers pour IMMOSTAR SCI",
   manifest: "/manifest.json",
   themeColor: "#003366",

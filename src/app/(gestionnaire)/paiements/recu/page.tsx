@@ -51,7 +51,7 @@ export default function RecuPage() {
           </div>
           <div className="text-right">
             <p className="text-sm text-gray-500">Date : {data.datePaiement}</p>
-            <p className="text-xs text-gray-400 mt-2">LokaGest — IMMOSTAR SCI</p>
+            <p className="text-xs text-gray-400 mt-2">ImmoGest — IMMOSTAR SCI</p>
           </div>
         </div>
       </div>

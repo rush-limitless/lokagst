@@ -11,7 +11,7 @@ export default async function LocataireLayout({ children }: { children: React.Re
     <div className="min-h-screen bg-gray-50">
       <header className="bg-blue-950 text-white px-6 py-4 flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold">LokaGest</h1>
+          <h1 className="text-lg font-bold">ImmoGest</h1>
           <p className="text-blue-300 text-xs">Mon espace locataire</p>
         </div>
         <nav className="flex items-center gap-4">

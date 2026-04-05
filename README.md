@@ -1,4 +1,4 @@
-# LokaGest — Application de Gestion Locative
+# ImmoGest — Application de Gestion Locative
 
 Application web de gestion des locataires, baux et loyers pour **IMMOSTAR SCI** (Yaoundé, Nkolfoulou).
 
@@ -29,7 +29,7 @@ SMTP_HOST="smtp.gmail.com"
 SMTP_PORT=587
 SMTP_USER="email@gmail.com"
 SMTP_PASS="mot-de-passe-app"
-SMTP_FROM="LokaGest <email@gmail.com>"
+SMTP_FROM="ImmoGest <email@gmail.com>"
 ```
 
 ## Identifiants par défaut

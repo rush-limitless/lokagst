@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
 
 export async function sendEmail(to: string, subject: string, html: string) {
   return transporter.sendMail({
-    from: process.env.SMTP_FROM || "LokaGest <noreply@finstar.cm>",
+    from: process.env.SMTP_FROM || "ImmoGest <noreply@finstar.cm>",
     to,
     subject,
     html,
@@ -22,7 +22,7 @@ export function genererEmailRappel(prenom: string, nom: string, montant: number,
     contenu: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
         <div style="background:#003366;color:white;padding:20px;text-align:center">
-          <h1 style="margin:0">LokaGest</h1>
+          <h1 style="margin:0">ImmoGest</h1>
           <p style="margin:5px 0 0;opacity:0.8">IMMOSTAR SCI — Gestion Locative</p>
         </div>
         <div style="padding:20px;border:1px solid #eee">
@@ -41,7 +41,7 @@ export function genererEmailRecu(prenom: string, nom: string, montant: number, m
     contenu: `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
         <div style="background:#003366;color:white;padding:20px;text-align:center">
-          <h1 style="margin:0">LokaGest</h1>
+          <h1 style="margin:0">ImmoGest</h1>
           <p style="margin:5px 0 0;opacity:0.8">IMMOSTAR SCI — Reçu de paiement</p>
         </div>
         <div style="padding:20px;border:1px solid #eee">

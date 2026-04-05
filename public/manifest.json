@@ -1,6 +1,6 @@
 {
-  "name": "LokaGest — Gestion Locative",
-  "short_name": "LokaGest",
+  "name": "ImmoGest — Gestion Locative",
+  "short_name": "ImmoGest",
   "description": "Application de gestion des locataires et loyers pour FINSTAR",
   "start_url": "/",
   "display": "standalone",

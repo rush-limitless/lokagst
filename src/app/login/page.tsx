@@ -33,7 +33,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="text-3xl font-bold text-blue-900 mb-2">LokaGest</div>
+          <div className="text-3xl font-bold text-blue-900 mb-2">ImmoGest</div>
           <CardTitle className="text-lg text-gray-600">Connexion</CardTitle>
         </CardHeader>
         <CardContent>
