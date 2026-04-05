@@ -71,7 +71,7 @@ async function main() {
         data: {
           bailId: bail.id, montant: l.loyer,
           moisConcerne: new Date(2026, m, 1), datePaiement: new Date(2026, m, 5),
-          modePaiement: m % 2 === 0 ? "ESPECES" : "MOBILE_MONEY",
+          modePaiement: m % 2 === 0 ? "VIREMENT_BANCAIRE" : "ORANGE_MONEY",
         },
       });
     }
