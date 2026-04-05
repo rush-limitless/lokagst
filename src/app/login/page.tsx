@@ -30,7 +30,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md mx-4">
         <CardHeader className="text-center">
           <div className="flex justify-end"><LangToggle /></div>
           <div className="text-3xl font-bold text-blue-900 mb-2">ImmoGest</div>

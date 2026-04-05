@@ -14,14 +14,14 @@ export default async function GestionnaireLayout({ children }: { children: React
   return (
     <div className="min-h-screen flex">
       <Sidebar email={session.user.email || ""} />
-      <main className="flex-1 bg-gray-50">
+      <main className="flex-1 bg-gray-50 min-w-0">
         <MobileNav />
-        <div className="p-6">
-          <div className="flex justify-end mb-2 gap-3 items-center">
+        <div className="p-3 md:p-6">
+          <div className="flex justify-end mb-2 gap-2 items-center flex-wrap">
             <LangToggle />
             <NotificationBell />
             <ThemeToggle />
-            <LogoutButton className="text-gray-500 border-gray-300 hover:bg-gray-100" />
+            <LogoutButton className="text-gray-500 border-gray-300 hover:bg-gray-100 text-xs md:text-sm" />
           </div>
           <Breadcrumb />
           {children}

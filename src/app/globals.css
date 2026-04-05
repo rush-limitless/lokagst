@@ -57,6 +57,26 @@
   }
 }
 
+/* Mobile responsive tables */
+table {
+  min-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .bg-white.rounded-lg.border {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 600px;
+  }
+
+  .grid.grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media print {
   aside, header, .print\\:hidden, button, nav {
     display: none !important;

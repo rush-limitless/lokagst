@@ -9,21 +9,23 @@ export default async function LocataireLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-blue-950 text-white px-6 py-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-bold">ImmoGest</h1>
-          <p className="text-blue-300 text-xs">Mon espace locataire</p>
+      <header className="bg-blue-950 text-white px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-lg font-bold">ImmoGest</h1>
+            <p className="text-blue-300 text-xs">Mon espace locataire</p>
+          </div>
+          <LogoutButton className="text-white border-blue-700 hover:bg-blue-900 text-xs" />
         </div>
-        <nav className="flex items-center gap-4">
-          <Link href="/mon-espace" className="text-sm hover:text-blue-300">Accueil</Link>
-          <Link href="/mon-espace/bail" className="text-sm hover:text-blue-300">Mon bail</Link>
-          <Link href="/mon-espace/paiements" className="text-sm hover:text-blue-300">Mes paiements</Link>
-          <Link href="/mon-espace/maintenance" className="text-sm hover:text-blue-300">🔧 Maintenance</Link>
-          <Link href="/mon-espace/messagerie" className="text-sm hover:text-blue-300">💬 Messages</Link>
-          <LogoutButton className="text-white border-blue-700 hover:bg-blue-900" />
+        <nav className="flex gap-1 mt-3 overflow-x-auto pb-1 -mx-1 px-1">
+          <Link href="/mon-espace" className="text-xs bg-blue-900 px-3 py-1.5 rounded-full whitespace-nowrap hover:bg-blue-800">🏠 Accueil</Link>
+          <Link href="/mon-espace/bail" className="text-xs bg-blue-900 px-3 py-1.5 rounded-full whitespace-nowrap hover:bg-blue-800">📄 Bail</Link>
+          <Link href="/mon-espace/paiements" className="text-xs bg-blue-900 px-3 py-1.5 rounded-full whitespace-nowrap hover:bg-blue-800">💰 Paiements</Link>
+          <Link href="/mon-espace/maintenance" className="text-xs bg-blue-900 px-3 py-1.5 rounded-full whitespace-nowrap hover:bg-blue-800">🔧 Maintenance</Link>
+          <Link href="/mon-espace/messagerie" className="text-xs bg-blue-900 px-3 py-1.5 rounded-full whitespace-nowrap hover:bg-blue-800">💬 Messages</Link>
         </nav>
       </header>
-      <main className="p-6">{children}</main>
+      <main className="p-4 max-w-3xl mx-auto">{children}</main>
     </div>
   );
 }

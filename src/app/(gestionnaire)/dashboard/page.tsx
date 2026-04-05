@@ -15,20 +15,20 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-blue-950">Tableau de bord</h1>
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <h1 className="text-xl md:text-2xl font-bold text-blue-950">Tableau de bord</h1>
+        <div className="flex gap-2 flex-wrap">
           <Link href="/paiements/nouveau"><Button size="sm">💰 Paiement</Button></Link>
-          <Link href="/baux/nouveau"><Button size="sm" variant="outline">📄 Nouveau bail</Button></Link>
+          <Link href="/baux/nouveau"><Button size="sm" variant="outline">📄 Bail</Button></Link>
           <Link href="/locataires/nouveau"><Button size="sm" variant="outline">👤 Locataire</Button></Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-500">Taux d&apos;occupation</CardTitle></CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.appartements.tauxOccupation}%</div>
+            <div className="text-xl md:text-3xl font-bold">{stats.appartements.tauxOccupation}%</div>
             <p className="text-sm text-gray-500">{stats.appartements.occupes}/{stats.appartements.total} appartements</p>
           </CardContent>
         </Card>
