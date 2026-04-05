@@ -21,6 +21,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
+        <Link href="/baux" className="text-muted-foreground hover:text-foreground text-sm">← Retour</Link>
         {bail.locataire.photo && <img src={bail.locataire.photo} alt="" className="w-14 h-14 rounded-full object-cover" />}
         <div>
           <h1 className="text-2xl font-bold text-blue-950">{bail.locataire.prenom} {bail.locataire.nom}</h1>

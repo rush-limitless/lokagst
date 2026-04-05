@@ -1,3 +1,4 @@
+import { ReportingNav } from "@/components/reporting-nav";
 import { getBilanImpayes } from "@/actions/rapports";
 import { formatFCFA } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +14,7 @@ export default async function ImpayesPage() {
   return (
     <div className="space-y-6 animate-in">
       <h1 className="text-xl font-bold text-foreground">Bilan des impayés</h1>
+      <ReportingNav />
 
       <div className="grid grid-cols-3 gap-4">
         <Card><CardContent className="pt-5 text-center"><div className="text-2xl font-bold text-red-600">{impayes.length}</div><p className="text-xs text-muted-foreground">Locataires en retard</p></CardContent></Card>

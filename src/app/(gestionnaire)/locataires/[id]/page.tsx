@@ -4,6 +4,7 @@ import { formatFCFA, formatDate, STATUT_BAIL_LABELS, MODE_PAIEMENT_LABELS } from
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { ModifierLocataireForm } from "./modifier-form";
 import { ArchiverButton } from "./archiver-button";
 
@@ -16,6 +17,7 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
+        <Link href="/locataires" className="text-muted-foreground hover:text-foreground text-sm">← Retour</Link>
         {loc.photo ? <img src={loc.photo} alt="" className="w-16 h-16 rounded-full object-cover" /> : <div className="w-16 h-16 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xl font-bold">{loc.prenom[0]}{loc.nom[0]}</div>}
         <div>
           <h1 className="text-2xl font-bold text-blue-950">{loc.prenom} {loc.nom}</h1>

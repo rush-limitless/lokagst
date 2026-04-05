@@ -1,5 +1,7 @@
 "use client";
 
+import { ReportingNav } from "@/components/reporting-nav";
+
 import { getComparaisonPeriodes } from "@/actions/rapports";
 import { formatFCFA } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -40,6 +42,7 @@ export default function ComparaisonPage() {
   return (
     <div className="space-y-6 animate-in">
       <h1 className="text-xl font-bold text-foreground">Comparaison de périodes</h1>
+      <ReportingNav />
 
       <Card>
         <CardContent className="pt-6 space-y-4">

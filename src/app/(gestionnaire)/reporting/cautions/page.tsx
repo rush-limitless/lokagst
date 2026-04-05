@@ -1,3 +1,4 @@
+import { ReportingNav } from "@/components/reporting-nav";
 import { getRapportCautions } from "@/actions/rapports";
 import { formatFCFA } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +9,7 @@ export default async function CautionsPage() {
   return (
     <div className="space-y-6 animate-in">
       <h1 className="text-xl font-bold text-foreground">Rapport des cautions</h1>
+      <ReportingNav />
 
       <div className="grid grid-cols-3 gap-4">
         <Card><CardContent className="pt-5 text-center"><div className="text-2xl font-bold text-foreground">{formatFCFA(data.totalCautionsActives)}</div><p className="text-xs text-muted-foreground">Total cautions actives</p></CardContent></Card>

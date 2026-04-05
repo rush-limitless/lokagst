@@ -8,6 +8,8 @@ import { useState, useRef } from "react";
 import { toast } from "sonner";
 import XLSX from "xlsx-js-style";
 
+import { ReportingNav } from "@/components/reporting-nav";
+
 const ETAGE_LABELS: Record<string, string> = { RDC: "RDC", PREMIER: "ETAGE 1", DEUXIEME: "ETAGE 2", TROISIEME: "ETAGE 3", QUATRIEME: "ETAGE 4" };
 function fmtDate(d: Date | string) { return new Date(d).toLocaleDateString("fr-FR"); }
 
@@ -140,14 +142,7 @@ export default function ReportingPage() {
       <h1 className="text-xl md:text-2xl font-bold text-foreground">Reporting</h1>
 
       {/* Sous-navigation rapports */}
-      <div className="flex gap-2 flex-wrap">
-        <a href="/reporting" className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-full font-medium">📊 Export</a>
-        <a href="/reporting/impayes" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:bg-secondary/80">🔴 Impayés</a>
-        <a href="/reporting/cautions" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:bg-secondary/80">🔒 Cautions</a>
-        <a href="/reporting/classement" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:bg-secondary/80">🏆 Classement</a>
-        <a href="/reporting/rentabilite" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:bg-secondary/80">💹 Rentabilité</a>
-        <a href="/reporting/comparaison" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:bg-secondary/80">🔄 Comparaison</a>
-      </div>
+      <ReportingNav />
 
       <Card className="gradient-border">
         <CardHeader><CardTitle className="text-sm">📊 Tableau de suivi IMMOSTAR SCI</CardTitle></CardHeader>

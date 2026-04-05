@@ -1,3 +1,4 @@
+import { ReportingNav } from "@/components/reporting-nav";
 import { getTopPayeurs, getRecouvrementParEtage } from "@/actions/rapports";
 import { formatFCFA } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,7 @@ export default async function ClassementPage() {
   return (
     <div className="space-y-6 animate-in">
       <h1 className="text-xl font-bold text-foreground">Classement & Recouvrement</h1>
+      <ReportingNav />
 
       <Card>
         <CardHeader><CardTitle className="text-sm">Taux de recouvrement par étage</CardTitle></CardHeader>

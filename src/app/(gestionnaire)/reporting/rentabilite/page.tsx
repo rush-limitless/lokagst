@@ -1,3 +1,4 @@
+import { ReportingNav } from "@/components/reporting-nav";
 import { getRentabiliteParAppartement, getRevenusVsImpayes } from "@/actions/rapports";
 import { formatFCFA } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,7 @@ export default async function RentabilitePage() {
   return (
     <div className="space-y-6 animate-in">
       <h1 className="text-xl font-bold text-foreground">Rentabilité & Revenus</h1>
+      <ReportingNav />
 
       <Card>
         <CardHeader><CardTitle className="text-sm">Revenus vs Impayés (12 mois)</CardTitle></CardHeader>
