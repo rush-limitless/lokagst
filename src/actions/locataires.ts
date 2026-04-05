@@ -22,7 +22,7 @@ export async function getLocataires(filters?: { recherche?: string; statut?: str
 export async function getLocataire(id: string) {
   return prisma.locataire.findUnique({
     where: { id },
-    include: { baux: { include: { appartement: true, paiements: { orderBy: { moisConcerne: "desc" } } }, orderBy: { creeLe: "desc" } } },
+    include: { baux: { include: { appartement: true, paiements: { orderBy: { moisConcerne: "desc" } }, penalites: { orderBy: { appliqueLe: "desc" } } }, orderBy: { creeLe: "desc" } } },
   });
 }
 
@@ -34,8 +34,33 @@ export async function creerLocataire(formData: FormData) {
   const appart = await prisma.appartement.findUnique({ where: { id: parsed.data.appartementId } });
   if (!appart || appart.statut === "OCCUPE") return { error: "Cet appartement n'est pas disponible" };
 
-  await prisma.locataire.create({ data: { nom: parsed.data.nom, prenom: parsed.data.prenom, telephone: parsed.data.telephone, email: parsed.data.email || null, dateEntree: parsed.data.dateEntree } });
+  await prisma.locataire.create({
+    data: {
+      nom: parsed.data.nom,
+      prenom: parsed.data.prenom,
+      telephone: parsed.data.telephone,
+      email: parsed.data.email || null,
+      numeroCNI: parsed.data.numeroCNI || null,
+      photo: parsed.data.photo || null,
+      dateEntree: parsed.data.dateEntree,
+    },
+  });
   await prisma.appartement.update({ where: { id: parsed.data.appartementId }, data: { statut: "OCCUPE" } });
+  revalidatePath("/locataires");
+  return { success: true };
+}
+
+export async function modifierLocataire(id: string, formData: FormData) {
+  const data = Object.fromEntries(formData);
+  const updateData: any = {};
+  if (data.nom) updateData.nom = data.nom;
+  if (data.prenom) updateData.prenom = data.prenom;
+  if (data.telephone) updateData.telephone = data.telephone;
+  if (data.email) updateData.email = data.email;
+  if (data.numeroCNI) updateData.numeroCNI = data.numeroCNI;
+  if (data.photo) updateData.photo = data.photo;
+
+  await prisma.locataire.update({ where: { id }, data: updateData });
   revalidatePath("/locataires");
   return { success: true };
 }

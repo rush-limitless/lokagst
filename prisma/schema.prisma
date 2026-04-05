@@ -91,25 +91,48 @@ enum StatutLocataire {
 }
 
 model Bail {
-  id             String      @id @default(cuid())
-  locataireId    String
-  locataire      Locataire   @relation(fields: [locataireId], references: [id])
-  appartementId  String
-  appartement    Appartement @relation(fields: [appartementId], references: [id])
-  dateDebut      DateTime
-  dureeMois      Int
-  dateFin        DateTime
-  montantLoyer   Int
-  montantCaution Int
-  statut         StatutBail  @default(ACTIF)
-  paiements      Paiement[]
-  creeLe         DateTime    @default(now())
-  misAJourLe     DateTime    @updatedAt
+  id                    String      @id @default(cuid())
+  locataireId           String
+  locataire             Locataire   @relation(fields: [locataireId], references: [id])
+  appartementId         String
+  appartement           Appartement @relation(fields: [appartementId], references: [id])
+  dateDebut             DateTime
+  dureeMois             Int
+  dateFin               DateTime
+  montantLoyer          Int
+  montantCaution        Int
+  chargesLocatives      Json        @default("[]")
+  totalCharges          Int         @default(0)
+  totalMensuel          Int         @default(0)
+  jourLimitePaiement    Int         @default(5)
+  delaiGrace            Int         @default(5)
+  penaliteType          PenaliteType @default(POURCENTAGE)
+  penaliteMontant       Int         @default(5)
+  penaliteRecurrente    Boolean     @default(false)
+  renouvellementAuto    Boolean     @default(false)
+  dureeRenouvellement   Int?
+  augmentationLoyer     Int?
+  preavisNonRenouv      Int         @default(30)
+  preavisResiliation    Int         @default(30)
+  seuilMiseEnDemeure    Int         @default(2)
+  seuilSuspension       Int         @default(3)
+  clausesParticulieres  String?
+  statut                StatutBail  @default(ACTIF)
+  paiements             Paiement[]
+  penalites             Penalite[]
+  creeLe                DateTime    @default(now())
+  misAJourLe            DateTime    @updatedAt
   @@map("baux")
+}
+
+enum PenaliteType {
+  POURCENTAGE
+  MONTANT_FIXE
 }
 
 enum StatutBail {
   ACTIF
+  SUSPENDU
   RESILIE
   TERMINE
   EXPIRE
@@ -120,6 +143,10 @@ model Paiement {
   bailId         String
   bail           Bail           @relation(fields: [bailId], references: [id])
   montant        Int
+  montantLoyer   Int            @default(0)
+  montantCharges Int            @default(0)
+  penalites      Int            @default(0)
+  totalDu        Int            @default(0)
   moisConcerne   DateTime
   datePaiement   DateTime       @default(now())
   modePaiement   ModePaiement
@@ -142,20 +169,38 @@ enum StatutPaiement {
   PARTIELLEMENT_PAYE
 }
 
+model Penalite {
+  id           String   @id @default(cuid())
+  bailId       String
+  bail         Bail     @relation(fields: [bailId], references: [id])
+  moisConcerne DateTime
+  montant      Int
+  motif        String
+  appliqueLe   DateTime @default(now())
+  payee        Boolean  @default(false)
+  @@map("penalites")
+}
+
 model EmailLog {
-  id           String      @id @default(cuid())
+  id           String    @id @default(cuid())
   locataireId  String
-  locataire    Locataire   @relation(fields: [locataireId], references: [id])
+  locataire    Locataire @relation(fields: [locataireId], references: [id])
   type         TypeEmail
   sujet        String
   contenu      String
   destinataire String
-  envoyeLe     DateTime    @default(now())
+  envoyeLe     DateTime  @default(now())
   @@map("email_logs")
 }
 
 enum TypeEmail {
+  RAPPEL_ECHEANCE
   RAPPEL_PAIEMENT
   RECU_PAIEMENT
+  NOTIFICATION_PENALITE
+  MISE_EN_DEMEURE
+  SUSPENSION_BAIL
+  RENOUVELLEMENT_BAIL
   EXPIRATION_BAIL
+  NON_RENOUVELLEMENT
 }

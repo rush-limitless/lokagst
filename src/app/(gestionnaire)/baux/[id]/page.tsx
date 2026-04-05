@@ -9,19 +9,96 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
   const bail = await getBail(id);
   if (!bail) notFound();
 
+  const charges = (bail.chargesLocatives as { type: string; montant: number }[]) || [];
+  const statusColor: Record<string, string> = { ACTIF: "text-green-600", SUSPENDU: "text-orange-600", RESILIE: "text-red-600", TERMINE: "text-gray-500", EXPIRE: "text-red-600" };
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-blue-950">Bail — {bail.locataire.prenom} {bail.locataire.nom}</h1>
+      <div className="flex items-center gap-4">
+        {bail.locataire.photo && <img src={bail.locataire.photo} alt="" className="w-14 h-14 rounded-full object-cover" />}
+        <div>
+          <h1 className="text-2xl font-bold text-blue-950">{bail.locataire.prenom} {bail.locataire.nom}</h1>
+          <p className="text-gray-500">Appartement {bail.appartement.numero}</p>
+        </div>
+        <Badge variant="outline" className={statusColor[bail.statut] || ""}>{STATUT_BAIL_LABELS[bail.statut]}</Badge>
+      </div>
+
       <Card>
-        <CardContent className="pt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div><span className="text-gray-500 text-sm">Appartement</span><p className="font-medium">{bail.appartement.numero}</p></div>
-          <div><span className="text-gray-500 text-sm">Début</span><p className="font-medium">{formatDate(bail.dateDebut)}</p></div>
-          <div><span className="text-gray-500 text-sm">Fin</span><p className="font-medium">{formatDate(bail.dateFin)}</p></div>
-          <div><span className="text-gray-500 text-sm">Loyer</span><p className="font-medium">{formatFCFA(bail.montantLoyer)}</p></div>
-          <div><span className="text-gray-500 text-sm">Caution</span><p className="font-medium">{formatFCFA(bail.montantCaution)}</p></div>
-          <div><span className="text-gray-500 text-sm">Statut</span><p><Badge variant="outline">{STATUT_BAIL_LABELS[bail.statut]}</Badge></p></div>
+        <CardHeader><CardTitle>Termes du contrat</CardTitle></CardHeader>
+        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+          <div><span className="text-gray-500">Début</span><p className="font-medium">{formatDate(bail.dateDebut)}</p></div>
+          <div><span className="text-gray-500">Fin</span><p className="font-medium">{formatDate(bail.dateFin)}</p></div>
+          <div><span className="text-gray-500">Durée</span><p className="font-medium">{bail.dureeMois} mois</p></div>
+          <div><span className="text-gray-500">Loyer</span><p className="font-medium">{formatFCFA(bail.montantLoyer)}</p></div>
+          <div><span className="text-gray-500">Charges</span><p className="font-medium">{formatFCFA(bail.totalCharges)}</p></div>
+          <div><span className="text-gray-500">Total mensuel</span><p className="font-medium text-lg">{formatFCFA(bail.totalMensuel)}</p></div>
+          <div><span className="text-gray-500">Caution</span><p className="font-medium">{formatFCFA(bail.montantCaution)}</p></div>
         </CardContent>
       </Card>
+
+      {charges.length > 0 && (
+        <Card>
+          <CardHeader><CardTitle>Charges locatives</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-1">
+              {charges.map((c, i) => (
+                <div key={i} className="flex justify-between text-sm p-2 bg-gray-50 rounded">
+                  <span>{c.type}</span><span className="font-medium">{formatFCFA(c.montant)}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardHeader><CardTitle>Modalités de paiement</CardTitle></CardHeader>
+        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+          <div><span className="text-gray-500">Jour limite</span><p className="font-medium">Le {bail.jourLimitePaiement} du mois</p></div>
+          <div><span className="text-gray-500">Délai de grâce</span><p className="font-medium">{bail.delaiGrace} jours</p></div>
+          <div><span className="text-gray-500">Pénalité</span><p className="font-medium">{bail.penaliteMontant}{bail.penaliteType === "POURCENTAGE" ? "% du loyer" : " FCFA"}{bail.penaliteRecurrente ? " /semaine" : ""}</p></div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Renouvellement et résiliation</CardTitle></CardHeader>
+        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+          <div><span className="text-gray-500">Renouvellement auto</span><p className="font-medium">{bail.renouvellementAuto ? "✅ Oui" : "❌ Non"}</p></div>
+          {bail.renouvellementAuto && <>
+            <div><span className="text-gray-500">Durée renouvellement</span><p className="font-medium">{bail.dureeRenouvellement || bail.dureeMois} mois</p></div>
+            <div><span className="text-gray-500">Augmentation</span><p className="font-medium">{bail.augmentationLoyer || 0}%</p></div>
+          </>}
+          <div><span className="text-gray-500">Préavis résiliation</span><p className="font-medium">{bail.preavisResiliation} jours</p></div>
+          <div><span className="text-gray-500">Seuil mise en demeure</span><p className="font-medium">{bail.seuilMiseEnDemeure} mois</p></div>
+          <div><span className="text-gray-500">Seuil suspension</span><p className="font-medium">{bail.seuilSuspension} mois</p></div>
+        </CardContent>
+      </Card>
+
+      {bail.clausesParticulieres && (
+        <Card>
+          <CardHeader><CardTitle>Clauses particulières</CardTitle></CardHeader>
+          <CardContent><p className="text-sm whitespace-pre-wrap">{bail.clausesParticulieres}</p></CardContent>
+        </Card>
+      )}
+
+      {bail.penalites.length > 0 && (
+        <Card>
+          <CardHeader><CardTitle>Pénalités</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-1">
+              {bail.penalites.map((p) => (
+                <div key={p.id} className="flex justify-between text-sm p-2 bg-red-50 rounded">
+                  <span>{p.motif}</span>
+                  <span>{formatDate(p.appliqueLe)}</span>
+                  <span className="font-medium">{formatFCFA(p.montant)}</span>
+                  <Badge variant={p.payee ? "outline" : "destructive"}>{p.payee ? "Payée" : "Due"}</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader><CardTitle>Paiements</CardTitle></CardHeader>
         <CardContent>

@@ -19,6 +19,7 @@ export const locataireSchema = z.object({
   telephone: z.string().regex(/^6\d{8}$/, "Format: 6XXXXXXXX"),
   email: z.string().email("Email invalide").optional().or(z.literal("")),
   numeroCNI: z.string().optional(),
+  photo: z.string().optional(),
   appartementId: z.string().min(1, "Appartement requis"),
   dateEntree: z.coerce.date(),
 });
@@ -30,6 +31,25 @@ export const bailSchema = z.object({
   dureeMois: z.coerce.number().int().positive("Durée requise"),
   montantLoyer: z.coerce.number().int().positive("Loyer requis"),
   montantCaution: z.coerce.number().int().min(0, "Caution invalide"),
+  // Charges locatives (JSON string)
+  chargesLocatives: z.string().optional(),
+  // Modalités de paiement
+  jourLimitePaiement: z.coerce.number().int().min(1).max(28).default(5),
+  delaiGrace: z.coerce.number().int().min(0).default(5),
+  penaliteType: z.enum(["POURCENTAGE", "MONTANT_FIXE"]).default("POURCENTAGE"),
+  penaliteMontant: z.coerce.number().int().min(0).default(5),
+  penaliteRecurrente: z.coerce.boolean().default(false),
+  // Renouvellement
+  renouvellementAuto: z.coerce.boolean().default(false),
+  dureeRenouvellement: z.coerce.number().int().optional(),
+  augmentationLoyer: z.coerce.number().int().optional(),
+  preavisNonRenouv: z.coerce.number().int().default(30),
+  // Résiliation
+  preavisResiliation: z.coerce.number().int().default(30),
+  seuilMiseEnDemeure: z.coerce.number().int().default(2),
+  seuilSuspension: z.coerce.number().int().default(3),
+  // Clauses
+  clausesParticulieres: z.string().optional(),
 });
 
 export const paiementSchema = z.object({
