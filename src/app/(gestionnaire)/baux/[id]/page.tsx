@@ -3,6 +3,8 @@ import { formatFCFA, formatDate, STATUT_BAIL_LABELS, MODE_PAIEMENT_LABELS } from
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from "next/navigation";
+import { SignerBailForm } from "./signer-form";
+import { UploadContratForm } from "./upload-contrat-form";
 
 export default async function BailDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -80,6 +82,36 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
           <CardContent><p className="text-sm whitespace-pre-wrap">{bail.clausesParticulieres}</p></CardContent>
         </Card>
       )}
+
+      {/* SIGNATURE ÉLECTRONIQUE */}
+      <Card>
+        <CardHeader><CardTitle>Signature du locataire</CardTitle></CardHeader>
+        <CardContent>
+          {bail.signatureLocataire ? (
+            <div>
+              <p className="text-sm text-green-600 mb-2">✅ Signé le {bail.dateSignature ? formatDate(bail.dateSignature) : ""}</p>
+              <img src={bail.signatureLocataire} alt="Signature" className="border rounded h-20" />
+            </div>
+          ) : (
+            <SignerBailForm bailId={bail.id} />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* UPLOAD CONTRAT ENREGISTRÉ */}
+      <Card>
+        <CardHeader><CardTitle>Contrat enregistré (scan/PDF)</CardTitle></CardHeader>
+        <CardContent>
+          {bail.contratUpload ? (
+            <div>
+              <p className="text-sm text-green-600 mb-2">✅ Contrat uploadé</p>
+              <a href={bail.contratUpload} target="_blank" className="text-blue-600 hover:underline text-sm">📄 Voir le contrat</a>
+            </div>
+          ) : (
+            <UploadContratForm bailId={bail.id} />
+          )}
+        </CardContent>
+      </Card>
 
       {bail.penalites.length > 0 && (
         <Card>

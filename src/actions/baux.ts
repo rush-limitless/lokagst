@@ -80,6 +80,24 @@ export async function creerBail(formData: FormData) {
   return { success: true };
 }
 
+export async function signerBail(id: string, signatureDataUrl: string) {
+  await prisma.bail.update({
+    where: { id },
+    data: { signatureLocataire: signatureDataUrl, dateSignature: new Date() },
+  });
+  revalidatePath(`/baux/${id}`);
+  return { success: true };
+}
+
+export async function uploaderContrat(id: string, contratUrl: string) {
+  await prisma.bail.update({
+    where: { id },
+    data: { contratUpload: contratUrl },
+  });
+  revalidatePath(`/baux/${id}`);
+  return { success: true };
+}
+
 export async function resilierBail(id: string) {
   const bail = await prisma.bail.findUnique({ where: { id } });
   if (!bail) return { error: "Bail introuvable" };

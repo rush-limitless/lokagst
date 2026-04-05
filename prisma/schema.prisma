@@ -119,6 +119,9 @@ model Bail {
   seuilMiseEnDemeure    Int         @default(2)
   seuilSuspension       Int         @default(3)
   clausesParticulieres  String?
+  signatureLocataire    String?
+  dateSignature         DateTime?
+  contratUpload         String?
   statut                StatutBail  @default(ACTIF)
   paiements             Paiement[]
   penalites             Penalite[]

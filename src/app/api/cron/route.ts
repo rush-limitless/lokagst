@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendEmail, genererEmailRappel } from "@/lib/email";
+import { envoyerFacturesMensuelles } from "@/actions/factures";
 
 export async function GET(req: NextRequest) {
   // Sécurité : vérifier le secret
@@ -12,7 +13,13 @@ export async function GET(req: NextRequest) {
   const now = new Date();
   const jour = now.getDate();
   const moisCourant = new Date(now.getFullYear(), now.getMonth(), 1);
-  const results = { rappels: 0, impayes: 0, penalites: 0, misesDemeure: 0, suspensions: 0, renouvellements: 0, expirations: 0 };
+  const results = { factures: 0, rappels: 0, impayes: 0, penalites: 0, misesDemeure: 0, suspensions: 0, renouvellements: 0, expirations: 0 };
+
+  // Envoi des factures le 1er du mois
+  if (jour === 1) {
+    const facturesResult = await envoyerFacturesMensuelles();
+    results.factures = facturesResult.envoyes;
+  }
 
   const bauxActifs = await prisma.bail.findMany({
     where: { statut: "ACTIF" },
