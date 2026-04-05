@@ -81,7 +81,7 @@ export default async function DashboardPage() {
         <div className={stats.alertes.bauxExpirants.length > 0 ? "gradient-border" : ""}>
           <Card className="h-full">
             <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Baux expirant bientôt</CardTitle></CardHeader>
-            <CardContent>
+            <CardContent className="max-h-52 overflow-y-auto">
               {stats.alertes.bauxExpirants.length === 0 ? (
                 <div className="text-center py-6"><div className="text-3xl mb-2">✅</div><p className="text-muted-foreground text-sm">Aucun dans les 30 prochains jours</p></div>
               ) : (
@@ -100,7 +100,7 @@ export default async function DashboardPage() {
         <div className={stats.alertes.impayesLocataires.length > 0 ? "gradient-border" : ""}>
           <Card className="h-full">
             <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Impayés ce mois</CardTitle></CardHeader>
-            <CardContent>
+            <CardContent className="max-h-52 overflow-y-auto">
               {stats.alertes.impayesLocataires.length === 0 ? (
                 <div className="text-center py-6"><div className="text-3xl mb-2">✅</div><p className="text-muted-foreground text-sm">Tous à jour</p></div>
               ) : (
@@ -118,7 +118,7 @@ export default async function DashboardPage() {
         </div>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Activité récente</CardTitle></CardHeader>
-          <CardContent>
+          <CardContent className="max-h-52 overflow-y-auto">
             {activites.length === 0 ? (
               <div className="text-center py-6"><div className="text-3xl mb-2">📭</div><p className="text-muted-foreground text-sm">Aucune activité</p></div>
             ) : (
