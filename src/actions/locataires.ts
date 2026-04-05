@@ -22,7 +22,7 @@ export async function getLocataires(filters?: { recherche?: string; statut?: str
 export async function getLocataire(id: string) {
   return prisma.locataire.findUnique({
     where: { id },
-    include: { baux: { include: { appartement: true, paiements: { orderBy: { moisConcerne: "desc" } }, penalites: { orderBy: { appliqueLe: "desc" } } }, orderBy: { creeLe: "desc" } } },
+    include: { baux: { include: { appartement: true, paiements: { orderBy: { moisConcerne: "desc" } }, penalites: { orderBy: { appliqueLe: "desc" } } }, orderBy: { creeLe: "desc" } }, utilisateur: true },
   });
 }
 
