@@ -56,3 +56,21 @@
     --ring: 212.7 26.8% 83.9%;
   }
 }
+
+@media print {
+  aside, header, .print\\:hidden, button, nav {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .print\\:border-none {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
