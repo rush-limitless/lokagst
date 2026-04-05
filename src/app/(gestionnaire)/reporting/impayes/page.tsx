@@ -1,6 +1,6 @@
 import { getBilanImpayes } from "@/actions/rapports";
 import { formatFCFA } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
 
 const ETAGE_LABELS: Record<string, string> = { RDC: "RDC", PREMIER: "1er", DEUXIEME: "2ème", TROISIEME: "3ème", QUATRIEME: "4ème" };
