@@ -24,13 +24,18 @@ export async function getDashboardStats() {
     .map((b) => ({ bailId: b.id, locataire: `${b.locataire.prenom} ${b.locataire.nom}`, appartement: b.appartement.numero, dateFin: b.dateFin, joursRestants: Math.ceil((b.dateFin.getTime() - now.getTime()) / 86400000) }));
 
   const moisCourant = new Date(now.getFullYear(), now.getMonth(), 1);
+  const jourDuMois = now.getDate();
   const impayesLocataires = bauxActifs
-    .filter((b) => !b.paiements.some((p) => p.moisConcerne.getTime() === moisCourant.getTime()))
-    .map((b) => ({ locataireId: b.locataireId, nom: `${b.locataire.prenom} ${b.locataire.nom}`, montantDu: b.montantLoyer }));
+    .filter((b) => {
+      // Ne considérer comme impayé que si le jour limite est dépassé
+      if (jourDuMois <= b.jourLimitePaiement) return false;
+      return !b.paiements.some((p) => p.moisConcerne.getTime() === moisCourant.getTime() && p.statut === "PAYE");
+    })
+    .map((b) => ({ locataireId: b.locataireId, nom: `${b.locataire.prenom} ${b.locataire.nom}`, montantDu: b.totalMensuel || b.montantLoyer }));
 
   return {
     appartements: { total, occupes, libres: total - occupes, tauxOccupation: total > 0 ? Math.round((occupes / total) * 100) : 0 },
-    finances: { revenusMois, impayesMois: revenusAttendus - revenusMois, revenusAttendus },
+    finances: { revenusMois, impayesMois: jourDuMois > 5 ? Math.max(0, revenusAttendus - revenusMois) : 0, revenusAttendus },
     alertes: { bauxExpirants, impayesLocataires },
   };
 }
