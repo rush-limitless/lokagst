@@ -26,6 +26,7 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
         </div>
         {loc.statut === "ACTIF" && <ArchiverButton locataireId={loc.id} />}
         {loc.statut === "ACTIF" && !loc.utilisateur && <CreerCompteButton locataireId={loc.id} email={loc.email} />}
+        <Link href={`/locataires/${loc.id}/documents`}><Button variant="outline" size="sm">📁 Documents</Button></Link>
       </div>
 
       {situation && (

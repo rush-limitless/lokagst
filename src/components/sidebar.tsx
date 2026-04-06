@@ -19,6 +19,7 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
       { href: "/dashboard", label: t.dashboard, icon: "📊" },
       { href: "/appartements", label: t.appartements, icon: "🏠" },
       { href: "/locataires", label: t.locataires, icon: "👤" },
+      { href: "/situation", label: "Situation", icon: "📋" },
       { href: "/baux", label: t.contrats, icon: "📄" },
       { href: "/immeubles", label: t.immeubles, icon: "🏢" },
     ]},
