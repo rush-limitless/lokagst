@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function ParametresPage() {
   const [ancien, setAncien] = useState("");
@@ -23,9 +24,42 @@ export default function ParametresPage() {
   }
 
   return (
-    <div className="space-y-6 animate-in max-w-lg">
+    <div className="space-y-6 animate-in">
       <h1 className="text-xl font-bold text-foreground">Paramètres</h1>
-      <Card>
+
+      {/* Raccourcis admin */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Link href="/immeubles" className="block">
+          <Card className="hover:shadow-md transition-all hover:-translate-y-0.5 h-full">
+            <CardContent className="pt-6 text-center">
+              <div className="text-3xl mb-2">🏢</div>
+              <h3 className="font-medium text-foreground">Immeubles</h3>
+              <p className="text-xs text-muted-foreground mt-1">Gérer les immeubles et voir les appartements</p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/audit" className="block">
+          <Card className="hover:shadow-md transition-all hover:-translate-y-0.5 h-full">
+            <CardContent className="pt-6 text-center">
+              <div className="text-3xl mb-2">📝</div>
+              <h3 className="font-medium text-foreground">Journal d&apos;audit</h3>
+              <p className="text-xs text-muted-foreground mt-1">Historique des actions</p>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/emails" className="block">
+          <Card className="hover:shadow-md transition-all hover:-translate-y-0.5 h-full">
+            <CardContent className="pt-6 text-center">
+              <div className="text-3xl mb-2">📧</div>
+              <h3 className="font-medium text-foreground">Emails envoyés</h3>
+              <p className="text-xs text-muted-foreground mt-1">Historique des emails</p>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
+
+      {/* Changer mot de passe */}
+      <Card className="max-w-lg">
         <CardHeader><CardTitle className="text-sm">Changer le mot de passe</CardTitle></CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

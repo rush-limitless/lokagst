@@ -14,7 +14,10 @@ export default async function LocatairesPage({ searchParams }: { searchParams: P
   return (
     <div className="space-y-6 animate-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <h1 className="text-xl md:text-2xl font-bold text-foreground">Locataires</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">Locataires</h1>
+          <Link href="/situation" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full hover:bg-secondary/80">📋 Situation</Link>
+        </div>
         <Link href="/locataires/nouveau"><Button>+ Ajouter</Button></Link>
       </div>
       <div className="flex gap-3 items-center flex-wrap">

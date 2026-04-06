@@ -25,7 +25,10 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
   return (
     <div className="space-y-6 animate-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <h1 className="text-xl md:text-2xl font-bold text-foreground">Paiements</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">Paiements</h1>
+          <Link href="/calendrier" className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full hover:bg-secondary/80">📅 Calendrier</Link>
+        </div>
         <Link href="/paiements/nouveau"><Button>+ Enregistrer</Button></Link>
       </div>
 
