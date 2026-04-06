@@ -24,6 +24,7 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
     ]},
     { title: "Finance", items: [
       { href: "/paiements", label: t.paiements, icon: "💰" },
+      { href: "/calendrier", label: "Calendrier", icon: "📅" },
       { href: "/reporting", label: "Reporting", icon: "📊" },
     ]},
     { title: "Communication", items: [
