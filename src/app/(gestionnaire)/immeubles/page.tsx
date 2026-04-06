@@ -18,7 +18,7 @@ export default async function ImmeublesPage() {
               <p className="text-sm text-muted-foreground">{i.quartier ? `${i.quartier}, ` : ""}{i.ville}</p>
               <div className="flex justify-between items-center mt-3">
                 <p className="text-sm font-medium text-foreground">{i._count.appartements} appartement(s)</p>
-                <Link href={`/appartements`} className="text-primary text-xs hover:underline">Voir →</Link>
+                <Link href={`/appartements?immeuble=${i.id}`} className="text-primary text-xs hover:underline">Voir →</Link>
               </div>
             </CardContent>
           </Card>
