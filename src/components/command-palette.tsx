@@ -3,7 +3,6 @@
 import { rechercheGlobale } from "@/actions/recherche";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
