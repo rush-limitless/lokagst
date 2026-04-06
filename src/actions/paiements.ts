@@ -60,3 +60,4 @@ export async function rejeterPaiement(id: string) {
   revalidatePath("/paiements");
   return { success: true };
 }
+
