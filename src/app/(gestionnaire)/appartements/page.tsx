@@ -1,6 +1,6 @@
 import { getAppartements } from "@/actions/appartements";
 import { getImmeubles } from "@/actions/immeubles";
-import { formatFCFA, ETAGE_LABELS } from "@/lib/utils";
+import { formatFCFA, ETAGE_LABELS, TYPE_LABELS } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/search-bar";
 import { StatusBadge } from "@/components/status-badge";
@@ -51,9 +51,10 @@ export default async function AppartementsPage({ searchParams }: { searchParams:
                 <div className="relative">
                   <div className="text-2xl font-bold text-foreground">{a.numero}</div>
                   <p className="text-xs text-muted-foreground mt-1">{ETAGE_LABELS[a.etage]}</p>
-                  <p className="text-xs text-muted-foreground">{a.type}</p>
+                  <p className="text-xs text-muted-foreground">{TYPE_LABELS[a.type] || a.type}</p>
                   {a.immeuble && <p className="text-[10px] text-primary mt-1">{a.immeuble.nom}</p>}
                   <p className="text-sm font-semibold text-foreground mt-3">{formatFCFA(a.loyerBase)}</p>
+                  {a.baux[0]?.totalCharges > 0 && <p className="text-xs text-muted-foreground">Charges : {formatFCFA(a.baux[0].totalCharges)}</p>}
                   <div className="mt-2">
                     <StatusBadge status={a.statut === "LIBRE" ? "libre" : "occupe"} label={a.statut === "LIBRE" ? "Libre" : "Occupé"} />
                   </div>

@@ -30,6 +30,15 @@ export const ETAGE_LABELS: Record<string, string> = {
   DEUXIEME: "2ème étage",
   TROISIEME: "3ème étage",
   QUATRIEME: "4ème étage",
+  CINQUIEME: "5ème étage",
+};
+
+export const TYPE_LABELS: Record<string, string> = {
+  STUDIO: "Studio",
+  CHAMBRE: "Chambre",
+  APPARTEMENT: "Appartement non meublé",
+  APPARTEMENT_MEUBLE: "Appartement meublé",
+  VILLA: "Villa",
 };
 
 export const STATUT_BAIL_LABELS: Record<string, string> = {

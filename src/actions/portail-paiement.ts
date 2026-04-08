@@ -21,8 +21,8 @@ export async function soumettrePreuvePaiement(formData: FormData) {
   });
   if (!bail) return { error: "Aucun bail actif" };
 
-  const existing = await prisma.paiement.findUnique({
-    where: { bailId_moisConcerne: { bailId: bail.id, moisConcerne } },
+  const existing = await prisma.paiement.findFirst({
+    where: { bailId: bail.id, moisConcerne },
   });
 
   const montantTotal = (existing?.montant || 0) + montant;

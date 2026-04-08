@@ -5,12 +5,12 @@ import { StatusBadge } from "@/components/status-badge";
 import { SearchBar } from "@/components/search-bar";
 import Link from "next/link";
 import { EnvoyerRecuButton } from "./envoyer-recu-button";
+import { SupprimerPaiementButton } from "./supprimer-paiement-button";
 
 export default async function PaiementsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q } = await searchParams;
   const paiements = await getPaiements();
 
-  // Filtrer côté serveur par nom locataire si recherche
   const filtered = q
     ? paiements.filter((p) => `${p.bail.locataire.prenom} ${p.bail.locataire.nom}`.toLowerCase().includes(q.toLowerCase()))
     : paiements;
@@ -43,7 +43,7 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
       <div className="bg-card rounded-xl border overflow-x-auto table-scroll">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs text-muted-foreground uppercase">
-            <tr><th className="p-3 text-left">Locataire</th><th className="p-3">Appart.</th><th className="p-3">Mois</th><th className="p-3 text-right">Montant</th><th className="p-3">Mode</th><th className="p-3">Statut</th><th className="p-3">Preuve</th><th className="p-3">Actions</th></tr>
+            <tr><th className="p-3 text-left">Locataire</th><th className="p-3">Appart.</th><th className="p-3">Mois</th><th className="p-3 text-right">Loyer</th><th className="p-3 text-right">Charges</th><th className="p-3 text-right">Caution</th><th className="p-3 text-right">Total</th><th className="p-3">Mode</th><th className="p-3">Statut</th><th className="p-3">Preuve</th><th className="p-3">Actions</th></tr>
           </thead>
           <tbody className="divide-y">
             {filtered.slice(0, 50).map((p) => (
@@ -51,6 +51,9 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
                 <td className="p-3 font-medium text-foreground">{p.bail.locataire.prenom} {p.bail.locataire.nom}</td>
                 <td className="p-3 text-center text-muted-foreground">{p.bail.appartement.numero}</td>
                 <td className="p-3 text-center text-muted-foreground">{formatDate(p.moisConcerne)}</td>
+                <td className="p-3 text-right text-muted-foreground">{formatFCFA(p.montantLoyer)}</td>
+                <td className="p-3 text-right text-muted-foreground">{formatFCFA(p.montantCharges)}</td>
+                <td className="p-3 text-right text-muted-foreground">{p.montantCaution > 0 ? formatFCFA(p.montantCaution) : "—"}</td>
                 <td className="p-3 text-right font-medium text-foreground">{formatFCFA(p.montant)}</td>
                 <td className="p-3 text-center text-xs text-muted-foreground">{MODE_PAIEMENT_LABELS[p.modePaiement] || p.modePaiement}</td>
                 <td className="p-3">
@@ -62,11 +65,12 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
                     <Link href={`/paiements/recu?id=${p.id}`} className="text-primary text-xs hover:underline">Reçu</Link>
                     {p.statut === "PAYE" && <Link href={`/paiements/quittance?id=${p.id}`} className="text-emerald-600 text-xs hover:underline">Quittance</Link>}
                     <EnvoyerRecuButton paiementId={p.id} />
+                    <SupprimerPaiementButton id={p.id} />
                   </div>
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && <tr><td colSpan={8} className="p-6 text-center text-muted-foreground">Aucun paiement</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={11} className="p-6 text-center text-muted-foreground">Aucun paiement</td></tr>}
           </tbody>
         </table>
       </div>

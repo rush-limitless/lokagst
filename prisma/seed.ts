@@ -29,45 +29,45 @@ async function main() {
   // === IMMEUBLE 1 : Résidence La'ag Tchang ===
   const apparts1 = [
     // Etage 1
-    { numero: "APPART A11", etage: "PREMIER" as const, type: "T3" as const, loyerBase: 150000, imm: imm1.id },
-    { numero: "APPART A12", etage: "PREMIER" as const, type: "T3" as const, loyerBase: 150000, imm: imm1.id },
-    { numero: "APPART B13", etage: "PREMIER" as const, type: "T3" as const, loyerBase: 150000, imm: imm1.id },
-    { numero: "APPART B14", etage: "PREMIER" as const, type: "T3" as const, loyerBase: 150000, imm: imm1.id },
+    { numero: "APPART A11", etage: "PREMIER" as const, type: "APPARTEMENT" as const, loyerBase: 150000, imm: imm1.id },
+    { numero: "APPART A12", etage: "PREMIER" as const, type: "APPARTEMENT" as const, loyerBase: 150000, imm: imm1.id },
+    { numero: "APPART B13", etage: "PREMIER" as const, type: "APPARTEMENT" as const, loyerBase: 150000, imm: imm1.id },
+    { numero: "APPART B14", etage: "PREMIER" as const, type: "APPARTEMENT" as const, loyerBase: 150000, imm: imm1.id },
     // Etage 2
-    { numero: "APPART A21", etage: "DEUXIEME" as const, type: "T3" as const, loyerBase: 150000, imm: imm1.id },
-    { numero: "APPART A22", etage: "DEUXIEME" as const, type: "T3" as const, loyerBase: 150000, imm: imm1.id },
-    { numero: "APPART B23", etage: "DEUXIEME" as const, type: "T3" as const, loyerBase: 150000, imm: imm1.id },
-    { numero: "APPART B24", etage: "DEUXIEME" as const, type: "T3" as const, loyerBase: 150000, imm: imm1.id },
+    { numero: "APPART A21", etage: "DEUXIEME" as const, type: "APPARTEMENT" as const, loyerBase: 150000, imm: imm1.id },
+    { numero: "APPART A22", etage: "DEUXIEME" as const, type: "APPARTEMENT" as const, loyerBase: 150000, imm: imm1.id },
+    { numero: "APPART B23", etage: "DEUXIEME" as const, type: "APPARTEMENT" as const, loyerBase: 150000, imm: imm1.id },
+    { numero: "APPART B24", etage: "DEUXIEME" as const, type: "APPARTEMENT" as const, loyerBase: 150000, imm: imm1.id },
     // Etage 3
     { numero: "STUDIO A31", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 90000, imm: imm1.id },
     { numero: "STUDIO A32", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 90000, imm: imm1.id },
-    { numero: "CHAMBRE A33", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 40000, imm: imm1.id },
-    { numero: "CHAMBRE A34", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 45000, imm: imm1.id },
-    { numero: "CHAMBRE B35", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 40000, imm: imm1.id },
-    { numero: "CHAMBRE B36", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 40000, imm: imm1.id },
+    { numero: "CHAMBRE A33", etage: "TROISIEME" as const, type: "CHAMBRE" as const, loyerBase: 40000, imm: imm1.id },
+    { numero: "CHAMBRE A34", etage: "TROISIEME" as const, type: "CHAMBRE" as const, loyerBase: 45000, imm: imm1.id },
+    { numero: "CHAMBRE B35", etage: "TROISIEME" as const, type: "CHAMBRE" as const, loyerBase: 40000, imm: imm1.id },
+    { numero: "CHAMBRE B36", etage: "TROISIEME" as const, type: "CHAMBRE" as const, loyerBase: 40000, imm: imm1.id },
     { numero: "STUDIO B37", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 90000, imm: imm1.id },
     { numero: "STUDIO B38", etage: "TROISIEME" as const, type: "STUDIO" as const, loyerBase: 90000, imm: imm1.id },
     // Etage 4
     { numero: "STUDIO A41", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 80000, imm: imm1.id },
     { numero: "STUDIO A42", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 80000, imm: imm1.id },
-    { numero: "CHAMBRE B44", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 45000, imm: imm1.id },
-    { numero: "CHAMBRE B45", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 40000, imm: imm1.id },
-    { numero: "CHAMBRE B46", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 45000, imm: imm1.id },
-    { numero: "CHAMBRE B43", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 45000, imm: imm1.id },
+    { numero: "CHAMBRE B44", etage: "QUATRIEME" as const, type: "CHAMBRE" as const, loyerBase: 45000, imm: imm1.id },
+    { numero: "CHAMBRE B45", etage: "QUATRIEME" as const, type: "CHAMBRE" as const, loyerBase: 40000, imm: imm1.id },
+    { numero: "CHAMBRE B46", etage: "QUATRIEME" as const, type: "CHAMBRE" as const, loyerBase: 45000, imm: imm1.id },
+    { numero: "CHAMBRE B43", etage: "QUATRIEME" as const, type: "CHAMBRE" as const, loyerBase: 45000, imm: imm1.id },
     { numero: "STUDIO B48", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 80000, imm: imm1.id },
     { numero: "STUDIO B47", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 80000, imm: imm1.id },
     // Etage 5
-    { numero: "APPART MEUBLE", etage: "QUATRIEME" as const, type: "T4" as const, loyerBase: 0, imm: imm1.id },
+    { numero: "APPART MEUBLE", etage: "CINQUIEME" as const, type: "APPARTEMENT_MEUBLE" as const, loyerBase: 0, imm: imm1.id },
     // RDC
     { numero: "STUDIO B01", etage: "RDC" as const, type: "STUDIO" as const, loyerBase: 100000, imm: imm1.id },
-    { numero: "RDC GAB", etage: "RDC" as const, type: "T2" as const, loyerBase: 50000, imm: imm1.id },
-    { numero: "RDC IT", etage: "RDC" as const, type: "T4" as const, loyerBase: 300000, imm: imm1.id },
+    { numero: "RDC GAB", etage: "RDC" as const, type: "CHAMBRE" as const, loyerBase: 50000, imm: imm1.id },
+    { numero: "RDC IT", etage: "RDC" as const, type: "APPARTEMENT_MEUBLE" as const, loyerBase: 300000, imm: imm1.id },
   ];
 
   // === IMMEUBLE 2 : Santa Barbara ===
   const apparts2 = [
-    { numero: "RDC SB", etage: "RDC" as const, type: "T3" as const, loyerBase: 155000, imm: imm2.id },
-    { numero: "ETAGE SB", etage: "PREMIER" as const, type: "T3" as const, loyerBase: 170000, imm: imm2.id },
+    { numero: "RDC SB", etage: "RDC" as const, type: "APPARTEMENT" as const, loyerBase: 155000, imm: imm2.id },
+    { numero: "ETAGE SB", etage: "PREMIER" as const, type: "APPARTEMENT" as const, loyerBase: 170000, imm: imm2.id },
   ];
 
   for (const a of [...apparts1, ...apparts2]) {

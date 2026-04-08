@@ -129,6 +129,35 @@ export async function leverSuspension(id: string) {
   return { success: true };
 }
 
+export async function modifierBail(id: string, formData: FormData) {
+  const bail = await prisma.bail.findUnique({ where: { id } });
+  if (!bail) return { error: "Bail introuvable" };
+
+  const dateDebut = formData.get("dateDebut") ? new Date(formData.get("dateDebut") as string) : bail.dateDebut;
+  const dateFin = formData.get("dateFin") ? new Date(formData.get("dateFin") as string) : bail.dateFin;
+  const montantLoyer = formData.get("montantLoyer") ? parseInt(formData.get("montantLoyer") as string) : bail.montantLoyer;
+  const montantCaution = formData.get("montantCaution") ? parseInt(formData.get("montantCaution") as string) : bail.montantCaution;
+  const renouvellementAuto = formData.get("renouvellementAuto") === "on" || formData.get("renouvellementAuto") === "true";
+
+  let charges = bail.chargesLocatives as { type: string; montant: number }[];
+  try {
+    const raw = formData.get("chargesLocatives") as string;
+    if (raw) charges = JSON.parse(raw);
+  } catch {}
+  const totalCharges = charges.reduce((s, c) => s + c.montant, 0);
+
+  await prisma.bail.update({
+    where: { id },
+    data: {
+      dateDebut, dateFin, montantLoyer, montantCaution, renouvellementAuto,
+      chargesLocatives: charges, totalCharges, totalMensuel: montantLoyer + totalCharges,
+    },
+  });
+
+  revalidatePath(`/baux/${id}`);
+  return { success: true };
+}
+
 export async function renouvelerBail(id: string, formData: FormData) {
   const bail = await prisma.bail.findUnique({ where: { id } });
   if (!bail) return { error: "Bail introuvable" };

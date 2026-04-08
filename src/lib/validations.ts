@@ -7,8 +7,8 @@ export const loginSchema = z.object({
 
 export const appartementSchema = z.object({
   numero: z.string().min(1, "Numéro requis"),
-  etage: z.enum(["RDC", "PREMIER", "DEUXIEME", "TROISIEME", "QUATRIEME"]),
-  type: z.enum(["STUDIO", "T2", "T3", "T4"]),
+  etage: z.enum(["RDC", "PREMIER", "DEUXIEME", "TROISIEME", "QUATRIEME", "CINQUIEME"]),
+  type: z.enum(["STUDIO", "CHAMBRE", "APPARTEMENT", "APPARTEMENT_MEUBLE", "VILLA"]),
   loyerBase: z.coerce.number().int().positive("Le loyer doit être positif"),
   description: z.string().optional(),
 });
@@ -51,7 +51,13 @@ export const bailSchema = z.object({
 export const paiementSchema = z.object({
   bailId: z.string().min(1, "Bail requis"),
   montant: z.coerce.number().int().positive("Montant requis"),
+  montantLoyer: z.coerce.number().int().min(0).default(0),
+  montantCharges: z.coerce.number().int().min(0).default(0),
+  montantCaution: z.coerce.number().int().min(0).default(0),
+  montantAutres: z.coerce.number().int().min(0).default(0),
+  notesAutres: z.string().optional(),
   moisConcerne: z.coerce.date(),
+  nbMois: z.coerce.number().int().min(1).default(1),
   modePaiement: z.enum(["VIREMENT_BANCAIRE", "ORANGE_MONEY"]),
   preuvePaiement: z.string().optional(),
   notes: z.string().optional(),

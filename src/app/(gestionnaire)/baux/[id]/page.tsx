@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SignerBailForm } from "./signer-form";
 import { UploadContratForm } from "./upload-contrat-form";
+import { ModifierBailForm } from "./modifier-bail-form";
 
 export default async function BailDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -32,7 +33,12 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Termes du contrat</CardTitle></CardHeader>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>Termes du contrat</CardTitle>
+            <ModifierBailForm bail={bail} />
+          </div>
+        </CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
           <div><span className="text-gray-500">Début</span><p className="font-medium">{formatDate(bail.dateDebut)}</p></div>
           <div><span className="text-gray-500">Fin</span><p className="font-medium">{formatDate(bail.dateFin)}</p></div>

@@ -76,7 +76,7 @@ export async function getRecouvrementParEtage() {
     const e = b.appartement.etage;
     if (!etages[e]) etages[e] = { attendu: 0, regle: 0 };
     const mois = Math.ceil((now.getTime() - new Date(b.dateDebut).getTime()) / (30.5 * 86400000));
-    etages[e].attendu += b.totalMensuel * mois;
+    etages[e].attendu += b.totalMensuel * Math.max(1, mois);
     etages[e].regle += b.paiements.reduce((s, p) => s + p.montant, 0);
   });
 

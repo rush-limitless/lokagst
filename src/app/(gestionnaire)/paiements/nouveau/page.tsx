@@ -16,9 +16,23 @@ export default function NouveauPaiement() {
   const [selectedBail, setSelectedBail] = useState<any>(null);
   const [preuveUrl, setPreuveUrl] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [montantLoyer, setMontantLoyer] = useState(0);
+  const [montantCharges, setMontantCharges] = useState(0);
+  const [montantCaution, setMontantCaution] = useState(0);
+  const [montantAutres, setMontantAutres] = useState(0);
+  const [nbMois, setNbMois] = useState(1);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { getBaux({ statut: "ACTIF" }).then(setBaux); }, []);
+
+  useEffect(() => {
+    if (selectedBail) {
+      setMontantLoyer(selectedBail.montantLoyer * nbMois);
+      setMontantCharges(selectedBail.totalCharges * nbMois);
+    }
+  }, [selectedBail, nbMois]);
+
+  const totalCalcule = montantLoyer + montantCharges + montantCaution + montantAutres;
 
   async function handlePreuve(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -34,6 +48,12 @@ export default function NouveauPaiement() {
 
   async function handleSubmit(formData: FormData) {
     if (preuveUrl) formData.set("preuvePaiement", preuveUrl);
+    formData.set("montant", totalCalcule.toString());
+    formData.set("montantLoyer", montantLoyer.toString());
+    formData.set("montantCharges", montantCharges.toString());
+    formData.set("montantCaution", montantCaution.toString());
+    formData.set("montantAutres", montantAutres.toString());
+    formData.set("nbMois", nbMois.toString());
     const result = await enregistrerPaiement(formData);
     if (result.error) { toast.error(result.error); return; }
     toast.success("Paiement enregistré");
@@ -50,7 +70,7 @@ export default function NouveauPaiement() {
           <form action={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label>Bail (Locataire — Appartement)</Label>
-              <select name="bailId" className="w-full border rounded-md p-2" required onChange={(e) => setSelectedBail(baux.find((b) => b.id === e.target.value))}>
+              <select name="bailId" className="w-full border rounded-md p-2" required onChange={(e) => { setSelectedBail(baux.find((b) => b.id === e.target.value)); setNbMois(1); }}>
                 <option value="">Sélectionner...</option>
                 {baux.map((b) => (
                   <option key={b.id} value={b.id}>{b.locataire.prenom} {b.locataire.nom} — {b.appartement.numero} ({periodiciteLabel[b.periodicite] || "mensuel"})</option>
@@ -62,11 +82,28 @@ export default function NouveauPaiement() {
                 <p>Loyer : <strong>{selectedBail.montantLoyer.toLocaleString()} FCFA</strong></p>
                 <p>Charges : <strong>{selectedBail.totalCharges.toLocaleString()} FCFA</strong></p>
                 <p>Total mensuel : <strong>{selectedBail.totalMensuel.toLocaleString()} FCFA</strong></p>
-                <p>Périodicité : <strong>{periodiciteLabel[selectedBail.periodicite] || "Mensuel"}</strong></p>
+                <p>Caution : <strong>{selectedBail.montantCaution.toLocaleString()} FCFA</strong> {selectedBail.cautionPayee ? "✅ Payée" : "❌ Non payée"}</p>
               </div>
             )}
-            <div className="space-y-2"><Label>Montant payé (FCFA)</Label><Input name="montant" type="number" min="1" required /></div>
-            <div className="space-y-2"><Label>Période concernée (1er jour)</Label><Input name="moisConcerne" type="date" required /></div>
+            <div className="space-y-2">
+              <Label>Nombre de mois couverts</Label>
+              <Input type="number" min="1" max="12" value={nbMois} onChange={(e) => setNbMois(parseInt(e.target.value) || 1)} />
+              {nbMois > 1 && <p className="text-xs text-muted-foreground">Le paiement sera ventilé sur {nbMois} mois à partir de la date indiquée</p>}
+            </div>
+            <div className="space-y-2"><Label>Période concernée (1er jour du mois)</Label><Input name="moisConcerne" type="date" required /></div>
+
+            <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+              <p className="text-sm font-medium">Ventilation du paiement</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1"><Label className="text-xs">Loyer (FCFA)</Label><Input type="number" min="0" value={montantLoyer} onChange={(e) => setMontantLoyer(parseInt(e.target.value) || 0)} /></div>
+                <div className="space-y-1"><Label className="text-xs">Charges (FCFA)</Label><Input type="number" min="0" value={montantCharges} onChange={(e) => setMontantCharges(parseInt(e.target.value) || 0)} /></div>
+                <div className="space-y-1"><Label className="text-xs">Caution (FCFA)</Label><Input type="number" min="0" value={montantCaution} onChange={(e) => setMontantCaution(parseInt(e.target.value) || 0)} /></div>
+                <div className="space-y-1"><Label className="text-xs">Autres (FCFA)</Label><Input type="number" min="0" value={montantAutres} onChange={(e) => setMontantAutres(parseInt(e.target.value) || 0)} /></div>
+              </div>
+              <div className="space-y-1"><Label className="text-xs">Détail autres (optionnel)</Label><Input name="notesAutres" placeholder="Préciser..." /></div>
+              <div className="text-right text-sm font-bold text-primary">Total : {totalCalcule.toLocaleString()} FCFA</div>
+            </div>
+
             <div className="space-y-2">
               <Label>Mode de paiement</Label>
               <select name="modePaiement" className="w-full border rounded-md p-2" required>
@@ -78,13 +115,13 @@ export default function NouveauPaiement() {
               <Label>Preuve de paiement</Label>
               <input ref={fileRef} type="file" accept="image/*,.pdf" onChange={handlePreuve} className="hidden" />
               <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                {uploading ? "Upload..." : "📎 Joindre la preuve (virement, reçu Orange Money)"}
+                {uploading ? "Upload..." : "📎 Joindre la preuve"}
               </Button>
               {preuveUrl && <p className="text-green-600 text-sm">✅ Preuve jointe</p>}
             </div>
             <div className="space-y-2"><Label>Notes (optionnel)</Label><Input name="notes" /></div>
             <input type="hidden" name="preuvePaiement" value={preuveUrl} />
-            <Button type="submit" className="w-full">Enregistrer le paiement</Button>
+            <Button type="submit" className="w-full">Enregistrer le paiement — {totalCalcule.toLocaleString()} FCFA</Button>
           </form>
         </CardContent>
       </Card>

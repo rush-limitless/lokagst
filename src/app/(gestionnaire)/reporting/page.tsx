@@ -10,7 +10,7 @@ import XLSX from "xlsx-js-style";
 
 import { ReportingNav } from "@/components/reporting-nav";
 
-const ETAGE_LABELS: Record<string, string> = { RDC: "RDC", PREMIER: "ETAGE 1", DEUXIEME: "ETAGE 2", TROISIEME: "ETAGE 3", QUATRIEME: "ETAGE 4" };
+const ETAGE_LABELS: Record<string, string> = { RDC: "RDC", PREMIER: "ETAGE 1", DEUXIEME: "ETAGE 2", TROISIEME: "ETAGE 3", QUATRIEME: "ETAGE 4", CINQUIEME: "ETAGE 5" };
 function fmtDate(d: Date | string) { return new Date(d).toLocaleDateString("fr-FR"); }
 
 const BLUE = { rgb: "1B6B9E" };

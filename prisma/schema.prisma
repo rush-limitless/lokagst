@@ -55,13 +55,15 @@ enum Etage {
   DEUXIEME
   TROISIEME
   QUATRIEME
+  CINQUIEME
 }
 
 enum TypeAppartement {
   STUDIO
-  T2
-  T3
-  T4
+  CHAMBRE
+  APPARTEMENT
+  APPARTEMENT_MEUBLE
+  VILLA
 }
 
 enum StatutAppartement {
@@ -167,6 +169,9 @@ model Paiement {
   montant        Int
   montantLoyer   Int            @default(0)
   montantCharges Int            @default(0)
+  montantCaution Int            @default(0)
+  montantAutres  Int            @default(0)
+  notesAutres    String?
   penalites      Int            @default(0)
   totalDu        Int            @default(0)
   moisConcerne   DateTime
@@ -178,7 +183,6 @@ model Paiement {
   valide         Boolean        @default(true)
   notes          String?
   creeLe         DateTime       @default(now())
-  @@unique([bailId, moisConcerne])
   @@map("paiements")
 }
 

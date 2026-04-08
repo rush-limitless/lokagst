@@ -59,8 +59,8 @@ export default async function DashboardPage() {
       {/* Glass stat cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 stagger-in">
         <GlassStatCard icon="🏠" iconBg="bg-sky-100 dark:bg-sky-900/40" label="Occupation" value={`${pct}%`} sub={`${stats.appartements.occupes}/${stats.appartements.total}`} />
-        <GlassStatCard icon="💰" iconBg="bg-emerald-100 dark:bg-emerald-900/40" label="Revenus" value={formatFCFA(stats.finances.revenusMois)} sub={`sur ${formatFCFA(stats.finances.revenusAttendus)}`} valueColor="text-emerald-600 dark:text-emerald-400" />
-        <GlassStatCard icon="⚠️" iconBg="bg-red-100 dark:bg-red-900/40" label="Impayés" value={formatFCFA(stats.finances.impayesMois)} sub={`${stats.alertes.impayesLocataires.length} locataire(s)`} valueColor="text-red-600 dark:text-red-400" />
+        <GlassStatCard icon="💰" iconBg="bg-emerald-100 dark:bg-emerald-900/40" label={`Revenus — ${stats.finances.periode}`} value={formatFCFA(stats.finances.revenusMois)} sub={`Loyers: ${formatFCFA(stats.finances.revenusLoyers)} · Charges: ${formatFCFA(stats.finances.revenusCharges)} · Cautions: ${formatFCFA(stats.finances.revenusCautions)}`} valueColor="text-emerald-600 dark:text-emerald-400" />
+        <GlassStatCard icon="⚠️" iconBg="bg-red-100 dark:bg-red-900/40" label={`Impayés — ${stats.finances.periode}`} value={formatFCFA(stats.finances.impayesMois)} sub={`Loyers: ${formatFCFA(stats.finances.impayesLoyers)} · Charges: ${formatFCFA(stats.finances.impayesCharges)} · Cautions: ${formatFCFA(stats.finances.cautionsNonPayees)}`} valueColor="text-red-600 dark:text-red-400" />
         <GlassStatCard icon="🔑" iconBg="bg-sky-100 dark:bg-sky-900/40" label="Libres" value={`${stats.appartements.libres}`} sub="disponibles" valueColor="text-sky-600 dark:text-sky-400" />
       </div>
 

@@ -21,8 +21,9 @@ export async function getReportingComplet() {
     const loyerCharges = b.totalMensuel || (b.montantLoyer + b.totalCharges);
     const joursHabitation = Math.ceil((now.getTime() - new Date(b.dateDebut).getTime()) / 86400000);
     const moisHabitation = joursHabitation / 30.5;
-    const attendu = Math.round(loyerCharges * moisHabitation);
+    const moisHabitationArrondi = Math.ceil(moisHabitation);
     const regle = b.paiements.reduce((s, p) => s + p.montant, 0);
+    const attendu = loyerCharges * moisHabitationArrondi;
     const difference = regle - attendu;
     const joursRestants = Math.ceil((new Date(b.dateFin).getTime() - now.getTime()) / 86400000);
     const moisRestants = joursRestants / 30.5;
@@ -87,7 +88,8 @@ export async function getReportingComplet() {
     const regle = b.paiements.reduce((s, p) => s + p.montant, 0);
     const joursHab = Math.ceil((new Date(b.dateFin).getTime() - new Date(b.dateDebut).getTime()) / 86400000);
     const moisHab = joursHab / 30.5;
-    const attendu = Math.round((b.montantLoyer + b.totalCharges) * moisHab);
+    const moisHabArrondi = Math.ceil(moisHab);
+    const attendu = (b.montantLoyer + b.totalCharges) * moisHabArrondi;
 
     return {
       logement: b.appartement.numero,

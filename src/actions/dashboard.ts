@@ -13,7 +13,14 @@ export async function getDashboardStats() {
   const occupes = appartements.find((a) => a.statut === "OCCUPE")?._count || 0;
 
   const revenusMois = paiementsMois.reduce((s, p) => s + p.montant, 0);
-  const revenusAttendus = bauxActifs.reduce((s, b) => s + b.montantLoyer, 0);
+  const revenusAttendus = bauxActifs.reduce((s, b) => s + b.totalMensuel, 0);
+  const revenusLoyers = paiementsMois.reduce((s, p) => s + p.montantLoyer, 0);
+  const revenusCharges = paiementsMois.reduce((s, p) => s + p.montantCharges, 0);
+  const revenusCautions = paiementsMois.reduce((s, p) => s + p.montantCaution, 0);
+
+  const loyersAttendus = bauxActifs.reduce((s, b) => s + b.montantLoyer, 0);
+  const chargesAttendues = bauxActifs.reduce((s, b) => s + b.totalCharges, 0);
+  const cautionsNonPayees = bauxActifs.filter((b) => !b.cautionPayee).reduce((s, b) => s + b.montantCaution, 0);
 
   const now = new Date();
   const dans30j = new Date();
@@ -33,9 +40,19 @@ export async function getDashboardStats() {
     })
     .map((b) => ({ locataireId: b.locataireId, nom: `${b.locataire.prenom} ${b.locataire.nom}`, montantDu: b.totalMensuel || b.montantLoyer }));
 
+  const moisLabel = now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+
   return {
     appartements: { total, occupes, libres: total - occupes, tauxOccupation: total > 0 ? Math.round((occupes / total) * 100) : 0 },
-    finances: { revenusMois, impayesMois: jourDuMois > 5 ? Math.max(0, revenusAttendus - revenusMois) : 0, revenusAttendus },
+    finances: {
+      revenusMois, revenusAttendus,
+      revenusLoyers, revenusCharges, revenusCautions,
+      loyersAttendus, chargesAttendues, cautionsNonPayees,
+      impayesMois: jourDuMois > 5 ? Math.max(0, revenusAttendus - revenusMois) : 0,
+      impayesLoyers: jourDuMois > 5 ? Math.max(0, loyersAttendus - revenusLoyers) : 0,
+      impayesCharges: jourDuMois > 5 ? Math.max(0, chargesAttendues - revenusCharges) : 0,
+      periode: moisLabel,
+    },
     alertes: { bauxExpirants, impayesLocataires },
   };
 }
@@ -47,11 +64,12 @@ export async function getRevenusEvolution(mois: number = 6) {
     const debut = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const fin = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
     const paiements = await prisma.paiement.findMany({ where: { moisConcerne: { gte: debut, lt: fin } } });
-    const bauxActifs = await prisma.bail.count({ where: { statut: "ACTIF", dateDebut: { lte: fin }, dateFin: { gte: debut } } });
+    const bauxActifs = await prisma.bail.findMany({ where: { statut: { in: ["ACTIF", "SUSPENDU"] }, dateDebut: { lte: fin }, dateFin: { gte: debut } } });
+    const attendus = bauxActifs.reduce((s, b) => s + b.totalMensuel, 0);
     result.push({
       mois: debut.toLocaleDateString("fr-FR", { month: "long", year: "numeric" }),
       revenus: paiements.reduce((s, p) => s + p.montant, 0),
-      attendus: bauxActifs * 50000, // approximation
+      attendus,
     });
   }
   return result;
