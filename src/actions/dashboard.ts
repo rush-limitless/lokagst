@@ -34,7 +34,6 @@ export async function getDashboardStats() {
   const jourDuMois = now.getDate();
   const impayesLocataires = bauxActifs
     .filter((b) => {
-      // Ne considérer comme impayé que si le jour limite est dépassé
       if (jourDuMois <= b.jourLimitePaiement) return false;
       return !b.paiements.some((p) => p.moisConcerne.getTime() === moisCourant.getTime() && p.statut === "PAYE");
     })
@@ -58,19 +57,31 @@ export async function getDashboardStats() {
 }
 
 export async function getRevenusEvolution(mois: number = 6) {
-  const result = [];
   const now = new Date();
+  const debut = new Date(now.getFullYear(), now.getMonth() - mois + 1, 1);
+  const fin = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+  // Single query instead of N+1
+  const [paiements, baux] = await Promise.all([
+    prisma.paiement.findMany({ where: { moisConcerne: { gte: debut, lt: fin } } }),
+    prisma.bail.findMany({ where: { statut: { in: ["ACTIF", "SUSPENDU"] }, dateDebut: { lte: fin }, dateFin: { gte: debut } } }),
+  ]);
+
+  const result = [];
   for (let i = mois - 1; i >= 0; i--) {
-    const debut = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const fin = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-    const paiements = await prisma.paiement.findMany({ where: { moisConcerne: { gte: debut, lt: fin } } });
-    const bauxActifs = await prisma.bail.findMany({ where: { statut: { in: ["ACTIF", "SUSPENDU"] }, dateDebut: { lte: fin }, dateFin: { gte: debut } } });
-    const attendus = bauxActifs.reduce((s, b) => s + b.totalMensuel, 0);
-    result.push({
-      mois: debut.toLocaleDateString("fr-FR", { month: "long", year: "numeric" }),
-      revenus: paiements.reduce((s, p) => s + p.montant, 0),
-      attendus,
-    });
+    const mDebut = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const mFin = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+    const moisLabel = mDebut.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+
+    const revenus = paiements
+      .filter((p) => p.moisConcerne >= mDebut && p.moisConcerne < mFin)
+      .reduce((s, p) => s + p.montant, 0);
+
+    const attendus = baux
+      .filter((b) => b.dateDebut <= mFin && b.dateFin >= mDebut)
+      .reduce((s, b) => s + b.totalMensuel, 0);
+
+    result.push({ mois: moisLabel, revenus, attendus });
   }
   return result;
 }

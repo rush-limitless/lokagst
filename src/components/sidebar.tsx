@@ -22,6 +22,7 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
       { href: "/baux", label: t.contrats, icon: "📄" },
     ]},
     { title: "Finance", items: [
+      { href: "/finances", label: "Finances", icon: "💹" },
       { href: "/paiements", label: t.paiements, icon: "💰" },
       { href: "/reporting", label: "Reporting", icon: "📈" },
     ]},
@@ -37,6 +38,7 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
   const isActive = (href: string) => {
     if (href === "/locataires") return pathname.startsWith("/locataires") || pathname.startsWith("/situation");
     if (href === "/paiements") return pathname.startsWith("/paiements") || pathname.startsWith("/calendrier");
+    if (href === "/finances") return pathname === "/finances";
     if (href === "/messagerie") return pathname.startsWith("/messagerie") || pathname.startsWith("/emails");
     if (href === "/parametres") return pathname.startsWith("/parametres") || pathname.startsWith("/immeubles") || pathname.startsWith("/audit");
     return pathname.startsWith(href);

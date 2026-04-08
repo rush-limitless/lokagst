@@ -7,13 +7,14 @@ import Link from "next/link";
 import { EnvoyerRecuButton } from "./envoyer-recu-button";
 import { SupprimerPaiementButton } from "./supprimer-paiement-button";
 
-export default async function PaiementsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const { q } = await searchParams;
-  const paiements = await getPaiements();
+export default async function PaiementsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string }> }) {
+  const { q, page } = await searchParams;
+  const currentPage = parseInt(page || "1");
+  const { paiements: allPaiements, total, pages } = await getPaiements({ page: currentPage, limit: 50 });
 
   const filtered = q
-    ? paiements.filter((p) => `${p.bail.locataire.prenom} ${p.bail.locataire.nom}`.toLowerCase().includes(q.toLowerCase()))
-    : paiements;
+    ? allPaiements.filter((p) => `${p.bail.locataire.prenom} ${p.bail.locataire.nom}`.toLowerCase().includes(q.toLowerCase()))
+    : allPaiements;
 
   const totalMois = filtered.filter((p) => {
     const now = new Date();
@@ -34,7 +35,7 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <div className="glass rounded-xl p-4 text-center"><div className="text-lg font-bold text-emerald-600">{formatFCFA(totalMois)}</div><p className="text-xs text-muted-foreground">Encaissé ce mois</p></div>
-        <div className="glass rounded-xl p-4 text-center"><div className="text-lg font-bold text-foreground">{filtered.length}</div><p className="text-xs text-muted-foreground">Total paiements</p></div>
+        <div className="glass rounded-xl p-4 text-center"><div className="text-lg font-bold text-foreground">{total}</div><p className="text-xs text-muted-foreground">Total paiements</p></div>
         {enAttente > 0 && <div className="glass rounded-xl p-4 text-center"><div className="text-lg font-bold text-orange-600">{enAttente}</div><p className="text-xs text-muted-foreground">En attente de validation</p></div>}
       </div>
 
@@ -46,7 +47,7 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
             <tr><th className="p-3 text-left">Locataire</th><th className="p-3">Appart.</th><th className="p-3">Mois</th><th className="p-3 text-right">Loyer</th><th className="p-3 text-right">Charges</th><th className="p-3 text-right">Caution</th><th className="p-3 text-right">Total</th><th className="p-3">Mode</th><th className="p-3">Statut</th><th className="p-3">Preuve</th><th className="p-3">Actions</th></tr>
           </thead>
           <tbody className="divide-y">
-            {filtered.slice(0, 50).map((p) => (
+            {filtered.map((p) => (
               <tr key={p.id} className={`hover:bg-muted/30 transition-colors ${!p.valide ? "bg-orange-50/50 dark:bg-orange-950/10" : ""}`}>
                 <td className="p-3 font-medium text-foreground">{p.bail.locataire.prenom} {p.bail.locataire.nom}</td>
                 <td className="p-3 text-center text-muted-foreground">{p.bail.appartement.numero}</td>
@@ -74,7 +75,25 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
           </tbody>
         </table>
       </div>
-      {filtered.length > 50 && <p className="text-xs text-muted-foreground text-center">Affichage limité aux 50 derniers paiements</p>}
+
+      {/* Pagination */}
+      {pages > 1 && (
+        <div className="flex justify-center gap-2">
+          {currentPage > 1 && (
+            <Link href={`/paiements?page=${currentPage - 1}${q ? `&q=${q}` : ""}`}>
+              <Button variant="outline" size="sm">← Précédent</Button>
+            </Link>
+          )}
+          <span className="flex items-center text-sm text-muted-foreground px-3">
+            Page {currentPage} / {pages} ({total} paiements)
+          </span>
+          {currentPage < pages && (
+            <Link href={`/paiements?page=${currentPage + 1}${q ? `&q=${q}` : ""}`}>
+              <Button variant="outline" size="sm">Suivant →</Button>
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -3,3 +3,7 @@ node_modules
 .env
 .env.local
 *.log
+Installation directory*
+.vscode/
+tsconfig.tsbuildinfo
+sentry.*.config.ts

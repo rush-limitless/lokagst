@@ -182,11 +182,32 @@ async function main() {
   ];
 
   for (const a of anciens) {
-    await prisma.locataire.create({
+    const appart = await prisma.appartement.findUnique({ where: { numero: a.appart } });
+    if (!appart) { console.log("ERREUR ancien appart:", a.appart); continue; }
+
+    const locataire = await prisma.locataire.create({
       data: { nom: a.nom, prenom: a.prenom, telephone: "600000000", dateEntree: new Date(a.debut), dateSortie: new Date(a.fin), statut: "ARCHIVE" },
     });
+
+    // Créer un bail historique TERMINE pour l'ancien locataire
+    const dateDebut = new Date(a.debut);
+    const dateFin = new Date(a.fin);
+    const dureeMois = Math.max(1, Math.round((dateFin.getTime() - dateDebut.getTime()) / (30.5 * 86400000)));
+
+    await prisma.bail.create({
+      data: {
+        locataireId: locataire.id, appartementId: appart.id,
+        dateDebut, dureeMois, dateFin,
+        montantLoyer: appart.loyerBase, montantCaution: appart.loyerBase * 2, cautionPayee: true,
+        totalCharges: 0, totalMensuel: appart.loyerBase,
+        chargesLocatives: [], jourLimitePaiement: 5, periodicite: "MENSUEL",
+        statut: "TERMINE",
+      },
+    });
+
+    console.log("Ancien:", a.prenom, a.nom, "-", a.appart, `(bail ${dureeMois} mois)`);
   }
-  console.log(`${anciens.length} anciens locataires archivés`);
+  console.log(`${anciens.length} anciens locataires archivés avec baux historiques`);
 
   console.log("Seed terminé !");
 }
