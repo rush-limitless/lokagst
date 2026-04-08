@@ -28,6 +28,17 @@ export default async function FinancesPage({ searchParams }: { searchParams: Pro
         </div>
       </div>
 
+      {/* Reporting sub-nav */}
+      <div className="flex gap-2 flex-wrap">
+        <span className="text-xs px-3 py-1.5 rounded-full font-medium bg-primary text-primary-foreground">📊 Synthèse</span>
+        <Link href="/reporting" className="text-xs px-3 py-1.5 rounded-full font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80">📥 Export Excel</Link>
+        <Link href="/reporting/impayes" className="text-xs px-3 py-1.5 rounded-full font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80">🔴 Impayés</Link>
+        <Link href="/reporting/cautions" className="text-xs px-3 py-1.5 rounded-full font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80">🔒 Cautions</Link>
+        <Link href="/reporting/classement" className="text-xs px-3 py-1.5 rounded-full font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80">🏆 Classement</Link>
+        <Link href="/reporting/rentabilite" className="text-xs px-3 py-1.5 rounded-full font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80">💹 Rentabilité</Link>
+        <Link href="/reporting/comparaison" className="text-xs px-3 py-1.5 rounded-full font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80">🔄 Comparaison</Link>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-950/30 dark:to-emerald-900/20 border-emerald-200 dark:border-emerald-800">

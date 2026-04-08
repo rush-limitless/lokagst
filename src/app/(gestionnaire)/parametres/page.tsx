@@ -28,16 +28,7 @@ export default function ParametresPage() {
       <h1 className="text-xl font-bold text-foreground">Paramètres</h1>
 
       {/* Raccourcis admin */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link href="/immeubles" className="block">
-          <Card className="hover:shadow-md transition-all hover:-translate-y-0.5 h-full">
-            <CardContent className="pt-6 text-center">
-              <div className="text-3xl mb-2">🏢</div>
-              <h3 className="font-medium text-foreground">Immeubles</h3>
-              <p className="text-xs text-muted-foreground mt-1">Gérer les immeubles et voir les appartements</p>
-            </CardContent>
-          </Card>
-        </Link>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Link href="/audit" className="block">
           <Card className="hover:shadow-md transition-all hover:-translate-y-0.5 h-full">
             <CardContent className="pt-6 text-center">

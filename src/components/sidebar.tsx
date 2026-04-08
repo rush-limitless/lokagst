@@ -17,14 +17,16 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
   const sections: NavSection[] = [
     { title: "Principal", items: [
       { href: "/dashboard", label: t.dashboard, icon: "📊" },
+      { href: "/immeubles", label: "Immeubles", icon: "🏢" },
       { href: "/appartements", label: t.appartements, icon: "🏠" },
       { href: "/locataires", label: t.locataires, icon: "👤" },
+      { href: "/situation", label: "Situation", icon: "📋" },
       { href: "/baux", label: t.contrats, icon: "📄" },
     ]},
     { title: "Finance", items: [
       { href: "/finances", label: "Finances", icon: "💹" },
       { href: "/paiements", label: t.paiements, icon: "💰" },
-      { href: "/reporting", label: "Reporting", icon: "📈" },
+      { href: "/calendrier", label: "Calendrier", icon: "📅" },
     ]},
     { title: "Communication", items: [
       { href: "/maintenance", label: t.maintenance, icon: "🔧", badge: badges?.tickets },
@@ -36,11 +38,11 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
   ];
 
   const isActive = (href: string) => {
-    if (href === "/locataires") return pathname.startsWith("/locataires") || pathname.startsWith("/situation");
-    if (href === "/paiements") return pathname.startsWith("/paiements") || pathname.startsWith("/calendrier");
-    if (href === "/finances") return pathname === "/finances";
+    if (href === "/locataires") return pathname.startsWith("/locataires");
+    if (href === "/paiements") return pathname.startsWith("/paiements");
+    if (href === "/finances") return pathname.startsWith("/finances") || pathname.startsWith("/reporting");
     if (href === "/messagerie") return pathname.startsWith("/messagerie") || pathname.startsWith("/emails");
-    if (href === "/parametres") return pathname.startsWith("/parametres") || pathname.startsWith("/immeubles") || pathname.startsWith("/audit");
+    if (href === "/parametres") return pathname.startsWith("/parametres") || pathname.startsWith("/audit");
     return pathname.startsWith(href);
   };
 
@@ -84,8 +86,9 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
 export function MobileNav() {
   const pathname = usePathname();
   const items = [
-    { href: "/dashboard", icon: "📊" }, { href: "/appartements", icon: "🏠" }, { href: "/locataires", icon: "👤" },
-    { href: "/baux", icon: "📄" }, { href: "/paiements", icon: "💰" }, { href: "/maintenance", icon: "🔧" }, { href: "/messagerie", icon: "💬" },
+    { href: "/dashboard", icon: "📊" }, { href: "/immeubles", icon: "🏢" }, { href: "/appartements", icon: "🏠" }, { href: "/locataires", icon: "👤" },
+    { href: "/baux", icon: "📄" }, { href: "/finances", icon: "💹" }, { href: "/paiements", icon: "💰" }, { href: "/calendrier", icon: "📅" },
+    { href: "/maintenance", icon: "🔧" }, { href: "/messagerie", icon: "💬" },
   ];
 
   return (

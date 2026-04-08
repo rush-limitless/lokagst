@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const tabs = [
-  { href: "/reporting", label: "📊 Export", exact: true },
+  { href: "/finances", label: "📊 Synthèse", exact: true },
+  { href: "/reporting", label: "📥 Export", exact: true },
   { href: "/reporting/impayes", label: "🔴 Impayés" },
   { href: "/reporting/cautions", label: "🔒 Cautions" },
   { href: "/reporting/classement", label: "🏆 Classement" },
