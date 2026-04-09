@@ -37,7 +37,7 @@ export function IndexerLoyerForm({ bailId, loyerActuel }: { bailId: string; loye
       <form action={handleSubmit} className="space-y-3">
         {mode === "taux" ? (
           <div className="space-y-1">
-            <Label className="text-xs">Taux d'augmentation (%)</Label>
+            <Label className="text-xs">Taux d&apos;augmentation (%)</Label>
             <Input name="taux" type="number" step="0.1" value={taux} onChange={(e) => setTaux(parseFloat(e.target.value) || 0)} />
             <p className="text-xs text-muted-foreground">Nouveau loyer : {nouveauLoyer.toLocaleString()} FCFA</p>
           </div>
