@@ -3,6 +3,7 @@
 import { prisma, safeAction } from "@/lib/prisma";
 import { bailSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
+import { logAction } from "@/lib/audit";
 
 export async function getBaux(filters?: { statut?: string; expirantDans?: number }) {
   const where: any = {};
@@ -170,5 +171,38 @@ export async function renouvelerBail(id: string, formData: FormData) {
 
     revalidatePath("/baux");
     return { success: true };
+  });
+}
+
+export async function indexerLoyer(id: string, formData: FormData) {
+  return safeAction(async () => {
+    const bail = await prisma.bail.findUnique({ where: { id }, include: { locataire: true } });
+    if (!bail) return { error: "Bail introuvable" };
+
+    const tauxStr = formData.get("taux") as string;
+    const montantFixeStr = formData.get("montantFixe") as string;
+    const motif = (formData.get("motif") as string) || "Indexation annuelle";
+
+    let nouveauLoyer: number;
+    if (tauxStr) {
+      const taux = parseFloat(tauxStr);
+      if (isNaN(taux) || taux < -50 || taux > 100) return { error: "Taux invalide (-50% à +100%)" };
+      nouveauLoyer = Math.round(bail.montantLoyer * (1 + taux / 100));
+    } else if (montantFixeStr) {
+      nouveauLoyer = parseInt(montantFixeStr);
+      if (isNaN(nouveauLoyer) || nouveauLoyer <= 0) return { error: "Montant invalide" };
+    } else {
+      return { error: "Indiquez un taux ou un montant" };
+    }
+
+    const ancienLoyer = bail.montantLoyer;
+    await prisma.bail.update({
+      where: { id },
+      data: { montantLoyer: nouveauLoyer, totalMensuel: nouveauLoyer + bail.totalCharges },
+    });
+
+    await logAction("Indexation loyer", "Bail", id, `${ancienLoyer} → ${nouveauLoyer} FCFA (${motif})`);
+    revalidatePath(`/baux/${id}`);
+    return { success: true, ancienLoyer, nouveauLoyer };
   });
 }

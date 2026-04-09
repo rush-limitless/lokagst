@@ -9,6 +9,7 @@ import Link from "next/link";
 import { SignerBailForm } from "./signer-form";
 import { UploadContratForm } from "./upload-contrat-form";
 import { ModifierBailForm } from "./modifier-bail-form";
+import { IndexerLoyerForm } from "./indexer-loyer-form";
 
 export default async function BailDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -37,6 +38,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
           <div className="flex justify-between items-center">
             <CardTitle>Termes du contrat</CardTitle>
             <ModifierBailForm bail={bail} />
+            {bail.statut === "ACTIF" && <IndexerLoyerForm bailId={bail.id} loyerActuel={bail.montantLoyer} />}
           </div>
         </CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
