@@ -6,22 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { FileUpload } from "@/components/file-upload";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 export default function NouveauPaiement() {
   const router = useRouter();
   const [baux, setBaux] = useState<any[]>([]);
   const [selectedBail, setSelectedBail] = useState<any>(null);
   const [preuveUrl, setPreuveUrl] = useState("");
-  const [uploading, setUploading] = useState(false);
   const [montantLoyer, setMontantLoyer] = useState(0);
   const [montantCharges, setMontantCharges] = useState(0);
   const [montantCaution, setMontantCaution] = useState(0);
   const [montantAutres, setMontantAutres] = useState(0);
   const [nbMois, setNbMois] = useState(1);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { getBaux({ statut: "ACTIF" }).then(setBaux); }, []);
 
@@ -33,18 +32,6 @@ export default function NouveauPaiement() {
   }, [selectedBail, nbMois]);
 
   const totalCalcule = montantLoyer + montantCharges + montantCaution + montantAutres;
-
-  async function handlePreuve(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    const fd = new FormData();
-    fd.append("photo", file);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const data = await res.json();
-    if (data.url) { setPreuveUrl(data.url); toast.success("Preuve uploadée"); }
-    setUploading(false);
-  }
 
   async function handleSubmit(formData: FormData) {
     if (preuveUrl) formData.set("preuvePaiement", preuveUrl);
@@ -113,11 +100,7 @@ export default function NouveauPaiement() {
             </div>
             <div className="space-y-2">
               <Label>Preuve de paiement</Label>
-              <input ref={fileRef} type="file" accept="image/*,.pdf" onChange={handlePreuve} className="hidden" />
-              <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                {uploading ? "Upload..." : "📎 Joindre la preuve"}
-              </Button>
-              {preuveUrl && <p className="text-green-600 text-sm">✅ Preuve jointe</p>}
+              <FileUpload onUploaded={setPreuveUrl} label="Joindre la preuve de paiement" />
             </div>
             <div className="space-y-2"><Label>Notes (optionnel)</Label><Input name="notes" /></div>
             <input type="hidden" name="preuvePaiement" value={preuveUrl} />

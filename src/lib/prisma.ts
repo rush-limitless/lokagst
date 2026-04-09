@@ -14,11 +14,12 @@ export async function safeAction<T>(fn: () => Promise<T>): Promise<T | { error: 
     return await fn();
   } catch (e: any) {
     console.error("[ACTION_ERROR]", e?.message || e);
-    // Sentry capture if available
     try { const Sentry = await import("@sentry/nextjs"); Sentry.captureException(e); } catch {}
     if (e?.code === "P2002") return { error: "Cette entrée existe déjà" };
     if (e?.code === "P2025") return { error: "Élément introuvable" };
     if (e?.code === "P2003") return { error: "Impossible de supprimer : des données liées existent" };
+    if (e?.code === "P2028") return { error: "Erreur de transaction. Veuillez réessayer." };
+    if (e?.message?.includes("connect")) return { error: "Erreur de connexion à la base de données. Réessayez dans quelques instants." };
     return { error: "Une erreur est survenue. Veuillez réessayer." };
   }
 }

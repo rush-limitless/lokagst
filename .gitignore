@@ -7,3 +7,9 @@ Installation directory*
 .vscode/
 tsconfig.tsbuildinfo
 sentry.*.config.ts
+docs/screenshots/
+docs/*.pdf
+docs/*.aux
+docs/*.out
+docs/*.toc
+docs/*.log

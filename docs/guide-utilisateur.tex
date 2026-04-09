@@ -1,0 +1,498 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{float}
+
+\geometry{margin=2.2cm}
+\graphicspath{{screenshots/}}
+
+\definecolor{immoBleu}{HTML}{1B6B9E}
+\definecolor{immoCiel}{HTML}{29ABE2}
+\definecolor{immoFonce}{HTML}{0d3b5e}
+\definecolor{vertOk}{HTML}{10b981}
+\definecolor{rougeAlert}{HTML}{ef4444}
+\definecolor{orangeWarn}{HTML}{f59e0b}
+\definecolor{grisTexte}{HTML}{6b7280}
+
+\hypersetup{colorlinks=true,linkcolor=immoBleu,urlcolor=immoCiel}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{grisTexte}{ImmoGest v1.0.0 --- Guide Utilisateur}}
+\fancyhead[R]{\small\textcolor{grisTexte}{IMMOSTAR SCI}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}{\Large\bfseries\color{immoFonce}}{}{0em}{}[\vspace{-0.5em}\textcolor{immoCiel}{\rule{\textwidth}{1pt}}]
+\titleformat{\subsection}{\large\bfseries\color{immoBleu}}{}{0em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{immoFonce}}{}{0em}{}
+
+\newtcolorbox{infobox}{colback=immoCiel!5,colframe=immoCiel,title=\faInfoCircle\ Information,fonttitle=\bfseries}
+\newtcolorbox{warnbox}{colback=orangeWarn!5,colframe=orangeWarn,title=\faExclamationTriangle\ Important,fonttitle=\bfseries}
+\newtcolorbox{tipbox}{colback=vertOk!5,colframe=vertOk,title=\faLightbulb\ Astuce,fonttitle=\bfseries}
+
+\newcommand{\screenshot}[2]{%
+\begin{figure}[H]
+\centering
+\fbox{\includegraphics[width=0.95\textwidth]{#1}}
+\caption{#2}
+\end{figure}
+}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+{\Huge\bfseries\textcolor{immoFonce}{ImmoGest}\par}
+\vspace{0.3cm}
+{\Large\textcolor{immoCiel}{Guide Utilisateur Complet}\par}
+\vspace{0.5cm}
+{\large Version 1.0.0\par}
+\vspace{2cm}
+{\LARGE\textcolor{immoBleu}{IMMOSTAR SCI}\par}
+\vspace{0.3cm}
+{\large Yaound\'e --- Nkolfoulou\par}
+\vspace{3cm}
+\begin{tabular}{ll}
+\textbf{Application} & ImmoGest v1.0.0 \\
+\textbf{D\'eveloppeur} & Arnaud CHEWA \\
+\textbf{Date} & Avril 2026 \\
+\textbf{Acc\`es} & \url{https://lokagst.vercel.app} \\
+\end{tabular}
+\vfill
+{\small\textcolor{grisTexte}{Document confidentiel --- IMMOSTAR SCI}}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Pr\'esentation g\'en\'erale}
+
+\subsection{Qu'est-ce qu'ImmoGest~?}
+
+ImmoGest est une application web de \textbf{gestion locative} con\c{c}ue sur mesure pour \textbf{IMMOSTAR SCI}. Elle permet de g\'erer l'ensemble du patrimoine immobilier~: appartements, locataires, baux, paiements, maintenance et communication, le tout depuis un navigateur web.
+
+L'application est accessible 24h/24 depuis n'importe quel appareil \`a l'adresse~:
+\begin{center}
+\large\textbf{\url{https://lokagst.vercel.app}}
+\end{center}
+
+\subsection{Patrimoine g\'er\'e}
+
+\begin{tabularx}{\textwidth}{lXcc}
+\toprule
+\textbf{Immeuble} & \textbf{Localisation} & \textbf{Appartements} & \textbf{\'Etages} \\
+\midrule
+R\'esidence La'ag Tchang & Nkolfoulou, Yaound\'e & 28 & RDC \`a 5\textsuperscript{\`eme} \\
+Santa Barbara & Nkolfoulou, Yaound\'e & 2 & RDC + \'Etage \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.3cm}
+Types de logements~: Studio, Chambre, Appartement non meubl\'e, Appartement meubl\'e, Villa.
+
+\subsection{Deux profils d'utilisateurs}
+
+\begin{enumerate}[leftmargin=2cm]
+\item[\faUserShield] \textbf{Gestionnaire (Admin)}~: acc\`es complet \`a toutes les fonctionnalit\'es. Interface principale du propri\'etaire.
+\item[\faUser] \textbf{Locataire}~: portail personnel pour consulter son bail, ses paiements, signaler des probl\`emes et communiquer.
+\end{enumerate}
+
+\subsection{Fonctionnalit\'es cl\'es}
+
+\begin{itemize}
+\item Gestion compl\`ete des immeubles, appartements, locataires et baux
+\item Paiements avec ventilation par rubrique (loyer, charges, caution)
+\item Tableau de bord financier avec graphiques et indicateurs
+\item Calendrier des \'ech\'eances de paiement
+\item Situation globale des locataires (qui doit quoi)
+\item Reporting et exports Excel/PDF
+\item Syst\`eme de maintenance (signalement et suivi)
+\item Messagerie int\'egr\'ee gestionnaire--locataire
+\item Emails automatiques (rappels, factures, mises en demeure)
+\item Contrats PDF, signature \'electronique, \'etats des lieux
+\item Mode sombre, multilingue (FR/EN), PWA installable
+\item Journal d'audit de toutes les actions
+\end{itemize}
+
+\newpage
+\section{Connexion \`a l'application}
+
+\subsection{Page de connexion}
+
+Rendez-vous sur \url{https://lokagst.vercel.app}. La page affiche un formulaire avec email, mot de passe et un s\'electeur de langue.
+
+\screenshot{01-login.png}{Page de connexion ImmoGest}
+
+\subsection{Identifiants}
+
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Profil} & \textbf{Email} & \textbf{Mot de passe} \\
+\midrule
+Gestionnaire & admin@immostar.cm & admin123 \\
+Locataire (test) & paul.mbarga@email.cm & locataire123 \\
+\bottomrule
+\end{tabularx}
+
+\begin{warnbox}
+Apr\`es \textbf{5 tentatives \'echou\'ees}, le compte est temporairement bloqu\'e. Attendez quelques minutes.
+\end{warnbox}
+
+\subsection{Redirection automatique}
+
+\begin{itemize}
+\item \textbf{Gestionnaire} $\rightarrow$ \textbf{Dashboard} (\texttt{/dashboard})
+\item \textbf{Locataire} $\rightarrow$ \textbf{Mon Espace} (\texttt{/mon-espace})
+\end{itemize}
+
+
+\newpage
+\section{Interface Gestionnaire (Admin)}
+
+Le gestionnaire dispose d'une barre lat\'erale organis\'ee en 4 sections~: Principal, Finance, Communication, Admin.
+
+\subsection{\texorpdfstring{\faChartBar}{} Dashboard}{Dashboard}
+
+\textbf{Route~:} \texttt{/dashboard} --- C'est la page d'accueil du gestionnaire.
+
+\screenshot{02-dashboard.png}{Tableau de bord principal}
+
+\begin{itemize}
+\item \textbf{Banni\`ere d'accueil}~: salutation, date du jour, barre de progression du taux d'occupation.
+\item \textbf{4 cartes KPI}~: Occupation (\%), Revenus du mois (d\'etail loyers/charges/cautions), Impay\'es du mois (apr\`es le jour limite), Appartements libres.
+\item \textbf{Graphique d'\'evolution}~: courbe 6 mois revenus encaiss\'es vs attendus.
+\item \textbf{Camembert d'occupation}~: occup\'es vs libres.
+\item \textbf{Alertes}~: baux expirant dans 30 jours, locataires en impay\'e.
+\item \textbf{Activit\'e r\'ecente}~: derni\`eres actions.
+\item \textbf{Boutons rapides}~: Nouveau paiement, Nouveau bail, Nouveau locataire.
+\end{itemize}
+
+\subsection{\texorpdfstring{\faBuilding}{} Immeubles}{Immeubles}
+
+\textbf{Route~:} \texttt{/immeubles}
+
+\screenshot{03-immeubles.png}{Vue des immeubles}
+
+Affiche les immeubles avec design gradient. Pour chaque immeuble~: nom, adresse, nombre d'appartements group\'es par \'etage. Bouton pour cr\'eer un nouvel immeuble.
+
+\subsection{\texorpdfstring{\faHome}{} Appartements}{Appartements}
+
+\textbf{Route~:} \texttt{/appartements}
+
+\screenshot{04-appartements.png}{Liste des appartements}
+
+Cartes visuelles avec~: num\'ero, \'etage, type, loyer, charges, statut (Occup\'e/Libre), locataire actuel, immeuble. Filtres par immeuble, statut, recherche.
+
+\subsubsection{D\'etail d'un appartement}
+Formulaire de modification + \textbf{historique des baux}~: tous les locataires pass\'es et actuels avec dates, loyer et statut. Inclut les anciens locataires archiv\'es.
+
+\subsection{\texorpdfstring{\faUser}{} Locataires}{Locataires}
+
+\textbf{Route~:} \texttt{/locataires}
+
+\screenshot{05-locataires.png}{Liste des locataires}
+
+Avatar, nom, t\'el\'ephone, appartement, loyer, badge actif/archiv\'e. Filtres~: actifs, anciens, recherche.
+
+\subsubsection{Profil locataire avec onglets}
+
+\screenshot{06-profil-locataire.png}{Profil d'un locataire avec onglets}
+
+Le profil est organis\'e en \textbf{4 onglets}~:
+\begin{enumerate}
+\item \textbf{Situation}~: caution, loyer, charges, total d\^u, p\'enalit\'es.
+\item \textbf{Informations}~: formulaire de modification (nom, t\'el, email, CNI, photo, garant).
+\item \textbf{Baux}~: tous les baux (actifs + termin\'es) avec d\'etails et liens.
+\item \textbf{Paiements}~: tableau complet (mois, loyer, charges, total, mode, statut).
+\end{enumerate}
+
+Actions~: cr\'eer un compte locataire, documents, archiver.
+
+\subsection{\texorpdfstring{\faClipboardList}{} Situation globale}{Situation globale}
+
+\textbf{Route~:} \texttt{/situation}
+
+\screenshot{07-situation.png}{Situation globale des locataires}
+
+\begin{itemize}
+\item 5 cartes~: total locataires, \`a jour, en retard, loyers impay\'es, charges impay\'ees.
+\item Filtres~: Tous / \`A jour / Impay\'es.
+\item Par locataire~: d\'etail impay\'es + \textbf{mini-historique 12 mois} (carr\'es color\'es vert/orange/rouge).
+\item Total global d\^u.
+\end{itemize}
+
+\subsection{\texorpdfstring{\faFileContract}{} Contrats (Baux)}{Contrats (Baux)}
+
+\textbf{Route~:} \texttt{/baux}
+
+\screenshot{08-baux.png}{Liste des baux}
+
+\subsubsection{Cr\'eer un bail}
+Formulaire complet~: locataire, appartement, dates, loyer, caution, charges locatives (ajout dynamique), p\'eriodicit\'e, r\`egle du 15, p\'enalit\'es, renouvellement auto, clauses.
+
+\subsubsection{D\'etail d'un bail}
+Toutes les infos + modifier le contrat, signature \'electronique (pad tactile), upload PDF, \'etat des lieux, g\'en\'erer contrat PDF, historique paiements/p\'enalit\'es, r\'esilier/renouveler.
+
+
+\subsection{\texorpdfstring{\faChartLine}{} Finances}{Finances}
+
+\textbf{Route~:} \texttt{/finances}
+
+\screenshot{09-finances.png}{Tableau de bord financier}
+
+Tableau de bord financier d\'edi\'e avec vue annuelle~:
+\begin{itemize}
+\item S\'electeur d'ann\'ee pour basculer entre les exercices.
+\item \textbf{4 KPI}~: total encaiss\'e, impay\'es, taux de recouvrement (barre), cautions.
+\item D\'etail~: loyers/charges/cautions/autres (encaiss\'es vs attendus).
+\item Graphique barres~: revenus mensuels par cat\'egorie.
+\item Graphique barres~: encaiss\'e vs impay\'e par mois.
+\item R\'epartition par mode de paiement (virement vs Orange Money).
+\item Top impay\'es~: classement locataires en retard.
+\end{itemize}
+
+\textbf{Sous-navigation Reporting}~: onglets vers Export Excel, Impay\'es, Cautions, Classement, Rentabilit\'e, Comparaison.
+
+\screenshot{14-reporting.png}{Reporting --- Exports et analyses d\'etaill\'ees}
+
+\subsection{\texorpdfstring{\faMoneyBill}{} Paiements}{Paiements}
+
+\textbf{Route~:} \texttt{/paiements}
+
+\screenshot{10-paiements.png}{Liste des paiements}
+
+Tableau pagin\'e~: locataire, appartement, mois, loyer, charges, caution, total, mode, statut. Suppression possible.
+
+\subsubsection{Nouveau paiement}
+\begin{itemize}
+\item S\'election du bail, nombre de mois couverts (1--12), ventilation automatique.
+\item Montants pr\'e-remplis (loyer, charges), champs caution et autres.
+\item Mode~: Virement bancaire ou Orange Money. Preuve de paiement.
+\item Re\c{c}u envoy\'e automatiquement par email.
+\end{itemize}
+
+\begin{infobox}
+Exemple~: un paiement annuel de 3\,960\,000 FCFA peut \^etre saisi avec 12 mois. L'application cr\'ee 12 entr\'ees mensuelles automatiquement.
+\end{infobox}
+
+\subsection{\texorpdfstring{\faCalendarAlt}{} Calendrier}{Calendrier}
+
+\textbf{Route~:} \texttt{/calendrier}
+
+\screenshot{11-calendrier.png}{Calendrier des \'ech\'eances}
+
+Vue mensuelle des \'ech\'eances~: chaque locataire avec code couleur \textcolor{vertOk}{vert} (pay\'e), \textcolor{orangeWarn}{orange} (partiel), \textcolor{rougeAlert}{rouge} (impay\'e). Navigation mois par mois.
+
+\subsection{\texorpdfstring{\faWrench}{} Maintenance}{Maintenance}
+
+\textbf{Route~:} \texttt{/maintenance}
+
+\screenshot{12-maintenance.png}{Gestion de la maintenance}
+
+Tickets avec titre, locataire, appartement, priorit\'e, statut. Cr\'eer un ticket, assigner un technicien, suivre le statut (Signal\'e $\rightarrow$ En cours $\rightarrow$ R\'esolu).
+
+\begin{tipbox}
+Les locataires peuvent cr\'eer des tickets depuis leur portail. Ils apparaissent automatiquement ici.
+\end{tipbox}
+
+\subsection{\texorpdfstring{\faComments}{} Messagerie}{Messagerie}
+
+\textbf{Route~:} \texttt{/messagerie}
+
+\screenshot{13-messagerie.png}{Messagerie int\'egr\'ee}
+
+Chat en temps r\'eel avec les locataires. Liste des conversations, envoi/r\'eception, badge messages non lus.
+
+\subsection{\texorpdfstring{\faCog}{} Param\`etres}{Param\`etres}
+
+\textbf{Route~:} \texttt{/parametres}
+
+\screenshot{15-parametres.png}{Page des param\`etres}
+
+\begin{itemize}
+\item \textbf{Changer le mot de passe}~: ancien, nouveau, confirmation.
+\item \textbf{Journal d'audit} (\texttt{/audit})~: historique de toutes les actions.
+\item \textbf{Emails envoy\'es} (\texttt{/emails})~: historique des emails automatiques + bouton rappel.
+\end{itemize}
+
+\subsection{Fonctionnalit\'es transversales}
+
+\begin{itemize}
+\item \textbf{Recherche globale Cmd+K}~: recherche rapide locataires, appartements, baux.
+\item \textbf{Mode sombre}~: ic\^one en haut de page.
+\item \textbf{Multilingue}~: fran\c{c}ais/anglais.
+\item \textbf{Notifications}~: cloche avec alertes.
+\item \textbf{Cron quotidien}~: rappels, p\'enalit\'es, suspensions, renouvellements automatiques.
+\end{itemize}
+
+
+\newpage
+\section{Interface Locataire (Portail)}
+
+Le locataire acc\`ede \`a son espace via \texttt{/mon-espace}. Navigation par barre horizontale~: Accueil, Bail, Paiements, Maintenance, Messages, Param\`etres.
+
+\begin{infobox}
+Le compte locataire est cr\'e\'e par le gestionnaire depuis le profil du locataire (bouton ``Cr\'eer un compte''). Mot de passe par d\'efaut~: \texttt{locataire123}.
+\end{infobox}
+
+\subsection{\texorpdfstring{\faHome}{} Accueil}{Accueil locataire}
+
+\textbf{Route~:} \texttt{/mon-espace}
+
+Page d'accueil style bancaire~:
+\begin{itemize}
+\item \textbf{Carte h\'ero}~: nom, appartement, \'etage, loyer mensuel, jours restants avant fin du bail.
+\item \textbf{4 boutons rapides}~: Payer, Mon bail, Signaler, Contacter.
+\item \textbf{Derniers paiements}~: liste r\'ecente avec montant, date, mode, statut.
+\end{itemize}
+
+\subsection{\texorpdfstring{\faFileContract}{} Mon bail}{Mon bail locataire}
+
+\textbf{Route~:} \texttt{/mon-espace/bail}
+
+Consultation du bail actif~: appartement, type, statut, dates, loyer, charges (d\'etail), total mensuel, caution, p\'eriodicit\'e. \textbf{Signature \'electronique}~: pad tactile si non sign\'e, affichage de la signature sinon.
+
+\subsection{\texorpdfstring{\faMoneyBill}{} Mes paiements}{Mes paiements locataire}
+
+\textbf{Route~:} \texttt{/mon-espace/paiements}
+
+\begin{itemize}
+\item \textbf{Soumettre une preuve}~: montant, mode, mois concern\'e, preuve (URL/photo).
+\item \textbf{Historique}~: tableau avec mois, montant, mode, date, statut, lien preuve.
+\end{itemize}
+
+\begin{warnbox}
+Le paiement soumis par le locataire doit \^etre \textbf{valid\'e par le gestionnaire} avant d'\^etre comptabilis\'e.
+\end{warnbox}
+
+\subsection{\texorpdfstring{\faWrench}{} Maintenance}{Maintenance locataire}
+
+\textbf{Route~:} \texttt{/mon-espace/maintenance}
+
+Signaler un probl\`eme (titre, description, photos, priorit\'e). Suivi des tickets cr\'e\'es avec statut en temps r\'eel.
+
+\subsection{\texorpdfstring{\faComments}{} Messages}{Messages locataire}
+
+\textbf{Route~:} \texttt{/mon-espace/messagerie}
+
+Chat direct avec la gestion IMMOSTAR SCI en temps r\'eel.
+
+\subsection{\texorpdfstring{\faCog}{} Param\`etres}{Param\`etres locataire}
+
+\textbf{Route~:} \texttt{/mon-espace/parametres}
+
+Changer son mot de passe uniquement.
+
+\newpage
+\section{Correspondance Admin $\leftrightarrow$ Locataire}
+
+\begin{tabularx}{\textwidth}{lXX}
+\toprule
+\textbf{Fonctionnalit\'e} & \textbf{C\^ot\'e Gestionnaire} & \textbf{C\^ot\'e Locataire} \\
+\midrule
+Bail & Cr\'eer, modifier, r\'esilier, renouveler & Consulter, signer \\
+Paiements & Enregistrer, ventiler, modifier, supprimer & Soumettre preuve, consulter \\
+Maintenance & Voir tous les tickets, changer statut & Cr\'eer un ticket, suivre \\
+Messagerie & Discuter avec chaque locataire & Discuter avec la gestion \\
+Documents & G\'erer contrat, EDL, r\`eglement & --- \\
+Mot de passe & Changer le sien & Changer le sien \\
+Emails & Envoyer rappels, re\c{c}us, mises en demeure & Re\c{c}oit les emails \\
+\bottomrule
+\end{tabularx}
+
+\newpage
+\section{Flux de travail typiques}
+
+\subsection{Ajouter un nouveau locataire}
+\begin{enumerate}
+\item \textbf{Locataires} $\rightarrow$ Nouveau locataire~: nom, pr\'enom, t\'el, email, CNI, date, appartement.
+\item Valider $\rightarrow$ locataire cr\'e\'e, appartement passe en ``Occup\'e''.
+\item \textbf{Contrats} $\rightarrow$ Nouveau bail~: remplir tous les termes.
+\item Sur le profil, cliquer \textbf{Cr\'eer un compte} pour l'acc\`es portail.
+\end{enumerate}
+
+\subsection{Enregistrer un paiement}
+\begin{enumerate}
+\item \textbf{Paiements} $\rightarrow$ Nouveau paiement.
+\item S\'electionner le bail, indiquer le nombre de mois (montants pr\'e-remplis).
+\item Choisir le mode, ajouter la preuve, valider.
+\item Les paiements sont ventil\'es mois par mois, re\c{c}u envoy\'e par email.
+\end{enumerate}
+
+\subsection{G\'erer un d\'epart}
+\begin{enumerate}
+\item Profil du locataire $\rightarrow$ \textbf{Archiver}.
+\item Le bail est r\'esili\'e, l'appartement lib\'er\'e, le locataire archiv\'e.
+\item L'historique reste consultable dans l'appartement et le profil.
+\end{enumerate}
+
+\subsection{Suivre les impay\'es}
+\begin{enumerate}
+\item \textbf{Situation globale}~: voir tous les locataires en retard.
+\item Filtrer par ``Impay\'es'', v\'erifier le d\'etail et le mini-historique.
+\item \textbf{Param\`etres} $\rightarrow$ Emails~: envoyer rappel ou mise en demeure.
+\item \textbf{Finances}~: vue globale annuelle.
+\end{enumerate}
+
+\subsection{Traiter une maintenance}
+\begin{enumerate}
+\item Le locataire signale depuis son portail.
+\item Le ticket appara\^it dans \textbf{Maintenance}.
+\item Assigner un technicien, passer en ``En cours'' puis ``R\'esolu''.
+\end{enumerate}
+
+\newpage
+\section{R\`egles m\'etier}
+
+\begin{itemize}
+\item \textbf{R\`egle du 15}~: signature apr\`es le 15 $\rightarrow$ premier loyer le mois suivant.
+\item \textbf{Jour limite}~: par d\'efaut le 5. Impay\'es compt\'es apr\`es cette date.
+\item \textbf{P\'eriodicit\'e variable}~: mensuel, trimestriel, semestriel, annuel.
+\item \textbf{Charges sp\'ecifiques}~: ATG 1/2 = 15\,000, IT = 30\,000, Santa Barbara = 5\,000 FCFA.
+\item \textbf{Appart meubl\'e (\'Et. 5)}~: location ponctuelle.
+\item \textbf{Paiements}~: virement bancaire ou Orange Money uniquement.
+\item \textbf{P\'enalit\'es auto}~: apr\`es d\'elai de gr\^ace (cron quotidien).
+\item \textbf{Suspension auto}~: apr\`es 3 mois d'impay\'es (par d\'efaut).
+\item \textbf{Mise en demeure auto}~: apr\`es 2 mois (par d\'efaut).
+\end{itemize}
+
+\section{Informations techniques}
+
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{\'El\'ement} & \textbf{D\'etail} \\
+\midrule
+URL & \url{https://lokagst.vercel.app} \\
+H\'ebergement & Vercel (auto-deploy depuis GitHub) \\
+Base de donn\'ees & PostgreSQL (Neon) \\
+Framework & Next.js 14 (App Router) \\
+Langage & TypeScript \\
+Design & Tailwind CSS + shadcn/ui \\
+Charte graphique & Bleu ciel \texttt{\#29ABE2} / Bleu fonc\'e \texttt{\#1B6B9E} \\
+Emails & Gmail SMTP \\
+Repository & \url{https://github.com/rush-limitless/lokagst} \\
+\bottomrule
+\end{tabularx}
+
+\vfill
+\begin{center}
+\textcolor{grisTexte}{\rule{0.5\textwidth}{0.4pt}}\\[0.5em]
+{\small\textcolor{grisTexte}{ImmoGest v1.0.0 --- IMMOSTAR SCI --- Avril 2026}}\\
+{\small\textcolor{grisTexte}{D\'evelopp\'e par Arnaud CHEWA}}
+\end{center}
+
+\end{document}
