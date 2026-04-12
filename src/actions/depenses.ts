@@ -16,7 +16,7 @@ export async function getDepenses(filters?: { immeubleId?: string; categorie?: s
     where,
     include: { immeuble: { select: { nom: true } } },
     orderBy: { date: "desc" },
-  });
+  }).catch(() => []);
 }
 
 export async function creerDepense(formData: FormData) {
@@ -53,7 +53,7 @@ export async function getBilanComptable(annee: number) {
 
   const [paiements, depenses, immeubles] = await Promise.all([
     prisma.paiement.findMany({ where: { moisConcerne: { gte: debut, lt: fin } } }),
-    prisma.depense.findMany({ where: { date: { gte: debut, lt: fin } }, include: { immeuble: { select: { id: true, nom: true } } } }),
+    prisma.depense.findMany({ where: { date: { gte: debut, lt: fin } }, include: { immeuble: { select: { id: true, nom: true } } } }).catch(() => [] as any[]),
     prisma.immeuble.findMany({ select: { id: true, nom: true } }),
   ]);
 
