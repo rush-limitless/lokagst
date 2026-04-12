@@ -7,10 +7,11 @@ export async function getFinancesStats(annee?: number) {
   const debut = new Date(year, 0, 1);
   const fin = new Date(year + 1, 0, 1);
 
-  const [paiements, baux, allBaux] = await Promise.all([
+  const [paiements, baux, allBaux, depenses] = await Promise.all([
     prisma.paiement.findMany({ where: { moisConcerne: { gte: debut, lt: fin } }, include: { bail: { include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true } } } } } }),
     prisma.bail.findMany({ where: { statut: { in: ["ACTIF", "SUSPENDU"] } }, include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true, immeubleId: true } } } }),
     prisma.bail.findMany({ where: { dateDebut: { lte: fin }, dateFin: { gte: debut } }, include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true, immeubleId: true } } } }),
+    prisma.depense.findMany({ where: { date: { gte: debut, lt: fin } } }),
   ]);
 
   // Totaux annuels
@@ -65,9 +66,11 @@ export async function getFinancesStats(annee?: number) {
     return acc;
   }, {} as Record<string, number>);
 
+  const totalDepenses = depenses.reduce((s, d) => s + d.montant, 0);
+
   return {
     annee: year,
-    totaux: { totalEncaisse, totalAttendu, totalLoyers, totalCharges, totalCautions, totalAutres, totalLoyersAttendus, totalChargesAttendues, tauxRecouvrement: totalAttendu > 0 ? Math.round((totalEncaisse / totalAttendu) * 100) : 100 },
+    totaux: { totalEncaisse, totalAttendu, totalLoyers, totalCharges, totalCautions, totalAutres, totalLoyersAttendus, totalChargesAttendues, totalDepenses, resultatNet: totalEncaisse - totalDepenses, tauxRecouvrement: totalAttendu > 0 ? Math.round((totalEncaisse / totalAttendu) * 100) : 100 },
     parMois,
     impayesParLocataire,
     parMode,

@@ -316,7 +316,33 @@ model Immeuble {
   ville       String
   quartier    String?
   appartements Appartement[]
+  depenses    Depense[]
   creeLe      DateTime      @default(now())
   misAJourLe  DateTime      @updatedAt
   @@map("immeubles")
+}
+
+model Depense {
+  id            String          @id @default(cuid())
+  immeubleId    String?
+  immeuble      Immeuble?       @relation(fields: [immeubleId], references: [id])
+  categorie     CategorieDepense
+  description   String
+  montant       Int
+  date          DateTime        @default(now())
+  fournisseur   String?
+  reference     String?
+  justificatif  String?
+  creeLe        DateTime        @default(now())
+  @@map("depenses")
+}
+
+enum CategorieDepense {
+  TRAVAUX
+  ENTRETIEN
+  ASSURANCE
+  TAXE_FONCIERE
+  EAU_ELECTRICITE
+  FRAIS_GESTION
+  AUTRE
 }

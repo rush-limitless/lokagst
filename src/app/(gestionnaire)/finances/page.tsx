@@ -66,12 +66,23 @@ export default async function FinancesPage({ searchParams }: { searchParams: Pro
         </Card>
         <Card className="bg-gradient-to-br from-violet-50 to-violet-100/50 dark:from-violet-950/30 dark:to-violet-900/20 border-violet-200 dark:border-violet-800">
           <CardContent className="pt-5">
-            <p className="text-[11px] text-violet-600 dark:text-violet-400 font-medium uppercase tracking-wider">Cautions encaissées</p>
-            <p className="text-2xl font-bold text-violet-700 dark:text-violet-300 mt-1">{formatFCFA(t.totalCautions)}</p>
-            <p className="text-xs text-violet-600/70 mt-1">{year}</p>
+            <p className="text-[11px] text-violet-600 dark:text-violet-400 font-medium uppercase tracking-wider">Dépenses</p>
+            <p className="text-2xl font-bold text-violet-700 dark:text-violet-300 mt-1">{formatFCFA(t.totalDepenses)}</p>
+            <p className="text-xs text-violet-600/70 mt-1"><Link href="/depenses" className="hover:underline">Voir détail →</Link></p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Résultat net */}
+      <Card className={t.resultatNet >= 0 ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/10" : "border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/10"}>
+        <CardContent className="pt-5 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-foreground">Résultat net {year}</p>
+            <p className="text-xs text-muted-foreground">Revenus ({formatFCFA(t.totalEncaisse)}) − Dépenses ({formatFCFA(t.totalDepenses)})</p>
+          </div>
+          <p className={`text-2xl font-bold ${t.resultatNet >= 0 ? "text-emerald-600" : "text-red-600"}`}>{formatFCFA(t.resultatNet)}</p>
+        </CardContent>
+      </Card>
 
       {/* Détail revenus */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
