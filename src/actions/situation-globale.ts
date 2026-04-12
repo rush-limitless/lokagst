@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { isMoisEcheance } from "@/lib/utils";
 
 export async function getSituationGlobale() {
   const now = new Date();
@@ -15,21 +16,27 @@ export async function getSituationGlobale() {
     let montantLoyerDu = 0;
     let moisChargesImpayes = 0;
     let montantChargesDu = 0;
-    const detailMois: { mois: string; loyerPaye: boolean; chargesPaye: boolean; montantPaye: number }[] = [];
+    const detailMois: { mois: string; loyerPaye: boolean; chargesPaye: boolean; montantPaye: number; echeance: boolean }[] = [];
 
-    // Parcourir chaque mois depuis le début du bail
     const d = new Date(debut.getFullYear(), debut.getMonth(), 1);
     while (d <= now) {
       const moisLabel = d.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
+      const echeance = isMoisEcheance(d, debut, b.periodicite);
       const paiement = b.paiements.find((p) => new Date(p.moisConcerne).getMonth() === d.getMonth() && new Date(p.moisConcerne).getFullYear() === d.getFullYear());
       const montantPaye = paiement?.montant || 0;
-      const loyerPaye = montantPaye >= b.montantLoyer;
-      const chargesPaye = montantPaye >= b.totalMensuel;
 
-      if (!loyerPaye) { moisLoyerImpayes++; montantLoyerDu += b.montantLoyer - Math.min(montantPaye, b.montantLoyer); }
-      if (!chargesPaye && b.totalCharges > 0) { moisChargesImpayes++; montantChargesDu += b.totalCharges - Math.max(0, montantPaye - b.montantLoyer); }
+      if (echeance) {
+        const loyerPaye = montantPaye >= b.montantLoyer;
+        const chargesPaye = montantPaye >= b.totalMensuel;
 
-      detailMois.push({ mois: moisLabel, loyerPaye, chargesPaye, montantPaye });
+        if (!loyerPaye) { moisLoyerImpayes++; montantLoyerDu += b.montantLoyer - Math.min(montantPaye, b.montantLoyer); }
+        if (!chargesPaye && b.totalCharges > 0) { moisChargesImpayes++; montantChargesDu += b.totalCharges - Math.max(0, montantPaye - b.montantLoyer); }
+
+        detailMois.push({ mois: moisLabel, loyerPaye, chargesPaye, montantPaye, echeance: true });
+      } else {
+        // Mois non-échéance : pas d'attendu, considéré comme "à jour"
+        detailMois.push({ mois: moisLabel, loyerPaye: true, chargesPaye: true, montantPaye, echeance: false });
+      }
       d.setMonth(d.getMonth() + 1);
     }
 
@@ -45,13 +52,14 @@ export async function getSituationGlobale() {
       loyerMensuel: b.montantLoyer,
       chargesMensuelles: b.totalCharges,
       totalMensuel: b.totalMensuel,
+      periodicite: b.periodicite,
       moisLoyerImpayes,
       montantLoyerDu,
       moisChargesImpayes,
       montantChargesDu,
       totalDu,
       aJour,
-      detailMois: detailMois.slice(-12), // 12 derniers mois
+      detailMois: detailMois.slice(-12),
       statut: b.statut,
     };
   }).sort((a, b) => b.totalDu - a.totalDu);

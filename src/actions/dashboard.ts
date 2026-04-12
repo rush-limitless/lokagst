@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { isMoisEcheance } from "@/lib/utils";
 
 export async function getDashboardStats() {
   const [appartements, bauxActifs, paiementsMois] = await Promise.all([
@@ -12,17 +13,19 @@ export async function getDashboardStats() {
   const total = appartements.reduce((s, a) => s + a._count, 0);
   const occupes = appartements.find((a) => a.statut === "OCCUPE")?._count || 0;
 
+  const now = new Date();
   const revenusMois = paiementsMois.reduce((s, p) => s + p.montant, 0);
-  const revenusAttendus = bauxActifs.reduce((s, b) => s + b.totalMensuel, 0);
+  // Revenus attendus : seulement les baux dont ce mois est un mois d'échéance
+  const moisCourantDate = new Date(now.getFullYear(), now.getMonth(), 1);
+  const revenusAttendus = bauxActifs.filter((b) => isMoisEcheance(moisCourantDate, b.dateDebut, b.periodicite)).reduce((s, b) => s + b.totalMensuel, 0);
   const revenusLoyers = paiementsMois.reduce((s, p) => s + p.montantLoyer, 0);
   const revenusCharges = paiementsMois.reduce((s, p) => s + p.montantCharges, 0);
   const revenusCautions = paiementsMois.reduce((s, p) => s + p.montantCaution, 0);
 
-  const loyersAttendus = bauxActifs.reduce((s, b) => s + b.montantLoyer, 0);
-  const chargesAttendues = bauxActifs.reduce((s, b) => s + b.totalCharges, 0);
+  const loyersAttendus = bauxActifs.filter((b) => isMoisEcheance(moisCourantDate, b.dateDebut, b.periodicite)).reduce((s, b) => s + b.montantLoyer, 0);
+  const chargesAttendues = bauxActifs.filter((b) => isMoisEcheance(moisCourantDate, b.dateDebut, b.periodicite)).reduce((s, b) => s + b.totalCharges, 0);
   const cautionsNonPayees = bauxActifs.filter((b) => !b.cautionPayee).reduce((s, b) => s + b.montantCaution, 0);
 
-  const now = new Date();
   const dans30j = new Date();
   dans30j.setDate(dans30j.getDate() + 30);
 
@@ -35,6 +38,7 @@ export async function getDashboardStats() {
   const impayesLocataires = bauxActifs
     .filter((b) => {
       if (jourDuMois <= b.jourLimitePaiement) return false;
+      if (!isMoisEcheance(moisCourant, b.dateDebut, b.periodicite)) return false;
       return !b.paiements.some((p) => p.moisConcerne.getTime() === moisCourant.getTime() && p.statut === "PAYE");
     })
     .map((b) => ({ locataireId: b.locataireId, nom: `${b.locataire.prenom} ${b.locataire.nom}`, montantDu: b.totalMensuel || b.montantLoyer }));
@@ -78,7 +82,7 @@ export async function getRevenusEvolution(mois: number = 6) {
       .reduce((s, p) => s + p.montant, 0);
 
     const attendus = baux
-      .filter((b) => b.dateDebut <= mFin && b.dateFin >= mDebut)
+      .filter((b) => b.dateDebut <= mFin && b.dateFin >= mDebut && isMoisEcheance(mDebut, b.dateDebut, b.periodicite))
       .reduce((s, b) => s + b.totalMensuel, 0);
 
     result.push({ mois: moisLabel, revenus, attendus });

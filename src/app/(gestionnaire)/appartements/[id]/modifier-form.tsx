@@ -34,7 +34,7 @@ export function ModifierAppartForm({ appart }: { appart: any }) {
             <div className="space-y-1">
               <Label className="text-xs">Type</Label>
               <select name="type" defaultValue={appart.type} className="w-full border rounded-md p-2 text-sm bg-card text-foreground">
-                <option value="STUDIO">Studio</option><option value="CHAMBRE">Chambre</option><option value="APPARTEMENT">Appartement non meublé</option><option value="APPARTEMENT_MEUBLE">Appartement meublé</option><option value="VILLA">Villa</option>
+                <option value="CHAMBRE">Chambre</option><option value="STUDIO">Studio</option><option value="APPARTEMENT">Appartement</option><option value="CHAMBRE_MEUBLE">Chambre meublée</option><option value="STUDIO_MEUBLE">Studio meublé</option><option value="APPARTEMENT_MEUBLE">Appartement meublé</option><option value="VILLA">Villa</option>
               </select>
             </div>
             <div className="space-y-1"><Label className="text-xs">Loyer (FCFA)</Label><Input name="loyerBase" type="number" defaultValue={appart.loyerBase} /></div>

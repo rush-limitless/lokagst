@@ -1,0 +1,3 @@
+-- AlterEnum
+ALTER TYPE "TypeAppartement" ADD VALUE 'STUDIO_MEUBLE';
+ALTER TYPE "TypeAppartement" ADD VALUE 'CHAMBRE_MEUBLE';

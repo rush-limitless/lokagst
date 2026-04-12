@@ -34,7 +34,7 @@ export default function NouvelAppartement() {
             <div className="space-y-2">
               <Label>Type</Label>
               <select name="type" className="w-full border rounded-md p-2" required>
-                <option value="STUDIO">Studio</option><option value="CHAMBRE">Chambre</option><option value="APPARTEMENT">Appartement non meublé</option><option value="APPARTEMENT_MEUBLE">Appartement meublé</option><option value="VILLA">Villa</option>
+                <option value="CHAMBRE">Chambre</option><option value="STUDIO">Studio</option><option value="APPARTEMENT">Appartement</option><option value="CHAMBRE_MEUBLE">Chambre meublée</option><option value="STUDIO_MEUBLE">Studio meublé</option><option value="APPARTEMENT_MEUBLE">Appartement meublé</option><option value="VILLA">Villa</option>
               </select>
             </div>
             <div className="space-y-2"><Label>Loyer (FCFA)</Label><Input name="loyerBase" type="number" placeholder="50000" required /></div>

@@ -36,7 +36,9 @@ export const ETAGE_LABELS: Record<string, string> = {
 export const TYPE_LABELS: Record<string, string> = {
   STUDIO: "Studio",
   CHAMBRE: "Chambre",
-  APPARTEMENT: "Appartement non meublé",
+  APPARTEMENT: "Appartement",
+  STUDIO_MEUBLE: "Studio meublé",
+  CHAMBRE_MEUBLE: "Chambre meublée",
   APPARTEMENT_MEUBLE: "Appartement meublé",
   VILLA: "Villa",
 };
@@ -66,3 +68,35 @@ export const PERIODICITE_MOIS: Record<string, number> = {
   SEMESTRIEL: 6,
   ANNUEL: 12,
 };
+
+/**
+ * Détermine si un mois donné est un mois d'échéance pour un bail selon sa périodicité.
+ * Ex: bail annuel débutant en janvier → échéance uniquement en janvier.
+ * Ex: bail trimestriel débutant en février → échéances en février, mai, août, novembre.
+ */
+export function isMoisEcheance(mois: Date, dateDebut: Date, periodicite: string): boolean {
+  const freq = PERIODICITE_MOIS[periodicite] || 1;
+  if (freq === 1) return true;
+  const debutMois = dateDebut.getMonth();
+  const moisCourant = mois.getMonth();
+  // Calculer le nombre de mois depuis le début
+  const diff = (mois.getFullYear() - dateDebut.getFullYear()) * 12 + (moisCourant - debutMois);
+  return diff >= 0 && diff % freq === 0;
+}
+
+/**
+ * Nombre d'échéances attendues entre deux dates selon la périodicité.
+ */
+export function nbEcheancesEntre(debut: Date, fin: Date, dateDebutBail: Date, periodicite: string): number {
+  const freq = PERIODICITE_MOIS[periodicite] || 1;
+  if (freq === 1) {
+    return Math.max(0, Math.ceil((fin.getTime() - debut.getTime()) / (30.5 * 86400000)));
+  }
+  let count = 0;
+  const d = new Date(debut.getFullYear(), debut.getMonth(), 1);
+  while (d < fin) {
+    if (isMoisEcheance(d, dateDebutBail, periodicite)) count++;
+    d.setMonth(d.getMonth() + 1);
+  }
+  return count;
+}

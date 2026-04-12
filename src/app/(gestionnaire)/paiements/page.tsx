@@ -7,14 +7,18 @@ import Link from "next/link";
 import { EnvoyerRecuButton } from "./envoyer-recu-button";
 import { SupprimerPaiementButton } from "./supprimer-paiement-button";
 
-export default async function PaiementsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string }> }) {
-  const { q, page } = await searchParams;
+export default async function PaiementsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string; appart?: string; mois?: string }> }) {
+  const { q, page, appart, mois } = await searchParams;
   const currentPage = parseInt(page || "1");
   const { paiements: allPaiements, total, pages } = await getPaiements({ page: currentPage, limit: 50 });
 
-  const filtered = q
-    ? allPaiements.filter((p) => `${p.bail.locataire.prenom} ${p.bail.locataire.nom}`.toLowerCase().includes(q.toLowerCase()))
-    : allPaiements;
+  let filtered = allPaiements;
+  if (q) filtered = filtered.filter((p) => `${p.bail.locataire.prenom} ${p.bail.locataire.nom}`.toLowerCase().includes(q.toLowerCase()));
+  if (appart) filtered = filtered.filter((p) => p.bail.appartement.numero.toLowerCase().includes(appart.toLowerCase()));
+  if (mois) {
+    const [y, m] = mois.split("-").map(Number);
+    filtered = filtered.filter((p) => new Date(p.moisConcerne).getFullYear() === y && new Date(p.moisConcerne).getMonth() === m - 1);
+  }
 
   const totalMois = filtered.filter((p) => {
     const now = new Date();
@@ -40,6 +44,24 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
       </div>
 
       <SearchBar placeholder="Filtrer par locataire..." />
+
+      {/* Filtres avancés */}
+      <form className="flex gap-2 flex-wrap items-end">
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] text-muted-foreground uppercase">Locataire</label>
+          <input name="q" defaultValue={q || ""} placeholder="Nom..." className="h-8 px-2 text-xs border rounded-md bg-background w-36" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] text-muted-foreground uppercase">Appartement</label>
+          <input name="appart" defaultValue={appart || ""} placeholder="Ex: A12, SB..." className="h-8 px-2 text-xs border rounded-md bg-background w-32" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] text-muted-foreground uppercase">Mois</label>
+          <input name="mois" type="month" defaultValue={mois || ""} className="h-8 px-2 text-xs border rounded-md bg-background" />
+        </div>
+        <Button type="submit" size="sm" variant="outline" className="h-8 text-xs">Filtrer</Button>
+        {(q || appart || mois) && <Link href="/paiements"><Button type="button" size="sm" variant="ghost" className="h-8 text-xs">✕ Reset</Button></Link>}
+      </form>
 
       <div className="bg-card rounded-xl border overflow-x-auto table-scroll">
         <table className="w-full text-sm">
