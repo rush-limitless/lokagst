@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { isMoisEcheance } from "@/lib/utils";
+import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getSituationGlobale() {
   const now = new Date();
@@ -26,11 +26,15 @@ export async function getSituationGlobale() {
       const montantPaye = paiement?.montant || 0;
 
       if (echeance) {
-        const loyerPaye = montantPaye >= b.montantLoyer;
-        const chargesPaye = montantPaye >= b.totalMensuel;
+        const freq = PERIODICITE_MOIS[b.periodicite] || 1;
+        const loyerAttendu = b.montantLoyer * freq;
+        const chargesAttendues = b.totalCharges * freq;
+        const totalAttendu = loyerAttendu + chargesAttendues;
+        const loyerPaye = montantPaye >= loyerAttendu;
+        const chargesPaye = montantPaye >= totalAttendu;
 
-        if (!loyerPaye) { moisLoyerImpayes++; montantLoyerDu += b.montantLoyer - Math.min(montantPaye, b.montantLoyer); }
-        if (!chargesPaye && b.totalCharges > 0) { moisChargesImpayes++; montantChargesDu += b.totalCharges - Math.max(0, montantPaye - b.montantLoyer); }
+        if (!loyerPaye) { moisLoyerImpayes++; montantLoyerDu += loyerAttendu - Math.min(montantPaye, loyerAttendu); }
+        if (!chargesPaye && b.totalCharges > 0) { moisChargesImpayes++; montantChargesDu += chargesAttendues - Math.max(0, montantPaye - loyerAttendu); }
 
         detailMois.push({ mois: moisLabel, loyerPaye, chargesPaye, montantPaye, echeance: true });
       } else {

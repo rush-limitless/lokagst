@@ -79,9 +79,17 @@ export function isMoisEcheance(mois: Date, dateDebut: Date, periodicite: string)
   if (freq === 1) return true;
   const debutMois = dateDebut.getMonth();
   const moisCourant = mois.getMonth();
-  // Calculer le nombre de mois depuis le début
   const diff = (mois.getFullYear() - dateDebut.getFullYear()) * 12 + (moisCourant - debutMois);
   return diff >= 0 && diff % freq === 0;
+}
+
+/**
+ * Montant attendu sur un mois d'échéance = totalMensuel × fréquence.
+ * Ex: bail trimestriel à 150 000/mois → 450 000 attendu à chaque échéance.
+ */
+export function montantEcheance(totalMensuel: number, periodicite: string): number {
+  const freq = PERIODICITE_MOIS[periodicite] || 1;
+  return totalMensuel * freq;
 }
 
 /**

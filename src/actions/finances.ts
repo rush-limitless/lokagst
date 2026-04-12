@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { isMoisEcheance, nbEcheancesEntre } from "@/lib/utils";
+import { isMoisEcheance, nbEcheancesEntre, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getFinancesStats(annee?: number) {
   const year = annee || new Date().getFullYear();
@@ -22,15 +22,17 @@ export async function getFinancesStats(annee?: number) {
   const totalAutres = paiements.reduce((s, p) => s + p.montantAutres, 0);
   const totalEncaisse = paiements.reduce((s, p) => s + p.montant, 0);
 
-  // Attendus annuels — respecter la périodicité
+  // Attendus annuels — respecter la périodicité (loyers dus à l'avance)
+  // Chaque échéance = totalMensuel × fréquence (ex: trimestriel = loyer × 3)
   let totalLoyersAttendus = 0;
   let totalChargesAttendues = 0;
   for (const b of allBaux) {
     const bDebut = new Date(Math.max(b.dateDebut.getTime(), debut.getTime()));
     const bFin = new Date(Math.min(b.dateFin.getTime(), fin.getTime()));
+    const freq = PERIODICITE_MOIS[b.periodicite] || 1;
     const echeances = nbEcheancesEntre(bDebut, bFin, b.dateDebut, b.periodicite);
-    totalLoyersAttendus += b.montantLoyer * echeances;
-    totalChargesAttendues += b.totalCharges * echeances;
+    totalLoyersAttendus += b.montantLoyer * freq * echeances;
+    totalChargesAttendues += b.totalCharges * freq * echeances;
   }
   const totalAttendu = totalLoyersAttendus + totalChargesAttendues;
 
@@ -45,7 +47,7 @@ export async function getFinancesStats(annee?: number) {
     const cautions = mp.reduce((s, p) => s + p.montantCaution, 0);
     const total = mp.reduce((s, p) => s + p.montant, 0);
 
-    const attendu = allBaux.filter((b) => b.dateDebut <= mFin && b.dateFin >= mDebut && isMoisEcheance(mDebut, b.dateDebut, b.periodicite)).reduce((s, b) => s + b.totalMensuel, 0);
+    const attendu = allBaux.filter((b) => b.dateDebut <= mFin && b.dateFin >= mDebut && isMoisEcheance(mDebut, b.dateDebut, b.periodicite)).reduce((s, b) => s + b.totalMensuel * (PERIODICITE_MOIS[b.periodicite] || 1), 0);
 
     return { mois: moisLabel, loyers, charges, cautions, total, attendu, impaye: Math.max(0, attendu - total) };
   });
@@ -56,8 +58,9 @@ export async function getFinancesStats(annee?: number) {
     const bp = paiements.filter((p) => p.bailId === b.id);
     const bDebut = new Date(Math.max(b.dateDebut.getTime(), debut.getTime()));
     const bFin = new Date(Math.min(now.getTime(), fin.getTime()));
+    const freq = PERIODICITE_MOIS[b.periodicite] || 1;
     const echeances = nbEcheancesEntre(bDebut, bFin, b.dateDebut, b.periodicite);
-    const attendu = b.totalMensuel * echeances;
+    const attendu = b.totalMensuel * freq * echeances;
     const paye = bp.reduce((s, p) => s + p.montant, 0);
     const du = Math.max(0, attendu - paye);
     return { locataire: `${b.locataire.prenom} ${b.locataire.nom}`, appartement: b.appartement.numero, attendu, paye, du, taux: attendu > 0 ? Math.round((paye / attendu) * 100) : 100 };

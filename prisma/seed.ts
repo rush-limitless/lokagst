@@ -58,6 +58,7 @@ async function main() {
     { numero: "STUDIO B47", etage: "QUATRIEME" as const, type: "STUDIO" as const, loyerBase: 80000, imm: imm1.id },
     // Etage 5
     { numero: "APPART MEUBLE", etage: "CINQUIEME" as const, type: "APPARTEMENT_MEUBLE" as const, loyerBase: 0, imm: imm1.id },
+    { numero: "SALLE DE REUNION", etage: "CINQUIEME" as const, type: "APPARTEMENT_MEUBLE" as const, loyerBase: 0, imm: imm1.id },
     // RDC
     { numero: "STUDIO B01", etage: "RDC" as const, type: "STUDIO" as const, loyerBase: 100000, imm: imm1.id },
     { numero: "RDC GAB", etage: "RDC" as const, type: "CHAMBRE" as const, loyerBase: 50000, imm: imm1.id },

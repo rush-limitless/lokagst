@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { isMoisEcheance } from "@/lib/utils";
+import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getSituationLocataire(locataireId: string) {
   const bail = await prisma.bail.findFirst({
@@ -17,19 +17,20 @@ export async function getSituationLocataire(locataireId: string) {
 
   let moisImpayes = 0;
   let montantLoyerDu = 0;
+  const freq = PERIODICITE_MOIS[bail.periodicite] || 1;
   for (let i = 0; i < 12; i++) {
     const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
     if (m < debut) break;
-    // Ne vérifier que les mois d'échéance
     if (!isMoisEcheance(m, debut, bail.periodicite)) continue;
     const p = bail.paiements.find((pay) => pay.moisConcerne.getTime() === m.getTime());
-    if (!p || p.statut !== "PAYE") {
+    const attendu = bail.montantLoyer * freq;
+    if (!p || p.montant < attendu) {
       moisImpayes++;
-      montantLoyerDu += bail.montantLoyer - (p?.montant || 0);
+      montantLoyerDu += attendu - (p?.montant || 0);
     }
   }
 
-  const montantChargesDu = moisImpayes * bail.totalCharges;
+  const montantChargesDu = moisImpayes * bail.totalCharges * freq;
   const penalitesImpayees = bail.penalites.reduce((s, p) => s + p.montant, 0);
 
   return {
