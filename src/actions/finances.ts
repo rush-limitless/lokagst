@@ -64,7 +64,7 @@ export async function getFinancesStats(annee?: number) {
     const paye = bp.reduce((s, p) => s + p.montant, 0);
     const du = Math.max(0, attendu - paye);
     return { locataire: `${b.locataire.prenom} ${b.locataire.nom}`, appartement: b.appartement.numero, attendu, paye, du, taux: attendu > 0 ? Math.round((paye / attendu) * 100) : 100 };
-  }).filter((l) => l.du > 0).sort((a, b) => b.du - a.du);
+  }).filter((l) => l.du > 0).sort((a, b) => a.locataire.localeCompare(b.locataire, "fr"));
 
   // Répartition par mode de paiement
   const parMode = paiements.reduce((acc, p) => {

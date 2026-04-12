@@ -42,7 +42,8 @@ export async function getDashboardStats() {
       if (!isMoisEcheance(moisCourant, b.dateDebut, b.periodicite)) return false;
       return !b.paiements.some((p) => p.moisConcerne.getTime() === moisCourant.getTime() && p.statut === "PAYE");
     })
-    .map((b) => ({ locataireId: b.locataireId, nom: `${b.locataire.prenom} ${b.locataire.nom}`, montantDu: b.totalMensuel || b.montantLoyer }));
+    .map((b) => ({ locataireId: b.locataireId, nom: `${b.locataire.prenom} ${b.locataire.nom}`, montantDu: b.totalMensuel || b.montantLoyer }))
+    .sort((a, b) => a.nom.localeCompare(b.nom, "fr"));
 
   const moisLabel = now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 

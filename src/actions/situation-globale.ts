@@ -66,5 +66,5 @@ export async function getSituationGlobale() {
       detailMois: detailMois.slice(-12),
       statut: b.statut,
     };
-  }).sort((a, b) => b.totalDu - a.totalDu);
+  }).sort((a, b) => a.locataire.localeCompare(b.locataire, "fr"));
 }
