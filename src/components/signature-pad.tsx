@@ -62,9 +62,9 @@ export function SignaturePad({ onSave }: { onSave: (dataUrl: string) => void }) 
       <div className="border-2 border-dashed border-gray-300 rounded-lg bg-white">
         <canvas
           ref={canvasRef}
-          width={500}
-          height={150}
-          className="w-full cursor-crosshair touch-none"
+          width={400}
+          height={100}
+          className="w-full max-w-[400px] h-[100px] cursor-crosshair touch-none"
           onMouseDown={startDraw}
           onMouseMove={draw}
           onMouseUp={stopDraw}

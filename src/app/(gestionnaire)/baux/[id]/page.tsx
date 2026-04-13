@@ -41,10 +41,11 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
             {bail.statut === "ACTIF" && <IndexerLoyerForm bailId={bail.id} loyerActuel={bail.montantLoyer} />}
           </div>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-          <div><span className="text-gray-500">Début</span><p className="font-medium">{formatDate(bail.dateDebut)}</p></div>
-          <div><span className="text-gray-500">Fin</span><p className="font-medium">{formatDate(bail.dateFin)}</p></div>
-          <div><span className="text-gray-500">Durée</span><p className="font-medium">{bail.dureeMois} mois</p></div>
+        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div><span className="text-gray-500">Début du bail</span><p className="font-medium">{formatDate(bail.dateDebut)}</p></div>
+          <div><span className="text-gray-500">Fin du bail</span><p className="font-medium">{formatDate(bail.dateFin)}</p></div>
+          <div><span className="text-gray-500">Durée totale</span><p className="font-medium">{bail.dureeMois} mois</p></div>
+          <div><span className="text-gray-500">Temps dans l&apos;appartement</span><p className="font-medium">{Math.max(0, Math.floor((Date.now() - new Date(bail.dateDebut).getTime()) / (30.5 * 86400000)))} mois</p></div>
           <div><span className="text-gray-500">Loyer</span><p className="font-medium">{formatFCFA(bail.montantLoyer)}</p></div>
           <div><span className="text-gray-500">Charges</span><p className="font-medium">{formatFCFA(bail.totalCharges)}</p></div>
           <div><span className="text-gray-500">Total mensuel</span><p className="font-medium text-lg">{formatFCFA(bail.totalMensuel)}</p></div>
@@ -79,14 +80,13 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
       <Card>
         <CardHeader><CardTitle>Renouvellement et résiliation</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-          <div><span className="text-gray-500">Renouvellement auto</span><p className="font-medium">{bail.renouvellementAuto ? "✅ Oui" : "❌ Non"}</p></div>
+          <div><span className="text-gray-500">Renouvellement auto</span><p className="font-medium">{bail.renouvellementAuto ? "✅ Oui (sauf dénonciation 2 mois avant)" : "❌ Non"}</p></div>
           {bail.renouvellementAuto && <>
             <div><span className="text-gray-500">Durée renouvellement</span><p className="font-medium">{bail.dureeRenouvellement || bail.dureeMois} mois</p></div>
             <div><span className="text-gray-500">Augmentation</span><p className="font-medium">{bail.augmentationLoyer || 0}%</p></div>
           </>}
           <div><span className="text-gray-500">Préavis résiliation</span><p className="font-medium">{bail.preavisResiliation} jours</p></div>
-          <div><span className="text-gray-500">Seuil mise en demeure</span><p className="font-medium">{bail.seuilMiseEnDemeure} mois</p></div>
-          <div><span className="text-gray-500">Seuil suspension</span><p className="font-medium">{bail.seuilSuspension} mois</p></div>
+          <div><span className="text-gray-500">Seuil mise en demeure</span><p className="font-medium">{bail.seuilMiseEnDemeure} mois d&apos;impayés → envoi automatique d&apos;une mise en demeure</p></div>
         </CardContent>
       </Card>
 

@@ -1,4 +1,5 @@
 import { getLocataires } from "@/actions/locataires";
+import { prisma } from "@/lib/prisma";
 import { ETAGE_LABELS } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/search-bar";
@@ -7,9 +8,44 @@ import { StatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import Link from "next/link";
 
+async function getCounts() {
+  const [actifs, archives] = await Promise.all([
+    prisma.locataire.count({ where: { statut: "ACTIF" } }),
+    prisma.locataire.count({ where: { statut: "ARCHIVE" } }),
+  ]);
+  return { actifs, archives };
+}
+
 export default async function LocatairesPage({ searchParams }: { searchParams: Promise<{ q?: string; statut?: string }> }) {
   const { q, statut } = await searchParams;
-  const locataires = await getLocataires({ statut: statut || "ACTIF", recherche: q });
+  const [locataires, counts] = await Promise.all([
+    getLocataires({ statut: statut || "ACTIF", recherche: q }),
+    getCounts(),
+  ]);
+
+  // Group by immeuble then etage
+  const grouped: { imm: string; etage: string; etageKey: string; locs: typeof locataires }[] = [];
+  const ETAGE_ORDER = ["CINQUIEME", "QUATRIEME", "TROISIEME", "DEUXIEME", "PREMIER", "RDC", "AUTRE"];
+
+  const byImm = new Map<string, typeof locataires>();
+  for (const l of locataires) {
+    const immNom = l.baux[0]?.appartement?.immeuble?.nom || "Sans immeuble";
+    if (!byImm.has(immNom)) byImm.set(immNom, []);
+    byImm.get(immNom)!.push(l);
+  }
+
+  for (const [immNom, locs] of Array.from(byImm)) {
+    const byEtage = new Map<string, typeof locataires>();
+    for (const l of locs) {
+      const etage = l.baux[0]?.appartement?.etage || "AUTRE";
+      if (!byEtage.has(etage)) byEtage.set(etage, []);
+      byEtage.get(etage)!.push(l);
+    }
+    for (const ek of ETAGE_ORDER) {
+      const els = byEtage.get(ek);
+      if (els) grouped.push({ imm: immNom, etage: ETAGE_LABELS[ek] || ek, etageKey: ek, locs: els });
+    }
+  }
 
   return (
     <div className="space-y-6 animate-in">
@@ -20,58 +56,69 @@ export default async function LocatairesPage({ searchParams }: { searchParams: P
         </div>
         <Link href="/locataires/nouveau"><Button>+ Ajouter</Button></Link>
       </div>
+
+      {/* Counts */}
       <div className="flex gap-3 items-center flex-wrap">
         <SearchBar placeholder="Rechercher un locataire..." />
-        <Link href="/locataires" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!statut || statut === "ACTIF" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Actifs</Link>
-        <Link href="/locataires?statut=ARCHIVE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "ARCHIVE" ? "bg-orange-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Anciens</Link>
+        <Link href="/locataires" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!statut || statut === "ACTIF" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Actifs ({counts.actifs})</Link>
+        <Link href="/locataires?statut=ARCHIVE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "ARCHIVE" ? "bg-orange-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Anciens ({counts.archives})</Link>
       </div>
+
+      <p className="text-sm text-muted-foreground">{locataires.length} locataire(s)</p>
+
       {locataires.length === 0 ? (
-        <EmptyState icon="👤" title={q ? "Aucun résultat" : "Aucun locataire"} description={q ? "Essayez avec un autre terme de recherche" : "Ajoutez votre premier locataire pour commencer"} />
+        <EmptyState icon="👤" title={q ? "Aucun résultat" : "Aucun locataire"} description={q ? "Essayez avec un autre terme" : "Ajoutez votre premier locataire"} />
       ) : (
-        <>
-          {/* Mobile cards */}
-          <div className="md:hidden space-y-3 stagger-in">
-            {locataires.map((l) => (
-              <Link key={l.id} href={`/locataires/${l.id}`} className="block bg-card border rounded-xl p-4 hover:shadow-md hover-bounce transition-all hover:-translate-y-0.5">
-                <div className="flex items-center gap-3">
-                  <UserAvatar nom={l.nom} prenom={l.prenom} photo={l.photo} />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground">{l.prenom} {l.nom}</p>
-                    <p className="text-xs text-muted-foreground">{l.telephone}</p>
-                  </div>
-                  <div className="text-right">
-                    {l.baux[0]?.appartement && <p className="text-xs font-medium text-foreground">{l.baux[0].appartement.numero}</p>}
-                    <StatusBadge status={l.statut === "ACTIF" ? "actif" : "archive"} label={l.statut === "ACTIF" ? "Actif" : "Archivé"} />
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-          {/* Desktop table */}
-          <div className="bg-card rounded-xl border overflow-x-auto hidden md:block">
-            <table className="w-full">
-              <thead className="bg-muted/50 text-left text-xs text-muted-foreground uppercase tracking-wider">
-                <tr><th className="p-3">Locataire</th><th className="p-3">Téléphone</th><th className="p-3">Appartement</th><th className="p-3">Statut</th><th className="p-3">Actions</th></tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {locataires.map((l) => (
-                  <tr key={l.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="p-3">
-                      <div className="flex items-center gap-3">
-                        <UserAvatar nom={l.nom} prenom={l.prenom} photo={l.photo} size="sm" />
-                        <span className="font-medium text-foreground">{l.prenom} {l.nom}</span>
+        <div className="space-y-6">
+          {grouped.map(({ imm, etage, etageKey, locs }) => (
+            <div key={`${imm}-${etageKey}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-semibold text-primary">{imm}</span>
+                <span className="text-xs text-muted-foreground">·</span>
+                <span className="text-xs text-muted-foreground">{etage}</span>
+                <span className="text-xs text-muted-foreground">({locs.length})</span>
+              </div>
+              {/* Mobile */}
+              <div className="md:hidden space-y-2">
+                {locs.map((l) => (
+                  <Link key={l.id} href={`/locataires/${l.id}`} className="block bg-card border rounded-xl p-3 hover:shadow-md transition-all">
+                    <div className="flex items-center gap-3">
+                      <UserAvatar nom={l.nom} prenom={l.prenom} photo={l.photo} />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground text-sm">{l.prenom} {l.nom}</p>
+                        <p className="text-xs text-muted-foreground">{l.telephone}</p>
                       </div>
-                    </td>
-                    <td className="p-3 text-sm text-muted-foreground">{l.telephone}</td>
-                    <td className="p-3 text-sm text-foreground">{l.baux[0]?.appartement ? `${l.baux[0].appartement.numero} (${ETAGE_LABELS[l.baux[0].appartement.etage]})` : "—"}</td>
-                    <td className="p-3"><StatusBadge status={l.statut === "ACTIF" ? "actif" : "archive"} label={l.statut === "ACTIF" ? "Actif" : "Archivé"} /></td>
-                    <td className="p-3"><Link href={`/locataires/${l.id}`} className="text-primary text-sm hover:underline font-medium">Voir →</Link></td>
-                  </tr>
+                      <div className="text-right">
+                        {l.baux[0]?.appartement && <p className="text-xs font-medium text-foreground">{l.baux[0].appartement.numero}</p>}
+                        <StatusBadge status={l.statut === "ACTIF" ? "actif" : "archive"} label={l.statut === "ACTIF" ? "Actif" : "Archivé"} />
+                      </div>
+                    </div>
+                  </Link>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </>
+              </div>
+              {/* Desktop */}
+              <div className="bg-card rounded-xl border overflow-x-auto hidden md:block">
+                <table className="w-full">
+                  <thead className="bg-muted/50 text-left text-xs text-muted-foreground uppercase tracking-wider">
+                    <tr><th className="p-3">Locataire</th><th className="p-3">Téléphone</th><th className="p-3">Immeuble</th><th className="p-3">Appartement</th><th className="p-3">Statut</th><th className="p-3">Actions</th></tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {locs.map((l) => (
+                      <tr key={l.id} className="hover:bg-muted/30 transition-colors">
+                        <td className="p-3"><div className="flex items-center gap-3"><UserAvatar nom={l.nom} prenom={l.prenom} photo={l.photo} size="sm" /><span className="font-medium text-foreground">{l.prenom} {l.nom}</span></div></td>
+                        <td className="p-3 text-sm text-muted-foreground">{l.telephone}</td>
+                        <td className="p-3 text-sm text-primary">{l.baux[0]?.appartement?.immeuble?.nom || "—"}</td>
+                        <td className="p-3 text-sm text-foreground">{l.baux[0]?.appartement ? `${l.baux[0].appartement.numero} (${ETAGE_LABELS[l.baux[0].appartement.etage]})` : "—"}</td>
+                        <td className="p-3"><StatusBadge status={l.statut === "ACTIF" ? "actif" : "archive"} label={l.statut === "ACTIF" ? "Actif" : "Archivé"} /></td>
+                        <td className="p-3"><Link href={`/locataires/${l.id}`} className="text-primary text-sm hover:underline font-medium">Voir →</Link></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
