@@ -22,7 +22,7 @@ export async function getDocumentsLocataire(locataireId: string) {
       type: "contrat",
       nom: `Contrat de bail — ${bail.appartement.numero}`,
       statut: bail.signatureLocataire ? "signe" : "non_signe",
-      lien: bail.signatureLocataire ? `/baux/${bail.id}/contrat` : undefined,
+      lien: bail.signatureLocataire ? `/baux/${bail.id}/contrat` : `/baux/${bail.id}`,
       bailId: bail.id,
     });
 
@@ -40,6 +40,7 @@ export async function getDocumentsLocataire(locataireId: string) {
         type: "contrat_enregistre",
         nom: `Contrat enregistré (scan) — ${bail.appartement.numero}`,
         statut: "non_signe",
+        lien: `/baux/${bail.id}`,
         bailId: bail.id,
       });
     }
