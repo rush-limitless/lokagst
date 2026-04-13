@@ -1,16 +1,19 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { fr } from "./fr";
-import { en } from "./en";
+import { fr, frPages } from "./fr";
+import { en, enPages } from "./en";
 
-type Translations = typeof fr;
+const frAll = { ...fr, ...frPages };
+const enAll = { ...en, ...enPages };
+
+type Translations = typeof frAll;
 type Lang = "fr" | "en";
 
-const translations: Record<Lang, Translations> = { fr, en };
+const translations: Record<Lang, Translations> = { fr: frAll, en: enAll };
 
 const I18nContext = createContext<{ t: Translations; lang: Lang; setLang: (l: Lang) => void }>({
-  t: fr, lang: "fr", setLang: () => {},
+  t: frAll, lang: "fr", setLang: () => {},
 });
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {

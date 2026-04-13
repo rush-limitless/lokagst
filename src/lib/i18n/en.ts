@@ -206,3 +206,107 @@ export const en = {
   precedent: "← Prev",
   suivant: "Next →",
 };
+
+// Extended i18n - Pages
+export const enPages = {
+  // Immeubles
+  immeubles_titre: "Buildings",
+  immeubles_count: "building(s) registered",
+  immeubles_modifier: "Edit",
+  immeubles_disponible: "Available",
+  immeubles_apparts: "Units",
+
+  // Appartements
+  appartements_titre: "Apartments",
+  appartements_ajouter: "New apartment",
+  appartements_immeuble: "Building",
+  appartements_historique: "Lease history",
+  appartements_aucunBail: "No leases",
+
+  // Situation
+  situation_titre: "Tenant situation",
+  situation_total: "Total tenants",
+  situation_aJour: "Up to date",
+  situation_enRetard: "Late",
+  situation_loyersImpayes: "Unpaid rents",
+  situation_chargesImpayees: "Unpaid charges",
+  situation_totalGlobalDu: "Total amount due",
+  situation_impaye: "Unpaid",
+
+  // Finances
+  finances_titre: "Financial dashboard",
+  finances_totalEncaisse: "Total collected",
+  finances_impayes: "Unpaid",
+  finances_tauxRecouvrement: "Recovery rate",
+  finances_cautions: "Deposits collected",
+  finances_loyersEncaisses: "Rents collected",
+  finances_chargesEncaissees: "Charges collected",
+  finances_autres: "Other",
+  finances_revenusMensuels: "Monthly revenue by category",
+  finances_encaisseVsImpaye: "Collected vs Unpaid by month",
+  finances_repartitionMode: "Payment method breakdown",
+  finances_topImpayes: "Top unpaid",
+  finances_tousAJour: "All tenants are up to date",
+
+  // Dépenses
+  depenses_titre: "Expenses",
+  depenses_revenus: "Revenue",
+  depenses_depenses: "Expenses",
+  depenses_resultatNet: "Net result",
+  depenses_nbDepenses: "Nb expenses",
+  depenses_nouvelle: "New expense",
+  depenses_categorie: "Category",
+  depenses_fournisseur: "Supplier",
+  depenses_reference: "Reference",
+  depenses_justificatif: "Receipt",
+
+  // Paiements
+  paiements_titre: "Payments",
+  paiements_encaisseCeMois: "Collected this month",
+  paiements_totalPaiements: "Total payments",
+  paiements_enAttente: "Pending validation",
+  paiements_filtrerLocataire: "Filter by tenant...",
+  paiements_filtrerAppart: "E.g.: A12, SB...",
+  paiements_filtrer: "Filter",
+  paiements_reset: "Reset",
+  paiements_nbMois: "Number of months covered",
+
+  // Calendrier
+  calendrier_titre: "Payment schedule",
+  calendrier_echeances: "Due dates",
+  calendrier_payes: "Paid",
+  calendrier_partiels: "Partial",
+  calendrier_recouvrement: "Recovery",
+
+  // Maintenance
+  maintenance_titre: "Maintenance",
+  maintenance_signaler: "Report an issue",
+  maintenance_mesSignalements: "My reports",
+
+  // Messagerie
+  messagerie_titre: "Messages",
+  messagerie_echangez: "Chat with IMMOSTAR SCI management",
+
+  // Paramètres
+  parametres_titre: "Settings",
+  parametres_changerMdp: "Change password",
+  parametres_ancienMdp: "Current password",
+  parametres_nouveauMdp: "New password",
+  parametres_confirmerMdp: "Confirm",
+  parametres_journal: "Audit log",
+  parametres_emailsEnvoyes: "Sent emails",
+
+  // Documents
+  documents_titre: "Documents",
+  documents_dossierComplet: "Complete file",
+  documents_signesUploades: "documents signed/uploaded",
+
+  // Reporting
+  reporting_synthese: "Overview",
+  reporting_export: "Excel Export",
+  reporting_impayes: "Unpaid",
+  reporting_cautions: "Deposits",
+  reporting_classement: "Ranking",
+  reporting_rentabilite: "Profitability",
+  reporting_comparaison: "Comparison",
+};

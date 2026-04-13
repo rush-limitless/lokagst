@@ -1,8 +1,9 @@
 import { getImmeubles } from "@/actions/immeubles";
 import { prisma } from "@/lib/prisma";
-import { formatFCFA, ETAGE_LABELS } from "@/lib/utils";
+import { formatFCFA, ETAGE_LABELS, TYPE_LABELS } from "@/lib/utils";
 import Link from "next/link";
 import { CreerImmeubleForm } from "./creer-form";
+import { ModifierImmeubleForm } from "./modifier-form";
 
 const COLORS = ["from-sky-500 to-blue-600", "from-emerald-500 to-teal-600", "from-violet-500 to-purple-600", "from-amber-500 to-orange-600"];
 
@@ -19,6 +20,7 @@ export default async function ImmeublesPage() {
   return (
     <div className="space-y-8 animate-in">
       <h1 className="text-xl md:text-2xl font-bold text-foreground">Immeubles</h1>
+      <p className="text-sm text-muted-foreground">{immeubles.length} immeuble(s) enregistré(s)</p>
 
       {immeubles.map((imm, idx) => {
         const color = COLORS[idx % COLORS.length];
@@ -26,13 +28,13 @@ export default async function ImmeublesPage() {
         const occupes = appartsImm.filter((a) => a.statut === "OCCUPE").length;
         const libres = appartsImm.filter((a) => a.statut === "LIBRE").length;
 
-        // Grouper par étage
+        // Grouper par étage dans l'ordre correct
+        const ETAGE_ORDER = ["RDC", "PREMIER", "DEUXIEME", "TROISIEME", "QUATRIEME", "CINQUIEME"];
         const etages: Record<string, typeof appartsImm> = {};
-        appartsImm.forEach((a) => {
-          const e = ETAGE_LABELS[a.etage] || a.etage;
-          if (!etages[e]) etages[e] = [];
-          etages[e].push(a);
-        });
+        for (const e of ETAGE_ORDER) {
+          const apps = appartsImm.filter((a) => a.etage === e);
+          if (apps.length > 0) etages[ETAGE_LABELS[e] || e] = apps;
+        }
 
         return (
           <div key={imm.id} className="space-y-4">
@@ -43,6 +45,7 @@ export default async function ImmeublesPage() {
                 <div>
                   <h2 className="text-xl font-bold">{imm.nom}</h2>
                   <p className="text-white/70 text-sm">{imm.quartier ? `${imm.quartier}, ` : ""}{imm.ville}</p>
+                  <ModifierImmeubleForm immeuble={JSON.parse(JSON.stringify(imm))} />
                 </div>
                 <div className="flex gap-4 text-center">
                   <div><div className="text-2xl font-bold">{appartsImm.length}</div><p className="text-white/60 text-[10px]">Apparts</p></div>
@@ -65,7 +68,7 @@ export default async function ImmeublesPage() {
                           <span className="font-bold text-sm text-foreground">{a.numero}</span>
                           <span className={`w-2 h-2 rounded-full mt-1 ${a.statut === "LIBRE" ? "bg-emerald-500" : "bg-sky-500"} animate-pulse`} />
                         </div>
-                        <p className="text-[10px] text-muted-foreground">{a.type} — {formatFCFA(a.loyerBase)}</p>
+                        <p className="text-[10px] text-muted-foreground">{TYPE_LABELS[a.type] || a.type} — {formatFCFA(a.loyerBase)}</p>
                         {locataire && <p className="text-[10px] text-foreground mt-1 truncate">{locataire.prenom} {locataire.nom}</p>}
                         {!locataire && a.statut === "LIBRE" && <p className="text-[10px] text-emerald-600 mt-1">Disponible</p>}
                       </Link>

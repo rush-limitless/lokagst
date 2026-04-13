@@ -48,7 +48,7 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
   };
 
   return (
-    <aside className={cn("bg-gradient-to-b from-[#0d3b5e] to-[#0a2d47] text-white flex-shrink-0 hidden md:flex flex-col transition-all duration-300", collapsed ? "w-16" : "w-60")}>
+    <aside className={cn("bg-gradient-to-b from-[#0d3b5e] to-[#0a2d47] text-white flex-shrink-0 hidden md:flex flex-col transition-all duration-300 sticky top-0 h-screen", collapsed ? "w-16" : "w-60")}>
       <div className={cn("p-4 border-b border-white/10 flex items-center", collapsed ? "justify-center" : "justify-between")}>
         {!collapsed && (
           <div className="flex items-center gap-2">

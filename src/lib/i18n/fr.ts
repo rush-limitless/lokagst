@@ -206,3 +206,107 @@ export const fr = {
   precedent: "← Préc.",
   suivant: "Suiv. →",
 };
+
+// Extended i18n - Pages
+export const frPages = {
+  // Immeubles
+  immeubles_titre: "Immeubles",
+  immeubles_count: "immeuble(s) enregistré(s)",
+  immeubles_modifier: "Modifier",
+  immeubles_disponible: "Disponible",
+  immeubles_apparts: "Apparts",
+
+  // Appartements
+  appartements_titre: "Appartements",
+  appartements_ajouter: "Nouvel appartement",
+  appartements_immeuble: "Immeuble",
+  appartements_historique: "Historique des baux",
+  appartements_aucunBail: "Aucun bail",
+
+  // Situation
+  situation_titre: "Situation des locataires",
+  situation_total: "Total locataires",
+  situation_aJour: "À jour",
+  situation_enRetard: "En retard",
+  situation_loyersImpayes: "Loyers impayés",
+  situation_chargesImpayees: "Charges impayées",
+  situation_totalGlobalDu: "Total global dû",
+  situation_impaye: "Impayé",
+
+  // Finances
+  finances_titre: "Tableau de bord financier",
+  finances_totalEncaisse: "Total encaissé",
+  finances_impayes: "Impayés",
+  finances_tauxRecouvrement: "Taux de recouvrement",
+  finances_cautions: "Cautions encaissées",
+  finances_loyersEncaisses: "Loyers encaissés",
+  finances_chargesEncaissees: "Charges encaissées",
+  finances_autres: "Autres",
+  finances_revenusMensuels: "Revenus mensuels par catégorie",
+  finances_encaisseVsImpaye: "Encaissé vs Impayé par mois",
+  finances_repartitionMode: "Répartition par mode de paiement",
+  finances_topImpayes: "Top impayés",
+  finances_tousAJour: "Tous les locataires sont à jour",
+
+  // Dépenses
+  depenses_titre: "Dépenses",
+  depenses_revenus: "Revenus",
+  depenses_depenses: "Dépenses",
+  depenses_resultatNet: "Résultat net",
+  depenses_nbDepenses: "Nb dépenses",
+  depenses_nouvelle: "Nouvelle dépense",
+  depenses_categorie: "Catégorie",
+  depenses_fournisseur: "Fournisseur",
+  depenses_reference: "Référence",
+  depenses_justificatif: "Justificatif",
+
+  // Paiements
+  paiements_titre: "Paiements",
+  paiements_encaisseCeMois: "Encaissé ce mois",
+  paiements_totalPaiements: "Total paiements",
+  paiements_enAttente: "En attente de validation",
+  paiements_filtrerLocataire: "Filtrer par locataire...",
+  paiements_filtrerAppart: "Ex: A12, SB...",
+  paiements_filtrer: "Filtrer",
+  paiements_reset: "Reset",
+  paiements_nbMois: "Nombre de mois couverts",
+
+  // Calendrier
+  calendrier_titre: "Calendrier des échéances",
+  calendrier_echeances: "Échéances",
+  calendrier_payes: "Payés",
+  calendrier_partiels: "Partiels",
+  calendrier_recouvrement: "Recouvrement",
+
+  // Maintenance
+  maintenance_titre: "Maintenance",
+  maintenance_signaler: "Signaler un problème",
+  maintenance_mesSignalements: "Mes signalements",
+
+  // Messagerie
+  messagerie_titre: "Messagerie",
+  messagerie_echangez: "Échangez avec la gestion IMMOSTAR SCI",
+
+  // Paramètres
+  parametres_titre: "Paramètres",
+  parametres_changerMdp: "Changer le mot de passe",
+  parametres_ancienMdp: "Ancien mot de passe",
+  parametres_nouveauMdp: "Nouveau mot de passe",
+  parametres_confirmerMdp: "Confirmer",
+  parametres_journal: "Journal d'audit",
+  parametres_emailsEnvoyes: "Emails envoyés",
+
+  // Documents
+  documents_titre: "Documents",
+  documents_dossierComplet: "Dossier complet",
+  documents_signesUploades: "documents signés/uploadés",
+
+  // Reporting
+  reporting_synthese: "Synthèse",
+  reporting_export: "Export Excel",
+  reporting_impayes: "Impayés",
+  reporting_cautions: "Cautions",
+  reporting_classement: "Classement",
+  reporting_rentabilite: "Rentabilité",
+  reporting_comparaison: "Comparaison",
+};

@@ -40,7 +40,8 @@ export async function creerAppartement(formData: FormData) {
     const exists = await prisma.appartement.findUnique({ where: { numero: parsed.data.numero } });
     if (exists) return { error: "Ce numéro d'appartement existe déjà" };
 
-    await prisma.appartement.create({ data: parsed.data });
+    const immeubleId = (formData.get("immeubleId") as string) || null;
+    await prisma.appartement.create({ data: { ...parsed.data, immeubleId } });
     await logAction("Création", "Appartement", parsed.data.numero, `${parsed.data.type} — ${parsed.data.loyerBase} FCFA`);
     revalidatePath("/appartements");
     return { success: true };
