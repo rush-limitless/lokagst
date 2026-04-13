@@ -6,6 +6,7 @@ import { SearchBar } from "@/components/search-bar";
 import { StatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import Link from "next/link";
+import { Home, Plus } from "lucide-react";
 
 export default async function AppartementsPage({ searchParams }: { searchParams: Promise<{ q?: string; statut?: string; immeuble?: string }> }) {
   const { q, statut, immeuble } = await searchParams;
@@ -17,8 +18,11 @@ export default async function AppartementsPage({ searchParams }: { searchParams:
   return (
     <div className="space-y-6 animate-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <h1 className="text-xl md:text-2xl font-bold text-foreground">Appartements</h1>
-        <Link href="/appartements/nouveau"><Button>+ Ajouter</Button></Link>
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2"><Home className="w-6 h-6 text-primary" /> Appartements</h1>
+          <p className="text-sm text-muted-foreground mt-1">Catalogue complet — Recherchez, filtrez et gérez chaque logement</p>
+        </div>
+        <Link href="/appartements/nouveau"><Button className="gap-1.5"><Plus className="w-4 h-4" /> Ajouter</Button></Link>
       </div>
       <div className="flex flex-wrap gap-3 items-center">
         <SearchBar placeholder="Rechercher par numéro..." />
