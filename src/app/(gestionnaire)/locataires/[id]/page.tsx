@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArchiverButton } from "./archiver-button";
 import { CreerCompteButton } from "./creer-compte";
+import { GererCompteButton } from "./gerer-compte";
 import { ProfilTabs } from "./profil-tabs";
 
 export default async function LocataireDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -41,6 +42,7 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
         </div>
         <div className="flex gap-2 flex-wrap">
           {loc.statut === "ACTIF" && !loc.utilisateur && <CreerCompteButton locataireId={loc.id} email={loc.email} />}
+          {loc.utilisateur && <GererCompteButton utilisateurId={loc.utilisateur.id} email={loc.utilisateur.email} />}
           <Link href={`/locataires/${loc.id}/documents`}><Button variant="outline" size="sm">📁 Documents</Button></Link>
           {loc.statut === "ACTIF" && <ArchiverButton locataireId={loc.id} />}
         </div>

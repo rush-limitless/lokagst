@@ -32,7 +32,7 @@ type Locataire = {
 };
 
 export function ProfilTabs({ locataire: loc, situation }: { locataire: Locataire; situation: Situation }) {
-  const allPaiements = loc.baux.flatMap((b) => b.paiements.map((p) => ({ ...p, bail: b }))).sort((a, b) => new Date(b.moisConcerne).getTime() - new Date(a.moisConcerne).getTime());
+  const allPaiements = loc.baux.flatMap((b) => b.paiements.map((p) => ({ ...p, bail: { ...b, montantLoyer: b.montantLoyer, totalCharges: b.totalCharges } }))).sort((a, b) => new Date(b.moisConcerne).getTime() - new Date(a.moisConcerne).getTime());
   const allPenalites = loc.baux.flatMap((b) => b.penalites);
 
   const tabs = [
@@ -122,8 +122,8 @@ export function ProfilTabs({ locataire: loc, situation }: { locataire: Locataire
                     <tr key={p.id} className="border-t hover:bg-muted/30">
                       <td className="p-3">{formatDate(p.moisConcerne)}</td>
                       <td className="p-3 text-muted-foreground">{p.bail.appartement.numero}</td>
-                      <td className="p-3 text-right">{formatFCFA(p.montantLoyer)}</td>
-                      <td className="p-3 text-right">{formatFCFA(p.montantCharges)}</td>
+                      <td className="p-3 text-right">{formatFCFA(p.montantLoyer || p.bail.montantLoyer)}</td>
+                      <td className="p-3 text-right">{formatFCFA(p.montantCharges || p.bail.totalCharges)}</td>
                       <td className="p-3 text-right font-medium">{formatFCFA(p.montant)}</td>
                       <td className="p-3">{MODE_PAIEMENT_LABELS[p.modePaiement]}</td>
                       <td className="p-3"><Badge variant={p.statut === "PAYE" ? "outline" : "destructive"} className={p.statut === "PAYE" ? "text-emerald-600" : ""}>{p.statut === "PAYE" ? "Payé" : "Partiel"}</Badge></td>

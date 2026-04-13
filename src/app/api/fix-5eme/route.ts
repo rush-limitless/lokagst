@@ -41,5 +41,11 @@ export async function GET() {
     results.push("SALLE DE CONFERENCE existe déjà");
   }
 
+  // 4. Add reglementInterieur column to locataires if missing
+  try {
+    await prisma.$executeRawUnsafe(`ALTER TABLE "locataires" ADD COLUMN IF NOT EXISTS "reglementInterieur" TEXT`);
+    results.push("Colonne reglementInterieur ajoutée");
+  } catch { results.push("Colonne reglementInterieur déjà présente"); }
+
   return NextResponse.json({ ok: true, results });
 }

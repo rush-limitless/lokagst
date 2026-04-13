@@ -86,6 +86,7 @@ model Locataire {
   garant      String?
   telGarant   String?
   notes       String?
+  reglementInterieur String?
   statut      StatutLocataire @default(ACTIF)
   dateEntree  DateTime
   dateSortie  DateTime?

@@ -69,10 +69,12 @@ export async function getDocumentsLocataire(locataireId: string) {
   }
 
   // Règlement intérieur
+  const reglementUpload = locataire.reglementInterieur;
   documents.push({
     type: "reglement",
     nom: "Règlement intérieur",
-    statut: "non_signe",
+    statut: reglementUpload ? "uploade" : "non_signe",
+    lien: reglementUpload || undefined,
   });
 
   return { locataire, documents };

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FileText, Paperclip, Home, ClipboardList, CheckCircle2, Upload, XCircle, ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
+import { UploadReglementForm } from "./upload-reglement";
 
 const TYPE_ICONS: Record<string, ReactNode> = {
   contrat: <FileText className="w-6 h-6 text-sky-600" />,
@@ -63,6 +64,9 @@ export default async function DocumentsPage({ params }: { params: Promise<{ id: 
                 )}
                 {doc.bailId && doc.type === "contrat" && (
                   <Link href={`/baux/${doc.bailId}/contrat`}><Button size="sm" variant="outline">📄 PDF</Button></Link>
+                )}
+                {doc.type === "reglement" && doc.statut === "non_signe" && (
+                  <UploadReglementForm locataireId={id} />
                 )}
               </div>
             </div>
