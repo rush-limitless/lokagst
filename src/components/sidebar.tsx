@@ -4,10 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import {
+  LayoutDashboard, Building2, Home, Users, ClipboardList, FileText,
+  TrendingUp, Receipt, Wallet, CalendarDays,
+  Wrench, MessageCircle, Settings, ChevronLeft, ChevronRight,
+} from "lucide-react";
 
-type NavItem = { href: string; label: string; icon: string; badge?: number };
+type NavItem = { href: string; label: string; icon: ReactNode; badge?: number };
 type NavSection = { title: string; items: NavItem[] };
+
+const iconClass = "w-[18px] h-[18px] stroke-[1.8]";
 
 export function Sidebar({ email, badges }: { email: string; badges?: { messages?: number; tickets?: number } }) {
   const pathname = usePathname();
@@ -16,25 +23,25 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
 
   const sections: NavSection[] = [
     { title: "Principal", items: [
-      { href: "/dashboard", label: t.dashboard, icon: "📊" },
-      { href: "/immeubles", label: "Immeubles", icon: "🏢" },
-      { href: "/appartements", label: t.appartements, icon: "🏠" },
-      { href: "/locataires", label: t.locataires, icon: "👤" },
-      { href: "/situation", label: "Situation", icon: "📋" },
-      { href: "/baux", label: t.contrats, icon: "📄" },
+      { href: "/dashboard", label: t.dashboard, icon: <LayoutDashboard className={iconClass} /> },
+      { href: "/immeubles", label: t.immeubles, icon: <Building2 className={iconClass} /> },
+      { href: "/appartements", label: t.appartements, icon: <Home className={iconClass} /> },
+      { href: "/locataires", label: t.locataires, icon: <Users className={iconClass} /> },
+      { href: "/situation", label: "Situation", icon: <ClipboardList className={iconClass} /> },
+      { href: "/baux", label: t.contrats, icon: <FileText className={iconClass} /> },
     ]},
     { title: "Finance", items: [
-      { href: "/finances", label: "Finances", icon: "💹" },
-      { href: "/depenses", label: "Dépenses", icon: "📒" },
-      { href: "/paiements", label: t.paiements, icon: "💰" },
-      { href: "/calendrier", label: "Calendrier", icon: "📅" },
+      { href: "/finances", label: "Finances", icon: <TrendingUp className={iconClass} /> },
+      { href: "/depenses", label: "Dépenses", icon: <Receipt className={iconClass} /> },
+      { href: "/paiements", label: t.paiements, icon: <Wallet className={iconClass} /> },
+      { href: "/calendrier", label: "Calendrier", icon: <CalendarDays className={iconClass} /> },
     ]},
     { title: "Communication", items: [
-      { href: "/maintenance", label: t.maintenance, icon: "🔧", badge: badges?.tickets },
-      { href: "/messagerie", label: t.messagerie, icon: "💬", badge: badges?.messages },
+      { href: "/maintenance", label: t.maintenance, icon: <Wrench className={iconClass} />, badge: badges?.tickets },
+      { href: "/messagerie", label: t.messagerie, icon: <MessageCircle className={iconClass} />, badge: badges?.messages },
     ]},
     { title: "Admin", items: [
-      { href: "/parametres", label: "Paramètres", icon: "⚙️" },
+      { href: "/parametres", label: "Paramètres", icon: <Settings className={iconClass} /> },
     ]},
   ];
 
@@ -60,16 +67,17 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
           </div>
         )}
         {collapsed && <img src="/logo.jpg" alt="" className="w-8 h-8 rounded" />}
-        {!collapsed && <button onClick={() => setCollapsed(true)} className="text-sky-300 hover:text-white text-xs">←</button>}
+        <button onClick={() => setCollapsed(!collapsed)} className="text-sky-300 hover:text-white transition-colors">
+          {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </button>
       </div>
-      {collapsed && <button onClick={() => setCollapsed(false)} className="text-sky-300 hover:text-white text-xs py-2">→</button>}
       <nav className="flex-1 py-3 overflow-y-auto">
         {sections.map((section) => (
           <div key={section.title} className="mb-1">
             {!collapsed && <p className="px-4 py-1 text-[9px] uppercase tracking-wider text-sky-400/40 font-semibold">{section.title}</p>}
             {section.items.map((item) => (
               <Link key={item.href} href={item.href} className={cn("flex items-center gap-3 mx-2 px-3 py-2 rounded-lg transition-all text-sm relative", collapsed && "justify-center px-2", isActive(item.href) ? "bg-sky-500/20 text-white font-medium nav-active-indicator" : "hover:bg-white/5 text-sky-100/70")}>
-                <span className="text-base">{item.icon}</span>
+                <span className="flex-shrink-0">{item.icon}</span>
                 {!collapsed && <span className="flex-1">{item.label}</span>}
                 {!collapsed && item.badge && item.badge > 0 ? <span className="bg-sky-400 text-[10px] text-white rounded-full w-5 h-5 flex items-center justify-center font-bold">{item.badge}</span> : null}
               </Link>
@@ -87,9 +95,16 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
 export function MobileNav() {
   const pathname = usePathname();
   const items = [
-    { href: "/dashboard", icon: "📊" }, { href: "/immeubles", icon: "🏢" }, { href: "/appartements", icon: "🏠" }, { href: "/locataires", icon: "👤" },
-    { href: "/baux", icon: "📄" }, { href: "/finances", icon: "💹" }, { href: "/paiements", icon: "💰" }, { href: "/calendrier", icon: "📅" },
-    { href: "/maintenance", icon: "🔧" }, { href: "/messagerie", icon: "💬" },
+    { href: "/dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
+    { href: "/immeubles", icon: <Building2 className="w-5 h-5" /> },
+    { href: "/appartements", icon: <Home className="w-5 h-5" /> },
+    { href: "/locataires", icon: <Users className="w-5 h-5" /> },
+    { href: "/baux", icon: <FileText className="w-5 h-5" /> },
+    { href: "/finances", icon: <TrendingUp className="w-5 h-5" /> },
+    { href: "/paiements", icon: <Wallet className="w-5 h-5" /> },
+    { href: "/calendrier", icon: <CalendarDays className="w-5 h-5" /> },
+    { href: "/maintenance", icon: <Wrench className="w-5 h-5" /> },
+    { href: "/messagerie", icon: <MessageCircle className="w-5 h-5" /> },
   ];
 
   return (
@@ -100,7 +115,7 @@ export function MobileNav() {
       </div>
       <nav className="flex gap-1 overflow-x-auto pb-1">
         {items.map((item) => (
-          <Link key={item.href} href={item.href} className={cn("text-lg px-2 py-1 rounded", pathname.startsWith(item.href) ? "bg-sky-500/20" : "opacity-50")}>
+          <Link key={item.href} href={item.href} className={cn("px-2.5 py-1.5 rounded-lg transition-colors", pathname.startsWith(item.href) ? "bg-sky-500/20 text-white" : "text-sky-100/40")}>
             {item.icon}
           </Link>
         ))}

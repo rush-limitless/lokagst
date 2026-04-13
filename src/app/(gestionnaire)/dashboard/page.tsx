@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { RevenusChart } from "@/components/charts/revenus-chart";
 import { OccupationPie } from "@/components/charts/occupation-pie";
 import Link from "next/link";
+import { Home, TrendingUp, AlertTriangle, Key, Wallet, FileText, UserPlus, Clock, CheckCircle2 } from "lucide-react";
+import type { ReactNode } from "react";
 
-function GlassStatCard({ icon, iconBg, label, value, sub, valueColor }: { icon: string; iconBg: string; label: string; value: string; sub?: string; valueColor?: string }) {
+function GlassStatCard({ icon, iconBg, label, value, sub, valueColor }: { icon: ReactNode; iconBg: string; label: string; value: string; sub?: string; valueColor?: string }) {
   return (
     <div className="glass rounded-xl p-5 hover:shadow-lg transition-all hover:-translate-y-0.5">
       <div className="flex items-start gap-3">
-        <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg shadow-sm hover-bounce ${iconBg}`}>{icon}</div>
+        <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-sm ${iconBg}`}>{icon}</div>
         <div className="flex-1 min-w-0">
           <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">{label}</p>
           <p className={`text-xl md:text-2xl font-bold mt-0.5 count-up ${valueColor || "text-foreground"}`}>{value}</p>
@@ -43,9 +45,9 @@ export default async function DashboardPage() {
               <p className="text-sky-200/80 text-sm mt-1">{now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
             </div>
             <div className="flex gap-2 flex-wrap">
-              <Link href="/paiements/nouveau"><Button size="sm" className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm">💰 Paiement</Button></Link>
-              <Link href="/baux/nouveau"><Button size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm" variant="outline">📄 Bail</Button></Link>
-              <Link href="/locataires/nouveau"><Button size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm" variant="outline">👤 Locataire</Button></Link>
+              <Link href="/paiements/nouveau"><Button size="sm" className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm"><Wallet className="w-4 h-4 mr-1.5" /> Paiement</Button></Link>
+              <Link href="/baux/nouveau"><Button size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm" variant="outline"><FileText className="w-4 h-4 mr-1.5" /> Bail</Button></Link>
+              <Link href="/locataires/nouveau"><Button size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm" variant="outline"><UserPlus className="w-4 h-4 mr-1.5" /> Locataire</Button></Link>
             </div>
           </div>
           {/* Occupation progress bar */}
@@ -58,10 +60,10 @@ export default async function DashboardPage() {
 
       {/* Glass stat cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 stagger-in">
-        <GlassStatCard icon="🏠" iconBg="bg-sky-100 dark:bg-sky-900/40" label="Occupation" value={`${pct}%`} sub={`${stats.appartements.occupes}/${stats.appartements.total}`} />
-        <GlassStatCard icon="💰" iconBg="bg-emerald-100 dark:bg-emerald-900/40" label={`Revenus — ${stats.finances.periode}`} value={formatFCFA(stats.finances.revenusMois)} sub={`Loyers: ${formatFCFA(stats.finances.revenusLoyers)} · Charges: ${formatFCFA(stats.finances.revenusCharges)} · Cautions: ${formatFCFA(stats.finances.revenusCautions)}`} valueColor="text-emerald-600 dark:text-emerald-400" />
-        <GlassStatCard icon="⚠️" iconBg="bg-red-100 dark:bg-red-900/40" label={`Impayés — ${stats.finances.periode}`} value={formatFCFA(stats.finances.impayesMois)} sub={`Loyers: ${formatFCFA(stats.finances.impayesLoyers)} · Charges: ${formatFCFA(stats.finances.impayesCharges)} · Cautions: ${formatFCFA(stats.finances.cautionsNonPayees)}`} valueColor="text-red-600 dark:text-red-400" />
-        <GlassStatCard icon="🔑" iconBg="bg-sky-100 dark:bg-sky-900/40" label="Libres" value={`${stats.appartements.libres}`} sub="disponibles" valueColor="text-sky-600 dark:text-sky-400" />
+        <GlassStatCard icon={<Home className="w-5 h-5 text-sky-600" />} iconBg="bg-sky-100 dark:bg-sky-900/40" label="Occupation" value={`${pct}%`} sub={`${stats.appartements.occupes}/${stats.appartements.total}`} />
+        <GlassStatCard icon={<TrendingUp className="w-5 h-5 text-emerald-600" />} iconBg="bg-emerald-100 dark:bg-emerald-900/40" label={`Revenus — ${stats.finances.periode}`} value={formatFCFA(stats.finances.revenusMois)} sub={`Loyers: ${formatFCFA(stats.finances.revenusLoyers)} · Charges: ${formatFCFA(stats.finances.revenusCharges)} · Cautions: ${formatFCFA(stats.finances.revenusCautions)}`} valueColor="text-emerald-600 dark:text-emerald-400" />
+        <GlassStatCard icon={<AlertTriangle className="w-5 h-5 text-red-600" />} iconBg="bg-red-100 dark:bg-red-900/40" label={`Impayés — ${stats.finances.periode}`} value={formatFCFA(stats.finances.impayesMois)} sub={`Loyers: ${formatFCFA(stats.finances.impayesLoyers)} · Charges: ${formatFCFA(stats.finances.impayesCharges)} · Cautions: ${formatFCFA(stats.finances.cautionsNonPayees)}`} valueColor="text-red-600 dark:text-red-400" />
+        <GlassStatCard icon={<Key className="w-5 h-5 text-sky-600" />} iconBg="bg-sky-100 dark:bg-sky-900/40" label="Libres" value={`${stats.appartements.libres}`} sub="disponibles" valueColor="text-sky-600 dark:text-sky-400" />
       </div>
 
       {/* Charts */}
@@ -83,7 +85,7 @@ export default async function DashboardPage() {
             <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Baux expirant bientôt</CardTitle></CardHeader>
             <CardContent className="max-h-52 overflow-y-auto">
               {stats.alertes.bauxExpirants.length === 0 ? (
-                <div className="text-center py-6"><div className="text-3xl mb-2">✅</div><p className="text-muted-foreground text-sm">Aucun dans les 30 prochains jours</p></div>
+                <div className="text-center py-6"><CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" /><p className="text-muted-foreground text-sm">Aucun dans les 30 prochains jours</p></div>
               ) : (
                 <div className="space-y-2">
                   {stats.alertes.bauxExpirants.map((b) => (
@@ -102,7 +104,7 @@ export default async function DashboardPage() {
             <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Impayés ce mois</CardTitle></CardHeader>
             <CardContent className="max-h-52 overflow-y-auto">
               {stats.alertes.impayesLocataires.length === 0 ? (
-                <div className="text-center py-6"><div className="text-3xl mb-2">✅</div><p className="text-muted-foreground text-sm">Tous à jour</p></div>
+                <div className="text-center py-6"><CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" /><p className="text-muted-foreground text-sm">Tous à jour</p></div>
               ) : (
                 <div className="space-y-2">
                   {stats.alertes.impayesLocataires.map((l) => (
@@ -120,7 +122,7 @@ export default async function DashboardPage() {
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Activité récente</CardTitle></CardHeader>
           <CardContent className="max-h-52 overflow-y-auto">
             {activites.length === 0 ? (
-              <div className="text-center py-6"><div className="text-3xl mb-2">📭</div><p className="text-muted-foreground text-sm">Aucune activité</p></div>
+              <div className="text-center py-6"><Clock className="w-8 h-8 text-muted-foreground mx-auto mb-2" /><p className="text-muted-foreground text-sm">Aucune activité</p></div>
             ) : (
               <div className="space-y-1.5">
                 {activites.map((a, i) => (

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FinancesBarChart, ImpayesChart } from "@/components/charts/finances-charts";
 import Link from "next/link";
+import { ReportingNav } from "@/components/reporting-nav";
 
 const MODE_LABELS: Record<string, string> = { VIREMENT_BANCAIRE: "Virement bancaire", ORANGE_MONEY: "Orange Money" };
 
@@ -29,15 +30,7 @@ export default async function FinancesPage({ searchParams }: { searchParams: Pro
       </div>
 
       {/* Reporting sub-nav */}
-      <div className="flex gap-2 flex-wrap">
-        <span className="text-xs px-3 py-1.5 rounded-full font-medium bg-primary text-primary-foreground">📊 Synthèse</span>
-        <Link href="/reporting" className="text-xs px-3 py-1.5 rounded-full font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80">📥 Export Excel</Link>
-        <Link href="/reporting/impayes" className="text-xs px-3 py-1.5 rounded-full font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80">🔴 Impayés</Link>
-        <Link href="/reporting/cautions" className="text-xs px-3 py-1.5 rounded-full font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80">🔒 Cautions</Link>
-        <Link href="/reporting/classement" className="text-xs px-3 py-1.5 rounded-full font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80">🏆 Classement</Link>
-        <Link href="/reporting/rentabilite" className="text-xs px-3 py-1.5 rounded-full font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80">💹 Rentabilité</Link>
-        <Link href="/reporting/comparaison" className="text-xs px-3 py-1.5 rounded-full font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80">🔄 Comparaison</Link>
-      </div>
+      <ReportingNav />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
