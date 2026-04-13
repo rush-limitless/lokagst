@@ -7,7 +7,7 @@ import { ModifierImmeubleForm } from "./modifier-form";
 import { Building2, MapPin, Home, Users, DoorOpen } from "lucide-react";
 
 const COLORS = ["from-sky-500 to-blue-600", "from-emerald-500 to-teal-600", "from-violet-500 to-purple-600", "from-amber-500 to-orange-600"];
-const ETAGE_ORDER = ["CINQUIEME", "QUATRIEME", "TROISIEME", "DEUXIEME", "PREMIER", "RDC"];
+const ETAGE_ORDER = ["CINQUIEME", "QUATRIEME", "TROISIEME", "DEUXIEME", "PREMIER", "RDC", "AUTRE"];
 
 async function getAppartsParImmeuble() {
   return prisma.appartement.findMany({
@@ -19,6 +19,12 @@ async function getAppartsParImmeuble() {
 export default async function ImmeublesPage() {
   const [immeubles, apparts] = await Promise.all([getImmeubles(), getAppartsParImmeuble()]);
 
+  const totalApparts = apparts.length;
+  const totalOccupes = apparts.filter((a) => a.statut === "OCCUPE").length;
+  const totalLibres = apparts.filter((a) => a.statut === "LIBRE").length;
+  const totalRevenu = apparts.reduce((s, a) => s + (a.baux[0] ? a.loyerBase : 0), 0);
+  const pctGlobal = totalApparts > 0 ? Math.round((totalOccupes / totalApparts) * 100) : 0;
+
   return (
     <div className="space-y-8 animate-in">
       <div className="flex items-center justify-between">
@@ -26,6 +32,15 @@ export default async function ImmeublesPage() {
           <h1 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2"><Building2 className="w-6 h-6 text-primary" /> Immeubles</h1>
           <p className="text-sm text-muted-foreground mt-1">{immeubles.length} immeuble(s) — Vue physique du patrimoine par étage</p>
         </div>
+      </div>
+
+      {/* Cumulatif global tous immeubles */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="bg-card border rounded-xl p-4 text-center"><div className="text-2xl font-bold text-foreground">{totalApparts}</div><p className="text-xs text-muted-foreground">Total logements</p></div>
+        <div className="bg-card border rounded-xl p-4 text-center"><div className="text-2xl font-bold text-sky-600">{totalOccupes}</div><p className="text-xs text-muted-foreground">Occupés</p></div>
+        <div className="bg-card border rounded-xl p-4 text-center"><div className="text-2xl font-bold text-emerald-600">{totalLibres}</div><p className="text-xs text-muted-foreground">Libres</p></div>
+        <div className="bg-card border rounded-xl p-4 text-center"><div className="text-2xl font-bold text-foreground">{pctGlobal}%</div><p className="text-xs text-muted-foreground">Occupation</p></div>
+        <div className="bg-card border rounded-xl p-4 text-center"><div className="text-lg font-bold text-foreground">{formatFCFA(totalRevenu)}</div><p className="text-xs text-muted-foreground">Revenu mensuel</p></div>
       </div>
 
       {immeubles.map((imm, idx) => {

@@ -7,8 +7,8 @@ export const loginSchema = z.object({
 
 export const appartementSchema = z.object({
   numero: z.string().min(1, "Numéro requis"),
-  etage: z.enum(["RDC", "PREMIER", "DEUXIEME", "TROISIEME", "QUATRIEME", "CINQUIEME"]),
-  type: z.enum(["STUDIO", "CHAMBRE", "APPARTEMENT", "STUDIO_MEUBLE", "CHAMBRE_MEUBLE", "APPARTEMENT_MEUBLE", "VILLA"]),
+  etage: z.enum(["RDC", "PREMIER", "DEUXIEME", "TROISIEME", "QUATRIEME", "CINQUIEME", "AUTRE"]),
+  type: z.enum(["STUDIO", "CHAMBRE", "APPARTEMENT", "STUDIO_MEUBLE", "CHAMBRE_MEUBLE", "APPARTEMENT_MEUBLE", "VILLA", "SALLE_CONFERENCE"]),
   loyerBase: z.coerce.number().int().positive("Le loyer doit être positif"),
   description: z.string().optional(),
 });

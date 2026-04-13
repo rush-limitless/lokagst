@@ -47,29 +47,66 @@ export default async function AppartementsPage({ searchParams }: { searchParams:
       {appartements.length === 0 ? (
         <EmptyState icon="🏠" title="Aucun appartement" description="Ajoutez votre premier appartement pour commencer" />
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 stagger-in">
-          {appartements.map((a) => (
-            <Link key={a.id} href={`/appartements/${a.id}`} className="group">
-              <div className={`bg-card border rounded-xl p-4 hover:shadow-lg transition-all hover:-translate-y-1 relative overflow-hidden ${a.statut === "LIBRE" ? "border-emerald-200 dark:border-emerald-900" : "border-sky-200 dark:border-sky-900"}`}>
-                <div className={`absolute top-0 right-0 w-16 h-16 rounded-bl-[40px] ${a.statut === "LIBRE" ? "bg-emerald-50 dark:bg-emerald-950/30" : "bg-sky-50 dark:bg-sky-950/30"}`} />
-                <div className="relative">
-                  <div className="text-2xl font-bold text-foreground">{a.numero}</div>
-                  <p className="text-xs text-muted-foreground mt-1">{ETAGE_LABELS[a.etage]}</p>
-                  <p className="text-xs text-muted-foreground">{TYPE_LABELS[a.type] || a.type}</p>
-                  {a.immeuble && <p className="text-[10px] text-primary mt-1">{a.immeuble.nom}</p>}
-                  <p className="text-sm font-semibold text-foreground mt-3">{formatFCFA(a.loyerBase)}</p>
-                  {a.baux[0]?.totalCharges > 0 && <p className="text-xs text-muted-foreground">Charges : {formatFCFA(a.baux[0].totalCharges)}</p>}
-                  <div className="mt-2">
-                    <StatusBadge status={a.statut === "LIBRE" ? "libre" : "occupe"} label={a.statut === "LIBRE" ? "Libre" : "Occupé"} />
+        (() => {
+          const IMM_COLORS: Record<string, { border: string; bg: string }> = {};
+          const COLOR_LIST = [
+            { border: "border-sky-300 dark:border-sky-700", bg: "bg-sky-50/50 dark:bg-sky-950/10" },
+            { border: "border-emerald-300 dark:border-emerald-700", bg: "bg-emerald-50/50 dark:bg-emerald-950/10" },
+            { border: "border-violet-300 dark:border-violet-700", bg: "bg-violet-50/50 dark:bg-violet-950/10" },
+            { border: "border-amber-300 dark:border-amber-700", bg: "bg-amber-50/50 dark:bg-amber-950/10" },
+          ];
+          const BADGE_COLORS = ["bg-sky-500", "bg-emerald-500", "bg-violet-500", "bg-amber-500"];
+          immeubles.forEach((im, i) => { IMM_COLORS[im.id] = COLOR_LIST[i % COLOR_LIST.length]; });
+
+          // Group by immeuble
+          const grouped: { imm: typeof immeubles[0] | null; apps: typeof appartements }[] = [];
+          for (const im of immeubles) {
+            const apps = appartements.filter((a) => a.immeuble?.id === im.id);
+            if (apps.length > 0) grouped.push({ imm: im, apps });
+          }
+          const sansImm = appartements.filter((a) => !a.immeuble);
+          if (sansImm.length > 0) grouped.push({ imm: null, apps: sansImm });
+
+          return (
+            <div className="space-y-6">
+              {grouped.map(({ imm: grpImm, apps }) => {
+                const colors = grpImm ? IMM_COLORS[grpImm.id] : COLOR_LIST[0];
+                const badgeColor = grpImm ? BADGE_COLORS[immeubles.findIndex((i) => i.id === grpImm.id) % BADGE_COLORS.length] : "bg-gray-500";
+                return (
+                  <div key={grpImm?.id || "sans"}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className={`w-3 h-3 rounded-full ${badgeColor}`} />
+                      <h2 className="text-sm font-semibold text-foreground">{grpImm?.nom || "Sans immeuble"}</h2>
+                      <span className="text-xs text-muted-foreground">({apps.length})</span>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 stagger-in">
+                      {apps.map((a) => (
+                        <Link key={a.id} href={`/appartements/${a.id}`} className="group">
+                          <div className={`bg-card border rounded-xl p-4 hover:shadow-lg transition-all hover:-translate-y-1 relative overflow-hidden ${a.statut === "LIBRE" ? "border-emerald-200 dark:border-emerald-900" : colors.border}`}>
+                            <div className={`absolute top-0 right-0 w-16 h-16 rounded-bl-[40px] ${a.statut === "LIBRE" ? "bg-emerald-50 dark:bg-emerald-950/30" : colors.bg}`} />
+                            <div className="relative">
+                              <div className="text-2xl font-bold text-foreground">{a.numero}</div>
+                              <p className="text-xs text-muted-foreground mt-1">{ETAGE_LABELS[a.etage]}</p>
+                              <p className="text-xs text-muted-foreground">{TYPE_LABELS[a.type] || a.type}</p>
+                              <p className="text-sm font-semibold text-foreground mt-3">{formatFCFA(a.loyerBase)}</p>
+                              {a.baux[0]?.totalCharges > 0 && <p className="text-xs text-muted-foreground">Charges : {formatFCFA(a.baux[0].totalCharges)}</p>}
+                              <div className="mt-2">
+                                <StatusBadge status={a.statut === "LIBRE" ? "libre" : "occupe"} label={a.statut === "LIBRE" ? "Libre" : "Occupé"} />
+                              </div>
+                              {a.locataireActuel && (
+                                <p className="text-[10px] text-muted-foreground mt-2 truncate">{a.locataireActuel.prenom} {a.locataireActuel.nom}</p>
+                              )}
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                  {a.locataireActuel && (
-                    <p className="text-[10px] text-muted-foreground mt-2 truncate">{a.locataireActuel.prenom} {a.locataireActuel.nom}</p>
-                  )}
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+                );
+              })}
+            </div>
+          );
+        })()
       )}
     </div>
   );

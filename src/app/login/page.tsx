@@ -56,11 +56,11 @@ export default function LoginPage() {
               {error && <div className="bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm border border-red-200 dark:border-red-900">{error}</div>}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-foreground">{t.email}</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="admin@immostar.cm" required className="h-11 rounded-lg" />
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.placeholderEmail} required className="h-11 rounded-lg" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium text-foreground">{t.motDePasse}</Label>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-11 rounded-lg" />
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.placeholderPassword} required className="h-11 rounded-lg" />
               </div>
               <Button type="submit" className="w-full h-11 rounded-lg font-medium" disabled={loading}>
                 {loading ? t.connexionEnCours : t.seConnecter}

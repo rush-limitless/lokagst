@@ -21,6 +21,10 @@ export const fr = {
   connexionEnCours: "Connexion...",
   erreurLogin: "Email ou mot de passe incorrect",
 
+  // Login placeholders
+  placeholderEmail: "Entrer adresse email",
+  placeholderPassword: "Entrer mot de passe",
+
   // Dashboard
   tauxOccupation: "Taux d'occupation",
   revenusDuMois: "Revenus du mois",

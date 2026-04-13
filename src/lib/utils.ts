@@ -31,6 +31,7 @@ export const ETAGE_LABELS: Record<string, string> = {
   TROISIEME: "3ème étage",
   QUATRIEME: "4ème étage",
   CINQUIEME: "5ème étage",
+  AUTRE: "Autre",
 };
 
 export const TYPE_LABELS: Record<string, string> = {
@@ -41,6 +42,7 @@ export const TYPE_LABELS: Record<string, string> = {
   CHAMBRE_MEUBLE: "Chambre meublée",
   APPARTEMENT_MEUBLE: "Appartement meublé",
   VILLA: "Villa",
+  SALLE_CONFERENCE: "Salle de conférence",
 };
 
 export const STATUT_BAIL_LABELS: Record<string, string> = {

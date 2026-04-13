@@ -40,13 +40,13 @@ export default function NouvelAppartement() {
             <div className="space-y-2">
               <Label>Étage</Label>
               <select name="etage" className="w-full border rounded-md p-2 bg-background" required>
-                <option value="RDC">RDC</option><option value="PREMIER">1er étage</option><option value="DEUXIEME">2ème étage</option><option value="TROISIEME">3ème étage</option><option value="QUATRIEME">4ème étage</option><option value="CINQUIEME">5ème étage</option>
+                <option value="RDC">RDC</option><option value="PREMIER">1er étage</option><option value="DEUXIEME">2ème étage</option><option value="TROISIEME">3ème étage</option><option value="QUATRIEME">4ème étage</option><option value="CINQUIEME">5ème étage</option><option value="AUTRE">Autre</option>
               </select>
             </div>
             <div className="space-y-2">
               <Label>Type</Label>
               <select name="type" className="w-full border rounded-md p-2 bg-background" required>
-                <option value="CHAMBRE">Chambre</option><option value="STUDIO">Studio</option><option value="APPARTEMENT">Appartement</option><option value="CHAMBRE_MEUBLE">Chambre meublée</option><option value="STUDIO_MEUBLE">Studio meublé</option><option value="APPARTEMENT_MEUBLE">Appartement meublé</option><option value="VILLA">Villa</option>
+                <option value="CHAMBRE">Chambre</option><option value="STUDIO">Studio</option><option value="APPARTEMENT">Appartement</option><option value="CHAMBRE_MEUBLE">Chambre meublée</option><option value="STUDIO_MEUBLE">Studio meublé</option><option value="APPARTEMENT_MEUBLE">Appartement meublé</option><option value="VILLA">Villa</option><option value="SALLE_CONFERENCE">Salle de conférence</option>
               </select>
             </div>
             <div className="space-y-2"><Label>Loyer (FCFA)</Label><Input name="loyerBase" type="number" placeholder="50000" required /></div>

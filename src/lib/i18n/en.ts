@@ -21,6 +21,10 @@ export const en = {
   connexionEnCours: "Signing in...",
   erreurLogin: "Invalid email or password",
 
+  // Login placeholders
+  placeholderEmail: "Enter email address",
+  placeholderPassword: "Enter password",
+
   // Dashboard
   tauxOccupation: "Occupancy rate",
   revenusDuMois: "Monthly revenue",
