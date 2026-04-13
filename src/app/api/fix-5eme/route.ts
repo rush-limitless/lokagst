@@ -47,5 +47,18 @@ export async function GET() {
     results.push("Colonne reglementInterieur ajoutée");
   } catch { results.push("Colonne reglementInterieur déjà présente"); }
 
+  // 5. Fix orphan apartments: OCCUPE without any active bail → set to LIBRE
+  const occupes = await prisma.appartement.findMany({ where: { statut: "OCCUPE" } });
+  let fixed = 0;
+  for (const a of occupes) {
+    const bailActif = await prisma.bail.findFirst({ where: { appartementId: a.id, statut: "ACTIF" } });
+    if (!bailActif) {
+      await prisma.appartement.update({ where: { id: a.id }, data: { statut: "LIBRE" } });
+      fixed++;
+      results.push(`${a.numero} → LIBRE (pas de bail actif)`);
+    }
+  }
+  if (fixed === 0) results.push("Aucun appartement orphelin");
+
   return NextResponse.json({ ok: true, results });
 }
