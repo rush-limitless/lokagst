@@ -35,6 +35,19 @@ export async function creerLocataire(formData: FormData) {
     const appart = await prisma.appartement.findUnique({ where: { id: parsed.data.appartementId } });
     if (!appart || appart.statut === "OCCUPE") return { error: "Cet appartement n'est pas disponible" };
 
+    const montantLoyer = parseInt(data.montantLoyer as string) || appart.loyerBase;
+    const dateDebut = parsed.data.dateEntree;
+    const dureeMois = parseInt(data.dureeMois as string) || 12;
+    const dateFin = new Date(dateDebut);
+    dateFin.setMonth(dateFin.getMonth() + dureeMois);
+    const datePremierLoyer = dateDebut.getDate() > 15
+      ? new Date(dateDebut.getFullYear(), dateDebut.getMonth() + 1, 1)
+      : new Date(dateDebut.getFullYear(), dateDebut.getMonth(), 1);
+
+    let charges: { type: string; montant: number }[] = [];
+    try { charges = data.chargesLocatives ? JSON.parse(data.chargesLocatives as string) : []; } catch { charges = []; }
+    const totalCharges = charges.reduce((s, c) => s + c.montant, 0);
+
     const locataire = await prisma.locataire.create({
       data: {
         nom: parsed.data.nom, prenom: parsed.data.prenom || parsed.data.nom, telephone: parsed.data.telephone,
@@ -43,51 +56,31 @@ export async function creerLocataire(formData: FormData) {
       },
     });
 
+    await prisma.bail.create({
+      data: {
+        locataireId: locataire.id, appartementId: parsed.data.appartementId,
+        dateDebut, dureeMois, dateFin, datePremierLoyer,
+        montantLoyer,
+        montantCaution: parseInt(data.montantCaution as string) || 0,
+        chargesLocatives: charges, totalCharges, totalMensuel: montantLoyer + totalCharges,
+        periodicite: ((data.periodicite as string) || "MENSUEL") as any,
+        jourLimitePaiement: parseInt(data.jourLimitePaiement as string) || 5,
+        delaiGrace: parseInt(data.delaiGrace as string) || 5,
+        penaliteType: (data.penaliteType as string) === "MONTANT_FIXE" ? "MONTANT_FIXE" : "POURCENTAGE",
+        penaliteMontant: parseInt(data.penaliteMontant as string) || 5,
+        penaliteRecurrente: data.penaliteRecurrente === "on" || data.penaliteRecurrente === "true",
+        renouvellementAuto: data.renouvellementAuto === "on" || data.renouvellementAuto === "true",
+        dureeRenouvellement: parseInt(data.dureeRenouvellement as string) || null,
+        augmentationLoyer: parseInt(data.augmentationLoyer as string) || null,
+        preavisNonRenouv: parseInt(data.preavisNonRenouv as string) || 30,
+        preavisResiliation: parseInt(data.preavisResiliation as string) || 30,
+        seuilMiseEnDemeure: parseInt(data.seuilMiseEnDemeure as string) || 2,
+        seuilSuspension: parseInt(data.seuilSuspension as string) || 3,
+        clausesParticulieres: (data.clausesParticulieres as string) || null,
+      },
+    });
+
     await prisma.appartement.update({ where: { id: parsed.data.appartementId }, data: { statut: "OCCUPE" } });
-
-    // Create bail if montantLoyer is provided
-    const montantLoyer = parseInt(data.montantLoyer as string);
-    if (montantLoyer && montantLoyer > 0) {
-      const dateDebut = parsed.data.dateEntree;
-      const dureeMois = parseInt(data.dureeMois as string) || 12;
-      const dateFin = new Date(dateDebut);
-      dateFin.setMonth(dateFin.getMonth() + dureeMois);
-
-      let datePremierLoyer: Date;
-      if (dateDebut.getDate() > 15) {
-        datePremierLoyer = new Date(dateDebut.getFullYear(), dateDebut.getMonth() + 1, 1);
-      } else {
-        datePremierLoyer = new Date(dateDebut.getFullYear(), dateDebut.getMonth(), 1);
-      }
-
-      let charges: { type: string; montant: number }[] = [];
-      try { charges = data.chargesLocatives ? JSON.parse(data.chargesLocatives as string) : []; } catch { charges = []; }
-      const totalCharges = charges.reduce((s, c) => s + c.montant, 0);
-
-      await prisma.bail.create({
-        data: {
-          locataireId: locataire.id, appartementId: parsed.data.appartementId,
-          dateDebut, dureeMois, dateFin, datePremierLoyer,
-          montantLoyer,
-          montantCaution: parseInt(data.montantCaution as string) || 0,
-          chargesLocatives: charges, totalCharges, totalMensuel: montantLoyer + totalCharges,
-          periodicite: ((data.periodicite as string) || "MENSUEL") as any,
-          jourLimitePaiement: parseInt(data.jourLimitePaiement as string) || 5,
-          delaiGrace: parseInt(data.delaiGrace as string) || 5,
-          penaliteType: (data.penaliteType as string) === "MONTANT_FIXE" ? "MONTANT_FIXE" : "POURCENTAGE",
-          penaliteMontant: parseInt(data.penaliteMontant as string) || 5,
-          penaliteRecurrente: data.penaliteRecurrente === "on" || data.penaliteRecurrente === "true",
-          renouvellementAuto: data.renouvellementAuto === "on" || data.renouvellementAuto === "true",
-          dureeRenouvellement: parseInt(data.dureeRenouvellement as string) || null,
-          augmentationLoyer: parseInt(data.augmentationLoyer as string) || null,
-          preavisNonRenouv: parseInt(data.preavisNonRenouv as string) || 30,
-          preavisResiliation: parseInt(data.preavisResiliation as string) || 30,
-          seuilMiseEnDemeure: parseInt(data.seuilMiseEnDemeure as string) || 2,
-          seuilSuspension: parseInt(data.seuilSuspension as string) || 3,
-          clausesParticulieres: (data.clausesParticulieres as string) || null,
-        },
-      });
-    }
 
     revalidatePath("/locataires");
     return { success: true };
@@ -140,6 +133,30 @@ export async function archiverLocataire(id: string) {
         await tx.appartement.update({ where: { id: bailActif.appartementId }, data: { statut: "LIBRE" } });
       }
       await tx.locataire.update({ where: { id }, data: { statut: "ARCHIVE", dateSortie: new Date() } });
+    });
+    revalidatePath("/locataires");
+    return { success: true };
+  });
+}
+
+export async function supprimerLocataire(id: string) {
+  return safeAction(async () => {
+    await prisma.$transaction(async (tx) => {
+      // Libérer les appartements des baux actifs
+      const baux = await tx.bail.findMany({ where: { locataireId: id } });
+      for (const b of baux) {
+        if (b.statut === "ACTIF") await tx.appartement.update({ where: { id: b.appartementId }, data: { statut: "LIBRE" } });
+      }
+      // Supprimer les données liées
+      await tx.paiement.deleteMany({ where: { bail: { locataireId: id } } });
+      await tx.penalite.deleteMany({ where: { bail: { locataireId: id } } });
+      await tx.etatDesLieux.deleteMany({ where: { bail: { locataireId: id } } });
+      await tx.bail.deleteMany({ where: { locataireId: id } });
+      await tx.message.deleteMany({ where: { locataireId: id } });
+      await tx.emailLog.deleteMany({ where: { locataireId: id } });
+      await tx.maintenance.deleteMany({ where: { locataireId: id } });
+      await tx.utilisateur.deleteMany({ where: { locataireId: id } });
+      await tx.locataire.delete({ where: { id } });
     });
     revalidatePath("/locataires");
     return { success: true };

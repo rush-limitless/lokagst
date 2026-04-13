@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ArchiverButton } from "./archiver-button";
 import { CreerCompteButton } from "./creer-compte";
 import { GererCompteButton } from "./gerer-compte";
+import { SupprimerLocataireButton } from "./supprimer-button";
 import { ProfilTabs } from "./profil-tabs";
 
 export default async function LocataireDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -45,6 +46,7 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
           {loc.utilisateur && <GererCompteButton utilisateurId={loc.utilisateur.id} email={loc.utilisateur.email} />}
           <Link href={`/locataires/${loc.id}/documents`}><Button variant="outline" size="sm">📁 Documents</Button></Link>
           {loc.statut === "ACTIF" && <ArchiverButton locataireId={loc.id} />}
+          <SupprimerLocataireButton locataireId={loc.id} nom={`${loc.prenom} ${loc.nom}`} />
         </div>
       </div>
 
