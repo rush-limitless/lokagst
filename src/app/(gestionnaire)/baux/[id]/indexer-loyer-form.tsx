@@ -8,11 +8,26 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export function IndexerLoyerForm({ bailId, loyerActuel }: { bailId: string; loyerActuel: number }) {
+export function IndexerLoyerForm({ bailId, loyerActuel, dateDebut, derniereIndexation }: { bailId: string; loyerActuel: number; dateDebut: string; derniereIndexation?: string | null }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"taux" | "fixe">("taux");
   const [taux, setTaux] = useState(5);
+
+  // Vérifier si le bail a au moins 2 ans
+  const debutDate = new Date(dateDebut);
+  const refDate = derniereIndexation ? new Date(derniereIndexation) : debutDate;
+  const deuxAns = 2 * 365 * 24 * 60 * 60 * 1000;
+  const eligible = (Date.now() - refDate.getTime()) >= deuxAns;
+
+  if (!eligible) {
+    const prochaine = new Date(refDate.getTime() + deuxAns);
+    return (
+      <div className="text-xs text-muted-foreground">
+        📈 Indexation possible à partir du {prochaine.toLocaleDateString("fr-FR")}
+      </div>
+    );
+  }
 
   if (!open) return <Button variant="outline" size="sm" onClick={() => setOpen(true)}>📈 Indexer le loyer</Button>;
 
@@ -28,7 +43,7 @@ export function IndexerLoyerForm({ bailId, loyerActuel }: { bailId: string; loye
 
   return (
     <div className="border rounded-lg p-4 bg-muted/30 space-y-3">
-      <p className="text-sm font-medium">Indexation du loyer</p>
+      <p className="text-sm font-medium">Indexation du loyer (tous les 2 ans)</p>
       <p className="text-xs text-muted-foreground">Loyer actuel : {loyerActuel.toLocaleString()} FCFA</p>
       <div className="flex gap-2">
         <Button type="button" variant={mode === "taux" ? "default" : "outline"} size="sm" onClick={() => setMode("taux")}>Par taux (%)</Button>
@@ -47,7 +62,7 @@ export function IndexerLoyerForm({ bailId, loyerActuel }: { bailId: string; loye
             <Input name="montantFixe" type="number" min="1" defaultValue={loyerActuel} />
           </div>
         )}
-        <div className="space-y-1"><Label className="text-xs">Motif</Label><Input name="motif" defaultValue="Indexation annuelle" /></div>
+        <div className="space-y-1"><Label className="text-xs">Motif</Label><Input name="motif" defaultValue="Indexation biennale" /></div>
         <div className="flex gap-2">
           <Button type="submit" size="sm">Appliquer</Button>
           <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>Annuler</Button>

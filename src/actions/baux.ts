@@ -139,6 +139,26 @@ export async function modifierBail(id: string, formData: FormData) {
   });
 }
 
+export async function supprimerBail(id: string) {
+  return safeAction(async () => {
+    const bail = await prisma.bail.findUnique({ where: { id } });
+    if (!bail) return { error: "Bail introuvable" };
+
+    await prisma.$transaction(async (tx) => {
+      await tx.paiement.deleteMany({ where: { bailId: id } });
+      await tx.penalite.deleteMany({ where: { bailId: id } });
+      await tx.etatDesLieux.deleteMany({ where: { bailId: id } });
+      await tx.bail.delete({ where: { id } });
+      // Libérer l'appartement si plus aucun bail actif dessus
+      const autreBail = await tx.bail.findFirst({ where: { appartementId: bail.appartementId, statut: "ACTIF" } });
+      if (!autreBail) await tx.appartement.update({ where: { id: bail.appartementId }, data: { statut: "LIBRE" } });
+    });
+
+    revalidatePath("/baux");
+    return { success: true };
+  });
+}
+
 export async function renouvelerBail(id: string, formData: FormData) {
   return safeAction(async () => {
     const bail = await prisma.bail.findUnique({ where: { id } });

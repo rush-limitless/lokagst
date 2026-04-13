@@ -24,7 +24,7 @@ export default function NouveauLocataire() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    getAppartements({ statut: "LIBRE" }).then(setApparts);
+    getAppartements().then((all) => setApparts(all.filter((a: any) => a.statut === "LIBRE")));
     getImmeubles().then(setImmeubles);
   }, []);
 

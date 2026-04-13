@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { SignerBailForm } from "./signer-form";
 import { UploadContratForm } from "./upload-contrat-form";
 import { ModifierBailForm } from "./modifier-bail-form";
 import { IndexerLoyerForm } from "./indexer-loyer-form";
+import { SupprimerBailButton } from "./supprimer-bail-button";
 
 export default async function BailDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -22,34 +22,37 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 flex-wrap">
         <Link href="/baux" className="text-muted-foreground hover:text-foreground text-sm">← Retour</Link>
         {bail.locataire.photo && <img src={bail.locataire.photo} alt="" className="w-14 h-14 rounded-full object-cover" />}
         <div>
-          <h1 className="text-2xl font-bold text-blue-950">{bail.locataire.prenom} {bail.locataire.nom}</h1>
-          <p className="text-gray-500">Appartement {bail.appartement.numero}</p>
+          <h1 className="text-2xl font-bold text-foreground">{bail.locataire.prenom} {bail.locataire.nom}</h1>
+          <p className="text-muted-foreground">Appartement {bail.appartement.numero}</p>
         </div>
         <Badge variant="outline" className={statusColor[bail.statut] || ""}>{STATUT_BAIL_LABELS[bail.statut]}</Badge>
         <Link href={`/baux/${bail.id}/contrat`}><Button variant="outline" size="sm">📄 Contrat PDF</Button></Link>
+        <SupprimerBailButton bailId={bail.id} locataire={`${bail.locataire.prenom} ${bail.locataire.nom}`} />
       </div>
 
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <CardTitle>Termes du contrat</CardTitle>
-            <ModifierBailForm bail={bail} />
-            {bail.statut === "ACTIF" && <IndexerLoyerForm bailId={bail.id} loyerActuel={bail.montantLoyer} />}
+            <div className="flex gap-2 flex-wrap">
+              <ModifierBailForm bail={bail} />
+              {bail.statut === "ACTIF" && <IndexerLoyerForm bailId={bail.id} loyerActuel={bail.montantLoyer} dateDebut={bail.dateDebut.toISOString()} />}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div><span className="text-gray-500">Début du bail</span><p className="font-medium">{formatDate(bail.dateDebut)}</p></div>
-          <div><span className="text-gray-500">Fin du bail</span><p className="font-medium">{formatDate(bail.dateFin)}</p></div>
-          <div><span className="text-gray-500">Durée totale</span><p className="font-medium">{bail.dureeMois} mois</p></div>
-          <div><span className="text-gray-500">Temps dans l&apos;appartement</span><p className="font-medium">{Math.max(0, Math.floor((Date.now() - new Date(bail.dateDebut).getTime()) / (30.5 * 86400000)))} mois</p></div>
-          <div><span className="text-gray-500">Loyer</span><p className="font-medium">{formatFCFA(bail.montantLoyer)}</p></div>
-          <div><span className="text-gray-500">Charges</span><p className="font-medium">{formatFCFA(bail.totalCharges)}</p></div>
-          <div><span className="text-gray-500">Total mensuel</span><p className="font-medium text-lg">{formatFCFA(bail.totalMensuel)}</p></div>
-          <div><span className="text-gray-500">Caution</span><p className="font-medium">{formatFCFA(bail.montantCaution)}</p></div>
+          <div><span className="text-muted-foreground">Début du bail</span><p className="font-medium">{formatDate(bail.dateDebut)}</p></div>
+          <div><span className="text-muted-foreground">Fin du bail</span><p className="font-medium">{formatDate(bail.dateFin)}</p></div>
+          <div><span className="text-muted-foreground">Durée totale</span><p className="font-medium">{bail.dureeMois} mois</p></div>
+          <div><span className="text-muted-foreground">Temps dans l&apos;appartement</span><p className="font-medium">{Math.max(0, Math.floor((Date.now() - new Date(bail.dateDebut).getTime()) / (30.5 * 86400000)))} mois</p></div>
+          <div><span className="text-muted-foreground">Loyer</span><p className="font-medium">{formatFCFA(bail.montantLoyer)}</p></div>
+          <div><span className="text-muted-foreground">Charges</span><p className="font-medium">{formatFCFA(bail.totalCharges)}</p></div>
+          <div><span className="text-muted-foreground">Total mensuel</span><p className="font-medium text-lg">{formatFCFA(bail.totalMensuel)}</p></div>
+          <div><span className="text-muted-foreground">Caution</span><p className="font-medium">{formatFCFA(bail.montantCaution)}</p></div>
         </CardContent>
       </Card>
 
@@ -59,7 +62,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
           <CardContent>
             <div className="space-y-1">
               {charges.map((c, i) => (
-                <div key={i} className="flex justify-between text-sm p-2 bg-gray-50 rounded">
+                <div key={i} className="flex justify-between text-sm p-2 bg-muted/30 rounded">
                   <span>{c.type}</span><span className="font-medium">{formatFCFA(c.montant)}</span>
                 </div>
               ))}
@@ -71,22 +74,22 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
       <Card>
         <CardHeader><CardTitle>Modalités de paiement</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-          <div><span className="text-gray-500">Jour limite</span><p className="font-medium">Le {bail.jourLimitePaiement} du mois</p></div>
-          <div><span className="text-gray-500">Délai de grâce</span><p className="font-medium">{bail.delaiGrace} jours</p></div>
-          <div><span className="text-gray-500">Pénalité</span><p className="font-medium">{bail.penaliteMontant}{bail.penaliteType === "POURCENTAGE" ? "% du loyer" : " FCFA"}{bail.penaliteRecurrente ? " /semaine" : ""}</p></div>
+          <div><span className="text-muted-foreground">Jour limite</span><p className="font-medium">Le {bail.jourLimitePaiement} du mois</p></div>
+          <div><span className="text-muted-foreground">Délai de grâce</span><p className="font-medium">{bail.delaiGrace} jours</p></div>
+          <div><span className="text-muted-foreground">Pénalité</span><p className="font-medium">{bail.penaliteMontant}{bail.penaliteType === "POURCENTAGE" ? "% du loyer" : " FCFA"}{bail.penaliteRecurrente ? " /semaine" : ""}</p></div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader><CardTitle>Renouvellement et résiliation</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-          <div><span className="text-gray-500">Renouvellement auto</span><p className="font-medium">{bail.renouvellementAuto ? "✅ Oui (sauf dénonciation 2 mois avant)" : "❌ Non"}</p></div>
+          <div><span className="text-muted-foreground">Renouvellement auto</span><p className="font-medium">{bail.renouvellementAuto ? "✅ Oui (sauf dénonciation 2 mois avant)" : "❌ Non"}</p></div>
           {bail.renouvellementAuto && <>
-            <div><span className="text-gray-500">Durée renouvellement</span><p className="font-medium">{bail.dureeRenouvellement || bail.dureeMois} mois</p></div>
-            <div><span className="text-gray-500">Augmentation</span><p className="font-medium">{bail.augmentationLoyer || 0}%</p></div>
+            <div><span className="text-muted-foreground">Durée renouvellement</span><p className="font-medium">{bail.dureeRenouvellement || bail.dureeMois} mois</p></div>
+            <div><span className="text-muted-foreground">Augmentation</span><p className="font-medium">{bail.augmentationLoyer || 0}%</p></div>
           </>}
-          <div><span className="text-gray-500">Préavis résiliation</span><p className="font-medium">{bail.preavisResiliation} jours</p></div>
-          <div><span className="text-gray-500">Seuil mise en demeure</span><p className="font-medium">{bail.seuilMiseEnDemeure} mois d&apos;impayés → envoi automatique d&apos;une mise en demeure</p></div>
+          <div><span className="text-muted-foreground">Préavis résiliation</span><p className="font-medium">{bail.preavisResiliation} jours</p></div>
+          <div><span className="text-muted-foreground">Seuil mise en demeure</span><p className="font-medium">{bail.seuilMiseEnDemeure} mois d&apos;impayés → envoi automatique</p></div>
         </CardContent>
       </Card>
 
@@ -97,21 +100,6 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
         </Card>
       )}
 
-      {/* SIGNATURE ÉLECTRONIQUE */}
-      <Card>
-        <CardHeader><CardTitle>Signature du locataire</CardTitle></CardHeader>
-        <CardContent>
-          {bail.signatureLocataire ? (
-            <div>
-              <p className="text-sm text-green-600 mb-2">✅ Signé le {bail.dateSignature ? formatDate(bail.dateSignature) : ""}</p>
-              <img src={bail.signatureLocataire} alt="Signature" className="border rounded h-20" />
-            </div>
-          ) : (
-            <SignerBailForm bailId={bail.id} />
-          )}
-        </CardContent>
-      </Card>
-
       {/* UPLOAD CONTRAT ENREGISTRÉ */}
       <Card>
         <CardHeader><CardTitle>Contrat enregistré (scan/PDF)</CardTitle></CardHeader>
@@ -119,7 +107,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
           {bail.contratUpload ? (
             <div>
               <p className="text-sm text-green-600 mb-2">✅ Contrat uploadé</p>
-              <a href={bail.contratUpload} target="_blank" className="text-blue-600 hover:underline text-sm">📄 Voir le contrat</a>
+              <a href={bail.contratUpload} target="_blank" className="text-primary hover:underline text-sm">📄 Voir le contrat</a>
             </div>
           ) : (
             <UploadContratForm bailId={bail.id} />
@@ -136,7 +124,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
           </div>
         </CardHeader>
         <CardContent>
-          {edls.length === 0 ? <p className="text-gray-500 text-sm">Aucun état des lieux</p> : (
+          {edls.length === 0 ? <p className="text-muted-foreground text-sm">Aucun état des lieux</p> : (
             <div className="space-y-2">
               {edls.map((e) => {
                 const pieces = (e.pieces as { nom: string; etat: string; observation: string }[]) || [];
@@ -144,7 +132,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
                   <div key={e.id} className="border rounded p-3">
                     <div className="flex justify-between items-center mb-2">
                       <Badge variant="outline" className={e.type === "ENTREE" ? "text-blue-600" : "text-orange-600"}>{e.type === "ENTREE" ? "Entrée" : "Sortie"}</Badge>
-                      <span className="text-sm text-gray-500">{formatDate(e.date)}</span>
+                      <span className="text-sm text-muted-foreground">{formatDate(e.date)}</span>
                       <div className="flex gap-2">
                         {e.signatureLocataire && <span className="text-xs text-green-600">✅ Locataire</span>}
                         {e.signatureGestionnaire && <span className="text-xs text-green-600">✅ Gestionnaire</span>}
@@ -152,7 +140,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
                     </div>
                     <div className="grid grid-cols-3 gap-1 text-xs">
                       {pieces.map((p, i) => (
-                        <div key={i} className={`p-1 rounded ${p.etat === "Bon état" ? "bg-green-50" : p.etat === "Usure normale" ? "bg-yellow-50" : "bg-red-50"}`}>
+                        <div key={i} className={`p-1 rounded ${p.etat === "Bon état" ? "bg-green-50 dark:bg-green-950/20" : p.etat === "Usure normale" ? "bg-yellow-50 dark:bg-yellow-950/20" : "bg-red-50 dark:bg-red-950/20"}`}>
                           <span className="font-medium">{p.nom}</span>: {p.etat}
                         </div>
                       ))}
@@ -174,7 +162,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
           <CardContent>
             <div className="space-y-1">
               {bail.penalites.map((p) => (
-                <div key={p.id} className="flex justify-between text-sm p-2 bg-red-50 rounded">
+                <div key={p.id} className="flex justify-between text-sm p-2 bg-red-50 dark:bg-red-950/20 rounded">
                   <span>{p.motif}</span>
                   <span>{formatDate(p.appliqueLe)}</span>
                   <span className="font-medium">{formatFCFA(p.montant)}</span>
@@ -189,10 +177,10 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
       <Card>
         <CardHeader><CardTitle>Paiements</CardTitle></CardHeader>
         <CardContent>
-          {bail.paiements.length === 0 ? <p className="text-gray-500 text-sm">Aucun paiement</p> : (
+          {bail.paiements.length === 0 ? <p className="text-muted-foreground text-sm">Aucun paiement</p> : (
             <div className="space-y-1">
               {bail.paiements.map((p) => (
-                <div key={p.id} className="flex justify-between items-center text-sm p-2 bg-gray-50 rounded">
+                <div key={p.id} className="flex justify-between items-center text-sm p-2 bg-muted/30 rounded">
                   <span>{formatDate(p.moisConcerne)}</span>
                   <span className="font-medium">{formatFCFA(p.montant)}</span>
                   <span>{MODE_PAIEMENT_LABELS[p.modePaiement]}</span>
