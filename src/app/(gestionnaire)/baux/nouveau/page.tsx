@@ -21,7 +21,7 @@ export default function NouveauBail() {
 
   useEffect(() => {
     getLocataires({ statut: "ACTIF" }).then(setLocataires);
-    getAppartements().then(setApparts);
+    getAppartements().then((all) => setApparts(all.filter((a: any) => a.statut === "LIBRE")));
   }, []);
 
   function ajouterCharge() {

@@ -22,7 +22,7 @@ export async function getLocataires(filters?: { recherche?: string; statut?: str
 export async function getLocataire(id: string) {
   return prisma.locataire.findUnique({
     where: { id },
-    include: { baux: { include: { appartement: true, paiements: { orderBy: { moisConcerne: "desc" } }, penalites: { orderBy: { appliqueLe: "desc" } } }, orderBy: { creeLe: "desc" } }, utilisateur: true },
+    include: { baux: { include: { appartement: { include: { immeuble: true } }, paiements: { orderBy: { moisConcerne: "desc" } }, penalites: { orderBy: { appliqueLe: "desc" } } }, orderBy: { creeLe: "desc" } }, utilisateur: true },
   });
 }
 
@@ -35,16 +35,59 @@ export async function creerLocataire(formData: FormData) {
     const appart = await prisma.appartement.findUnique({ where: { id: parsed.data.appartementId } });
     if (!appart || appart.statut === "OCCUPE") return { error: "Cet appartement n'est pas disponible" };
 
-    await prisma.$transaction([
-      prisma.locataire.create({
+    const locataire = await prisma.locataire.create({
+      data: {
+        nom: parsed.data.nom, prenom: parsed.data.prenom || parsed.data.nom, telephone: parsed.data.telephone,
+        email: parsed.data.email || null, numeroCNI: parsed.data.numeroCNI || null,
+        photo: parsed.data.photo || null, dateEntree: parsed.data.dateEntree,
+      },
+    });
+
+    await prisma.appartement.update({ where: { id: parsed.data.appartementId }, data: { statut: "OCCUPE" } });
+
+    // Create bail if montantLoyer is provided
+    const montantLoyer = parseInt(data.montantLoyer as string);
+    if (montantLoyer && montantLoyer > 0) {
+      const dateDebut = parsed.data.dateEntree;
+      const dureeMois = parseInt(data.dureeMois as string) || 12;
+      const dateFin = new Date(dateDebut);
+      dateFin.setMonth(dateFin.getMonth() + dureeMois);
+
+      let datePremierLoyer: Date;
+      if (dateDebut.getDate() > 15) {
+        datePremierLoyer = new Date(dateDebut.getFullYear(), dateDebut.getMonth() + 1, 1);
+      } else {
+        datePremierLoyer = new Date(dateDebut.getFullYear(), dateDebut.getMonth(), 1);
+      }
+
+      let charges: { type: string; montant: number }[] = [];
+      try { charges = data.chargesLocatives ? JSON.parse(data.chargesLocatives as string) : []; } catch { charges = []; }
+      const totalCharges = charges.reduce((s, c) => s + c.montant, 0);
+
+      await prisma.bail.create({
         data: {
-          nom: parsed.data.nom, prenom: parsed.data.prenom, telephone: parsed.data.telephone,
-          email: parsed.data.email || null, numeroCNI: parsed.data.numeroCNI || null,
-          photo: parsed.data.photo || null, dateEntree: parsed.data.dateEntree,
+          locataireId: locataire.id, appartementId: parsed.data.appartementId,
+          dateDebut, dureeMois, dateFin, datePremierLoyer,
+          montantLoyer,
+          montantCaution: parseInt(data.montantCaution as string) || 0,
+          chargesLocatives: charges, totalCharges, totalMensuel: montantLoyer + totalCharges,
+          periodicite: ((data.periodicite as string) || "MENSUEL") as any,
+          jourLimitePaiement: parseInt(data.jourLimitePaiement as string) || 5,
+          delaiGrace: parseInt(data.delaiGrace as string) || 5,
+          penaliteType: (data.penaliteType as string) === "MONTANT_FIXE" ? "MONTANT_FIXE" : "POURCENTAGE",
+          penaliteMontant: parseInt(data.penaliteMontant as string) || 5,
+          penaliteRecurrente: data.penaliteRecurrente === "on" || data.penaliteRecurrente === "true",
+          renouvellementAuto: data.renouvellementAuto === "on" || data.renouvellementAuto === "true",
+          dureeRenouvellement: parseInt(data.dureeRenouvellement as string) || null,
+          augmentationLoyer: parseInt(data.augmentationLoyer as string) || null,
+          preavisNonRenouv: parseInt(data.preavisNonRenouv as string) || 30,
+          preavisResiliation: parseInt(data.preavisResiliation as string) || 30,
+          seuilMiseEnDemeure: parseInt(data.seuilMiseEnDemeure as string) || 2,
+          seuilSuspension: parseInt(data.seuilSuspension as string) || 3,
+          clausesParticulieres: (data.clausesParticulieres as string) || null,
         },
-      }),
-      prisma.appartement.update({ where: { id: parsed.data.appartementId }, data: { statut: "OCCUPE" } }),
-    ]);
+      });
+    }
 
     revalidatePath("/locataires");
     return { success: true };
