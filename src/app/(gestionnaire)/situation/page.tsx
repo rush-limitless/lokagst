@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { UserAvatar } from "@/components/user-avatar";
 import { StatusBadge } from "@/components/status-badge";
 import Link from "next/link";
+import { ImprimerDettesButton } from "./imprimer-dettes";
 
 export default async function SituationPage({ searchParams }: { searchParams: Promise<{ filtre?: string }> }) {
   const { filtre } = await searchParams;
@@ -31,10 +32,13 @@ export default async function SituationPage({ searchParams }: { searchParams: Pr
         <Card><CardContent className="pt-5 text-center"><div className="text-xl font-bold text-orange-600">{formatFCFA(totalChargesDu)}</div><p className="text-xs text-muted-foreground">Charges impayées</p></CardContent></Card>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap items-center">
         <Link href="/situation" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!filtre ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Tous ({situations.length})</Link>
         <Link href="/situation?filtre=ajour" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${filtre === "ajour" ? "bg-emerald-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>✅ À jour ({totalAJour})</Link>
         <Link href="/situation?filtre=impayes" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${filtre === "impayes" ? "bg-red-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>❌ Impayés ({totalImpayes})</Link>
+        <div className="ml-auto">
+          <ImprimerDettesButton />
+        </div>
       </div>
 
       <div className="text-right text-sm font-bold text-red-600">Total global dû : {formatFCFA(totalGlobalDu)}</div>
