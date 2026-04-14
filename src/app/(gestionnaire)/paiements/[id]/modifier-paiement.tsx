@@ -10,8 +10,8 @@ import { useRouter } from "next/navigation";
 
 export function ModifierPaiementButton({ paiement: p }: { paiement: any }) {
   const [open, setOpen] = useState(false);
-  const [loyer, setLoyer] = useState(p.montantLoyer || 0);
-  const [charges, setCharges] = useState(p.montantCharges || 0);
+  const [loyer, setLoyer] = useState(p.montantLoyer || p.bail?.montantLoyer || 0);
+  const [charges, setCharges] = useState(p.montantCharges || p.bail?.totalCharges || 0);
   const [caution, setCaution] = useState(p.montantCaution || 0);
   const [autres, setAutres] = useState(p.montantAutres || 0);
   const router = useRouter();
