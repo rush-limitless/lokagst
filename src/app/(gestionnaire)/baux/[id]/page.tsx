@@ -18,7 +18,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
   const edls = await getEtatsDesLieux(id);
 
   const charges = (bail.chargesLocatives as { type: string; montant: number }[]) || [];
-  const statusColor: Record<string, string> = { ACTIF: "text-green-600", SUSPENDU: "text-orange-600", RESILIE: "text-red-600", TERMINE: "text-gray-500", EXPIRE: "text-red-600" };
+  const statusColor: Record<string, string> = { ACTIF: "text-green-600", SUSPENDU: "text-orange-600", RESILIE: "text-red-600", TERMINE: "text-red-600", EXPIRE: "text-red-600" };
 
   return (
     <div className="space-y-6">
