@@ -123,9 +123,21 @@ function PaiementsTab({ locataire: loc }: { locataire: Locataire }) {
         </div>
       )}
       {filtered.length > 0 && (
-        <div className="mt-4 text-right text-sm">
-          <span className="text-muted-foreground">Total encaissé : </span>
-          <span className="font-bold text-emerald-600">{formatFCFA(filtered.reduce((s, p) => s + p.montant, 0))}</span>
+        <div className="mt-4 space-y-1 text-right text-sm">
+          <div>
+            <span className="text-muted-foreground">Total paiements : </span>
+            <span className="font-bold text-emerald-600">{formatFCFA(filtered.reduce((s, p) => s + p.montant, 0))}</span>
+          </div>
+          {(() => {
+            const cautionPayee = loc.baux.filter((b) => b.montantCaution > 0).reduce((s, b) => s + b.montantCaution, 0);
+            if (cautionPayee > 0) return (
+              <>
+                <div><span className="text-muted-foreground">Caution versée : </span><span className="font-medium">{formatFCFA(cautionPayee)}</span></div>
+                <div><span className="text-muted-foreground">Total encaissé (paiements + caution) : </span><span className="font-bold text-emerald-600 text-base">{formatFCFA(filtered.reduce((s, p) => s + p.montant, 0) + cautionPayee)}</span></div>
+              </>
+            );
+            return null;
+          })()}
         </div>
       )}
     </div>

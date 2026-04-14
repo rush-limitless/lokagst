@@ -39,7 +39,11 @@ export async function enregistrerPaiement(formData: FormData) {
     if (!bail) return { error: "Bail introuvable" };
 
     const nbMois = parsed.data.nbMois || 1;
-    const moisDepart = new Date(parsed.data.moisConcerne);
+    // Règle du 15: si la date est après le 15, le mois de départ est le mois suivant
+    const dateRef = new Date(parsed.data.moisConcerne);
+    const moisDepart = dateRef.getDate() > 15
+      ? new Date(dateRef.getFullYear(), dateRef.getMonth() + 1, 1)
+      : new Date(dateRef.getFullYear(), dateRef.getMonth(), 1);
     const loyerTotal = parsed.data.montantLoyer;
     const chargesTotal = parsed.data.montantCharges;
 

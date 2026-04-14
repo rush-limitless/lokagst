@@ -124,7 +124,8 @@ export default function ReportingPage() {
       ws5["!cols"] = [{ wch: 12 }, { wch: 20 }, { wch: 36 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 14 }];
       XLSX.utils.book_append_sheet(wb, ws5, "ETAT CONTRATS");
 
-      XLSX.writeFile(wb, `TABLEAU_SUIVI_IMMOSTAR_${new Date().toLocaleDateString("fr-FR").replace(/\//g, "_")}.xlsx`);
+      const periodeSuffix = dateDebut && dateFin ? `_${dateDebut.replace(/-/g, "")}_${dateFin.replace(/-/g, "")}` : `_${new Date().toLocaleDateString("fr-FR").replace(/\//g, "")}`;
+      XLSX.writeFile(wb, `TABLEAU_SUIVI_IMMOSTAR${periodeSuffix}.xlsx`);
       toast.success("Excel IMMOSTAR téléchargé !");
     } catch { toast.error("Erreur"); }
     setLoading(false);
@@ -208,7 +209,7 @@ export default function ReportingPage() {
               </div>
               <div className="text-right">
                 <h2 className="text-lg font-bold text-gray-800">TABLEAU DE SUIVI</h2>
-                <p className="text-gray-500 text-xs">Au {new Date().toLocaleDateString("fr-FR")}</p>
+                <p className="text-gray-500 text-xs">{dateDebut && dateFin ? `Du ${fmtDate(dateDebut)} au ${fmtDate(dateFin)}` : `Au ${new Date().toLocaleDateString("fr-FR")}`}</p>
               </div>
             </div>
 
