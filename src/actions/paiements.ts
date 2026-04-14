@@ -126,6 +126,18 @@ export async function enregistrerPaiement(formData: FormData) {
       await prisma.bail.update({ where: { id: parsed.data.bailId }, data: { cautionPayee: true } });
     }
 
+    // Appliquer pénalité si demandé
+    if (data.appliquerPenalite === "on") {
+      const montantPenalite = bail.penaliteType === "POURCENTAGE"
+        ? Math.round(bail.montantLoyer * bail.penaliteMontant / 100)
+        : bail.penaliteMontant;
+      if (montantPenalite > 0) {
+        await prisma.penalite.create({
+          data: { bailId: bail.id, moisConcerne: moisDepart, montant: montantPenalite, motif: `Pénalité de retard (${bail.penaliteMontant}${bail.penaliteType === "POURCENTAGE" ? "%" : " FCFA"})` },
+        });
+      }
+    }
+
     const firstId = paiements.length > 0 ? paiements[0].id : updates.length > 0 ? updates[0].id : "unknown";
     if (paiements.length > 0) envoyerRecuPaiement(paiements[0].id).catch(() => {});
     logAction("Paiement", "Paiement", firstId, `${nbMois} mois — ${parsed.data.montant} FCFA — Bail ${parsed.data.bailId.slice(0, 8)}${updates.length > 0 ? ` (${updates.length} mois complétés)` : ""}`);

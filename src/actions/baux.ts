@@ -55,6 +55,11 @@ export async function creerBail(formData: FormData) {
     const totalMensuel = parsed.data.montantLoyer + totalCharges;
 
     await prisma.$transaction([
+      // Terminate any existing active bail for this tenant on this apartment
+      prisma.bail.updateMany({
+        where: { locataireId: parsed.data.locataireId, appartementId: parsed.data.appartementId, statut: "ACTIF" },
+        data: { statut: "TERMINE" },
+      }),
       prisma.bail.create({
         data: {
           locataireId: parsed.data.locataireId, appartementId: parsed.data.appartementId,

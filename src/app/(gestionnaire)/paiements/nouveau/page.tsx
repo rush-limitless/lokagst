@@ -103,6 +103,10 @@ export default function NouveauPaiement() {
               <FileUpload onUploaded={setPreuveUrl} label="Joindre la preuve de paiement" />
             </div>
             <div className="space-y-2"><Label>Notes (optionnel)</Label><Input name="notes" /></div>
+            <label className="flex items-center gap-2 p-3 border rounded-lg bg-orange-50 dark:bg-orange-950/10">
+              <input type="checkbox" name="appliquerPenalite" className="rounded" />
+              <span className="text-sm">Appliquer la pénalité de retard ({selectedBail ? `${selectedBail.penaliteMontant}${selectedBail.penaliteType === "POURCENTAGE" ? "%" : " FCFA"}` : "—"})</span>
+            </label>
             <input type="hidden" name="preuvePaiement" value={preuveUrl} />
             <Button type="submit" className="w-full">Enregistrer le paiement — {totalCalcule.toLocaleString()} FCFA</Button>
           </form>
