@@ -18,6 +18,27 @@ export default function NouveauBail() {
   const [charges, setCharges] = useState<{ type: string; montant: number }[]>([]);
   const [newChargeType, setNewChargeType] = useState("Eau");
   const [newChargeMontant, setNewChargeMontant] = useState("");
+  const [selectedLocataire, setSelectedLocataire] = useState("");
+  const [selectedAppart, setSelectedAppart] = useState("");
+  const [existingBail, setExistingBail] = useState<any>(null);
+  const [confirmReplace, setConfirmReplace] = useState(false);
+
+  useEffect(() => {
+    getLocataires({ statut: "ACTIF" }).then(setLocataires);
+    getAppartements().then(setApparts);
+  }, []);
+
+  // Detect existing active bail for selected locataire+appartement
+  useEffect(() => {
+    if (selectedLocataire && selectedAppart) {
+      const loc = locataires.find((l) => l.id === selectedLocataire);
+      const bail = loc?.baux?.find((b: any) => b.appartement?.id === selectedAppart || b.appartementId === selectedAppart);
+      setExistingBail(bail || null);
+      setConfirmReplace(false);
+    } else {
+      setExistingBail(null);
+    }
+  }, [selectedLocataire, selectedAppart, locataires]);
 
   useEffect(() => {
     getLocataires({ statut: "ACTIF" }).then(setLocataires);
@@ -37,10 +58,14 @@ export default function NouveauBail() {
   const totalCharges = charges.reduce((s, c) => s + c.montant, 0);
 
   async function handleSubmit(formData: FormData) {
+    if (existingBail && !confirmReplace) {
+      setConfirmReplace(true);
+      return;
+    }
     formData.set("chargesLocatives", JSON.stringify(charges));
     const result = await creerBail(formData);
     if (result.error) { toast.error(result.error); return; }
-    toast.success("Bail créé avec tous les termes");
+    toast.success("Bail créé" + (existingBail ? " — ancien bail terminé" : ""));
     router.push("/baux");
   }
 
@@ -55,23 +80,40 @@ export default function NouveauBail() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Locataire</Label>
-                <select name="locataireId" className="w-full border rounded-md p-2" required>
+                <select name="locataireId" className="w-full border rounded-md p-2" required value={selectedLocataire} onChange={(e) => setSelectedLocataire(e.target.value)}>
                   <option value="">Sélectionner...</option>
                   {locataires.map((l) => <option key={l.id} value={l.id}>{l.prenom} {l.nom}</option>)}
                 </select>
               </div>
               <div className="space-y-2">
                 <Label>Appartement</Label>
-                <select name="appartementId" className="w-full border rounded-md p-2" required>
+                <select name="appartementId" className="w-full border rounded-md p-2" required value={selectedAppart} onChange={(e) => setSelectedAppart(e.target.value)}>
                   <option value="">Sélectionner...</option>
                   {apparts.map((a) => <option key={a.id} value={a.id}>{a.numero} — {a.type} ({a.statut === "LIBRE" ? "Libre" : "Occupé"})</option>)}
                 </select>
               </div>
             </div>
+            {existingBail && (
+              <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-300 dark:border-orange-800 rounded-lg p-4 space-y-2">
+                <p className="text-sm font-medium text-orange-800 dark:text-orange-300">⚠️ Ce locataire a déjà un bail actif sur cet appartement</p>
+                <div className="text-xs text-orange-700 dark:text-orange-400 space-y-1">
+                  <p>Loyer actuel : {existingBail.montantLoyer?.toLocaleString()} FCFA · Charges : {existingBail.totalCharges?.toLocaleString()} FCFA</p>
+                  <p>Caution actuelle : {existingBail.montantCaution?.toLocaleString()} FCFA</p>
+                </div>
+                <p className="text-xs text-orange-600 dark:text-orange-400">En créant ce nouveau bail, l&apos;ancien sera automatiquement <strong>terminé</strong>. Les paiements de l&apos;ancien bail seront conservés.</p>
+                {confirmReplace && <p className="text-sm font-bold text-orange-800 dark:text-orange-200">✅ Confirmation prise en compte — cliquez sur &quot;Créer le bail&quot; pour valider</p>}
+              </div>
+            )}
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2"><Label>Date de début</Label><Input name="dateDebut" type="date" required /></div>
               <div className="space-y-2"><Label>Durée (mois)</Label><Input name="dureeMois" type="number" min="1" defaultValue="12" required /></div>
-              <div className="space-y-2"><Label>Caution (FCFA)</Label><Input name="montantCaution" type="number" min="0" defaultValue="0" required /></div>
+              <div className="space-y-2">
+                <Label>Caution (FCFA)</Label>
+                <Input name="montantCaution" type="number" min="0" defaultValue="0" required />
+                {existingBail && existingBail.montantCaution > 0 && (
+                  <p className="text-xs text-muted-foreground">Caution précédente : {existingBail.montantCaution.toLocaleString()} FCFA — le locataire ne paiera que la différence si la nouvelle caution est supérieure</p>
+                )}
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Périodicité de paiement</Label>

@@ -54,6 +54,13 @@ export async function creerBail(formData: FormData) {
     const totalCharges = charges.reduce((s, c) => s + c.montant, 0);
     const totalMensuel = parsed.data.montantLoyer + totalCharges;
 
+    // Check if there's an existing bail — handle caution difference
+    const existingBail = await prisma.bail.findFirst({
+      where: { locataireId: parsed.data.locataireId, appartementId: parsed.data.appartementId, statut: "ACTIF" },
+    });
+    const ancienneCaution = existingBail?.montantCaution || 0;
+    const cautionPayee = existingBail ? (ancienneCaution >= parsed.data.montantCaution) : false;
+
     await prisma.$transaction([
       // Terminate any existing active bail for this tenant on this apartment
       prisma.bail.updateMany({
@@ -65,6 +72,7 @@ export async function creerBail(formData: FormData) {
           locataireId: parsed.data.locataireId, appartementId: parsed.data.appartementId,
           dateDebut: parsed.data.dateDebut, dureeMois: parsed.data.dureeMois, dateFin,
           montantLoyer: parsed.data.montantLoyer, montantCaution: parsed.data.montantCaution,
+          cautionPayee,
           datePremierLoyer, periodicite: parsed.data.periodicite as any,
           chargesLocatives: charges, totalCharges, totalMensuel,
           jourLimitePaiement: parsed.data.jourLimitePaiement, delaiGrace: parsed.data.delaiGrace,
