@@ -50,6 +50,15 @@ export function ModifierBailForm({ bail }: { bail: any }) {
             <option value="true">Oui</option><option value="false">Non</option>
           </select>
         </div>
+        <div className="space-y-1">
+          <Label className="text-xs">Périodicité</Label>
+          <select name="periodicite" defaultValue={bail.periodicite} className="w-full border rounded-md p-2 text-sm bg-card">
+            <option value="MENSUEL">Mensuel</option>
+            <option value="TRIMESTRIEL">Trimestriel (3 mois)</option>
+            <option value="SEMESTRIEL">Semestriel (6 mois)</option>
+            <option value="ANNUEL">Annuel (12 mois)</option>
+          </select>
+        </div>
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between">

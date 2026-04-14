@@ -137,6 +137,7 @@ export async function modifierBail(id: string, formData: FormData) {
     const montantLoyer = formData.get("montantLoyer") ? parseInt(formData.get("montantLoyer") as string) : bail.montantLoyer;
     const montantCaution = formData.get("montantCaution") ? parseInt(formData.get("montantCaution") as string) : bail.montantCaution;
     const renouvellementAuto = formData.get("renouvellementAuto") === "on" || formData.get("renouvellementAuto") === "true";
+    const periodicite = formData.get("periodicite") as string || bail.periodicite;
 
     let charges = bail.chargesLocatives as { type: string; montant: number }[];
     try { const raw = formData.get("chargesLocatives") as string; if (raw) charges = JSON.parse(raw); } catch {}
@@ -144,7 +145,7 @@ export async function modifierBail(id: string, formData: FormData) {
 
     await prisma.bail.update({
       where: { id },
-      data: { dateDebut, dateFin, montantLoyer, montantCaution, renouvellementAuto, chargesLocatives: charges, totalCharges, totalMensuel: montantLoyer + totalCharges },
+      data: { dateDebut, dateFin, montantLoyer, montantCaution, renouvellementAuto, periodicite: periodicite as any, chargesLocatives: charges, totalCharges, totalMensuel: montantLoyer + totalCharges },
     });
 
     revalidatePath(`/baux/${id}`);
