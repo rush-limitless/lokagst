@@ -1,21 +1,26 @@
 import { getSituationGlobale } from "@/actions/situation-globale";
 import { formatFCFA, PERIODICITE_LABELS } from "@/lib/utils";
 
-export default async function FactureDettesPage() {
+export default async function FactureDettesPage({ searchParams }: { searchParams: Promise<{ locataire?: string }> }) {
+  const { locataire: locId } = await searchParams;
   const situations = await getSituationGlobale();
-  const impayes = situations.filter((s) => !s.aJour);
+  const impayes = locId
+    ? situations.filter((s) => s.locataireId === locId && !s.aJour)
+    : situations.filter((s) => !s.aJour);
+
   const now = new Date();
   const dateStr = now.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
   const totalLoyerDu = impayes.reduce((s, r) => s + r.montantLoyerDu, 0);
   const totalChargesDu = impayes.reduce((s, r) => s + r.montantChargesDu, 0);
   const totalGlobalDu = impayes.reduce((s, r) => s + r.totalDu, 0);
+  const titre = locId && impayes.length > 0 ? `FACTURE DE DETTES — ${impayes[0].locataire.toUpperCase()}` : "ÉTAT DES DETTES";
 
   return (
     <html>
       <head>
-        <title>Facture des dettes — IMMOSTAR SCI — {dateStr}</title>
+        <title>{titre} — IMMOSTAR SCI — {dateStr}</title>
         <style dangerouslySetInnerHTML={{ __html: `
-          @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .no-print { display: none; } }
+          @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } #printBtn { display: none; } }
           body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 20px; color: #1a1a1a; font-size: 12px; }
           .header { text-align: center; border-bottom: 3px solid #1B6B9E; padding-bottom: 15px; margin-bottom: 20px; }
           .header h1 { color: #1B6B9E; margin: 0; font-size: 22px; }
@@ -24,21 +29,19 @@ export default async function FactureDettesPage() {
           .summary-card { flex: 1; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; text-align: center; }
           .summary-card .value { font-size: 18px; font-weight: bold; }
           .summary-card .label { font-size: 10px; color: #666; margin-top: 2px; }
-          .red { color: #dc2626; }
-          .orange { color: #ea580c; }
+          .red { color: #dc2626; } .orange { color: #ea580c; }
           table { width: 100%; border-collapse: collapse; margin-top: 10px; }
           th { background: #1B6B9E; color: white; padding: 8px 10px; text-align: left; font-size: 11px; }
           td { padding: 7px 10px; border-bottom: 1px solid #e5e7eb; }
           tr:nth-child(even) { background: #f9fafb; }
           .total-row { font-weight: bold; background: #fef2f2 !important; }
           .footer { margin-top: 30px; text-align: center; color: #999; font-size: 10px; border-top: 1px solid #e0e0e0; padding-top: 10px; }
-          .btn { background: #1B6B9E; color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: 14px; margin: 15px auto; display: block; }
-          .btn:hover { background: #155a82; }
           .detail { font-size: 10px; color: #666; }
+          .month-detail { font-size: 10px; color: #888; margin-top: 4px; }
         `}} />
       </head>
       <body>
-        <script dangerouslySetInnerHTML={{ __html: `document.getElementById('printBtn').addEventListener('click', function() { window.print(); });` }} />
+        <script dangerouslySetInnerHTML={{ __html: `document.addEventListener('DOMContentLoaded',function(){document.getElementById('printBtn').addEventListener('click',function(){window.print()})})` }} />
         <button id="printBtn" style={{ background: "#1B6B9E", color: "white", border: "none", padding: "10px 24px", borderRadius: "6px", cursor: "pointer", fontSize: "14px", margin: "15px auto", display: "block" }}>
           🖨️ Imprimer / Enregistrer en PDF
         </button>
@@ -47,14 +50,14 @@ export default async function FactureDettesPage() {
           <h1>IMMOSTAR SCI</h1>
           <p>Yaoundé — Nkolfoulou</p>
           <p style={{ fontSize: "16px", fontWeight: "bold", marginTop: "10px", color: "#1a1a1a" }}>
-            ÉTAT DES DETTES AU {dateStr.toUpperCase()}
+            {titre} AU {dateStr.toUpperCase()}
           </p>
         </div>
 
         <div className="summary">
           <div className="summary-card">
             <div className="value red">{impayes.length}</div>
-            <div className="label">Locataires en retard</div>
+            <div className="label">{locId ? "Bail(s) en retard" : "Locataires en retard"}</div>
           </div>
           <div className="summary-card">
             <div className="value red">{formatFCFA(totalLoyerDu)}</div>
@@ -71,7 +74,7 @@ export default async function FactureDettesPage() {
         </div>
 
         {impayes.length === 0 ? (
-          <p style={{ textAlign: "center", padding: "40px", color: "#16a34a", fontSize: "16px" }}>✅ Aucun impayé — Tous les locataires sont à jour</p>
+          <p style={{ textAlign: "center", padding: "40px", color: "#16a34a", fontSize: "16px" }}>✅ Aucun impayé</p>
         ) : (
           <table>
             <thead>
@@ -88,11 +91,15 @@ export default async function FactureDettesPage() {
             </thead>
             <tbody>
               {impayes.map((s, i) => (
-                <tr key={s.locataireId}>
+                <tr key={s.locataireId + s.appartement}>
                   <td>{i + 1}</td>
                   <td>
                     <strong>{s.locataire}</strong>
                     <div className="detail">{PERIODICITE_LABELS[s.periodicite] || s.periodicite}</div>
+                    {/* Detail of unpaid months */}
+                    <div className="month-detail">
+                      {s.detailMois.filter((m) => !m.loyerPaye).map((m) => m.mois).join(", ")}
+                    </div>
                   </td>
                   <td>{s.appartement}</td>
                   <td>{formatFCFA(s.loyerMensuel)}</td>

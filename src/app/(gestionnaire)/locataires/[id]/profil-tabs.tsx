@@ -7,6 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
 import Link from "next/link";
 import { ModifierLocataireForm } from "./modifier-form";
+import { useState } from "react";
+import { supprimerPaiement } from "@/actions/paiements";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type Bail = {
   id: string; dateDebut: Date; dateFin: Date; montantLoyer: number; montantCaution: number;
@@ -31,8 +35,80 @@ type Locataire = {
   baux: Bail[]; utilisateur: any;
 };
 
-export function ProfilTabs({ locataire: loc, situation }: { locataire: Locataire; situation: Situation }) {
+function PaiementsTab({ locataire: loc }: { locataire: Locataire }) {
+  const router = useRouter();
   const allPaiements = loc.baux.flatMap((b) => b.paiements.map((p) => ({ ...p, bail: { ...b, montantLoyer: b.montantLoyer, totalCharges: b.totalCharges } }))).sort((a, b) => new Date(b.moisConcerne).getTime() - new Date(a.moisConcerne).getTime());
+
+  const years = Array.from(new Set(allPaiements.map((p) => new Date(p.moisConcerne).getFullYear()))).sort((a, b) => b - a);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+
+  const filtered = selectedYear ? allPaiements.filter((p) => new Date(p.moisConcerne).getFullYear() === selectedYear) : allPaiements;
+
+  async function handleDelete(id: string) {
+    if (!confirm("Supprimer ce paiement ?")) return;
+    const res = await supprimerPaiement(id);
+    if ("error" in res) { toast.error(res.error as string); return; }
+    toast.success("Paiement supprimé");
+    router.refresh();
+  }
+
+  return (
+    <div>
+      {/* Year filter */}
+      {years.length > 1 && (
+        <div className="flex gap-2 mb-4 flex-wrap">
+          <button onClick={() => setSelectedYear(null)} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!selectedYear ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Toutes ({allPaiements.length})</button>
+          {years.map((y) => (
+            <button key={y} onClick={() => setSelectedYear(y)} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${selectedYear === y ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>
+              {y} ({allPaiements.filter((p) => new Date(p.moisConcerne).getFullYear() === y).length})
+            </button>
+          ))}
+        </div>
+      )}
+
+      {filtered.length === 0 ? <p className="text-muted-foreground text-center py-8">Aucun paiement</p> : (
+        <div className="border rounded-lg overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50">
+              <tr>
+                <th className="text-left p-3 font-medium">Mois</th>
+                <th className="text-left p-3 font-medium">Appart.</th>
+                <th className="text-right p-3 font-medium">Loyer</th>
+                <th className="text-right p-3 font-medium">Charges</th>
+                <th className="text-right p-3 font-medium">Total</th>
+                <th className="text-left p-3 font-medium">Mode</th>
+                <th className="text-left p-3 font-medium">Statut</th>
+                <th className="p-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((p) => (
+                <tr key={p.id} className="border-t hover:bg-muted/30 cursor-pointer" onClick={() => window.location.href = `/paiements?search=${p.id}`}>
+                  <td className="p-3">{formatDate(p.moisConcerne)}</td>
+                  <td className="p-3 text-muted-foreground">{p.bail.appartement.numero}</td>
+                  <td className="p-3 text-right">{formatFCFA(p.montantLoyer || p.bail.montantLoyer)}</td>
+                  <td className="p-3 text-right">{formatFCFA(p.montantCharges || p.bail.totalCharges)}</td>
+                  <td className="p-3 text-right font-medium">{formatFCFA(p.montant)}</td>
+                  <td className="p-3">{MODE_PAIEMENT_LABELS[p.modePaiement]}</td>
+                  <td className="p-3"><Badge variant={p.statut === "PAYE" ? "outline" : "destructive"} className={p.statut === "PAYE" ? "text-emerald-600" : ""}>{p.statut === "PAYE" ? "Payé" : "Partiel"}</Badge></td>
+                  <td className="p-3"><button onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }} className="text-red-500 hover:text-red-700 text-xs">🗑️</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {filtered.length > 0 && (
+        <div className="mt-4 text-right text-sm">
+          <span className="text-muted-foreground">Total encaissé : </span>
+          <span className="font-bold text-emerald-600">{formatFCFA(filtered.reduce((s, p) => s + p.montant, 0))}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function ProfilTabs({ locataire: loc, situation }: { locataire: Locataire; situation: Situation }) {
   const allPenalites = loc.baux.flatMap((b) => b.penalites);
 
   const tabs = [
@@ -67,6 +143,12 @@ export function ProfilTabs({ locataire: loc, situation }: { locataire: Locataire
               </CardContent>
             </Card>
           )}
+          {/* Print individual debt invoice */}
+          {situation.totalDu > 0 && (
+            <div className="text-right">
+              <a href={`/situation/facture-dettes?locataire=${loc.id}`} target="_blank" className="text-xs text-primary hover:underline">🖨️ Facture des dettes de ce locataire</a>
+            </div>
+          )}
         </div>
       ) : <p className="text-muted-foreground text-center py-8">Aucun bail actif</p>,
     },
@@ -91,7 +173,7 @@ export function ProfilTabs({ locataire: loc, situation }: { locataire: Locataire
                     <div><span className="text-muted-foreground">Charges</span><p>{formatFCFA(b.totalCharges)}</p></div>
                     <div><span className="text-muted-foreground">Caution</span><p>{formatFCFA(b.montantCaution)}</p></div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">{b.paiements.length} paiement(s) enregistré(s)</p>
+                  <p className="text-xs text-muted-foreground mt-2">{b.paiements.length} paiement(s)</p>
                 </CardContent>
               </Card>
             </Link>
@@ -100,47 +182,8 @@ export function ProfilTabs({ locataire: loc, situation }: { locataire: Locataire
       ),
     },
     {
-      id: "paiements", label: `Paiements (${allPaiements.length})`, icon: "💰",
-      content: (
-        <div>
-          {allPaiements.length === 0 ? <p className="text-muted-foreground text-center py-8">Aucun paiement</p> : (
-            <div className="border rounded-lg overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/50">
-                  <tr>
-                    <th className="text-left p-3 font-medium">Mois</th>
-                    <th className="text-left p-3 font-medium">Appart.</th>
-                    <th className="text-right p-3 font-medium">Loyer</th>
-                    <th className="text-right p-3 font-medium">Charges</th>
-                    <th className="text-right p-3 font-medium">Total</th>
-                    <th className="text-left p-3 font-medium">Mode</th>
-                    <th className="text-left p-3 font-medium">Statut</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allPaiements.map((p) => (
-                    <tr key={p.id} className="border-t hover:bg-muted/30">
-                      <td className="p-3">{formatDate(p.moisConcerne)}</td>
-                      <td className="p-3 text-muted-foreground">{p.bail.appartement.numero}</td>
-                      <td className="p-3 text-right">{formatFCFA(p.montantLoyer || p.bail.montantLoyer)}</td>
-                      <td className="p-3 text-right">{formatFCFA(p.montantCharges || p.bail.totalCharges)}</td>
-                      <td className="p-3 text-right font-medium">{formatFCFA(p.montant)}</td>
-                      <td className="p-3">{MODE_PAIEMENT_LABELS[p.modePaiement]}</td>
-                      <td className="p-3"><Badge variant={p.statut === "PAYE" ? "outline" : "destructive"} className={p.statut === "PAYE" ? "text-emerald-600" : ""}>{p.statut === "PAYE" ? "Payé" : "Partiel"}</Badge></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          {allPaiements.length > 0 && (
-            <div className="mt-4 text-right text-sm">
-              <span className="text-muted-foreground">Total encaissé : </span>
-              <span className="font-bold text-emerald-600">{formatFCFA(allPaiements.reduce((s, p) => s + p.montant, 0))}</span>
-            </div>
-          )}
-        </div>
-      ),
+      id: "paiements", label: `Paiements (${loc.baux.reduce((s, b) => s + b.paiements.length, 0)})`, icon: "💰",
+      content: <PaiementsTab locataire={loc} />,
     },
   ];
 

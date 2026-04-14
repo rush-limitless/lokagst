@@ -27,21 +27,21 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
       { href: "/immeubles", label: t.immeubles, icon: <Building2 className={iconClass} /> },
       { href: "/appartements", label: t.appartements, icon: <Home className={iconClass} /> },
       { href: "/locataires", label: t.locataires, icon: <Users className={iconClass} /> },
-      { href: "/situation", label: "Situation", icon: <ClipboardList className={iconClass} /> },
+      { href: "/situation", label: t.situation_titre, icon: <ClipboardList className={iconClass} /> },
       { href: "/baux", label: t.contrats, icon: <FileText className={iconClass} /> },
     ]},
-    { title: "Finance", items: [
-      { href: "/finances", label: "Finances", icon: <TrendingUp className={iconClass} /> },
-      { href: "/depenses", label: "Dépenses", icon: <Receipt className={iconClass} /> },
+    { title: t.nav_finance, items: [
+      { href: "/finances", label: t.finances_titre, icon: <TrendingUp className={iconClass} /> },
+      { href: "/depenses", label: t.depenses_titre, icon: <Receipt className={iconClass} /> },
       { href: "/paiements", label: t.paiements, icon: <Wallet className={iconClass} /> },
-      { href: "/calendrier", label: "Calendrier", icon: <CalendarDays className={iconClass} /> },
+      { href: "/calendrier", label: t.calendrier_titre, icon: <CalendarDays className={iconClass} /> },
     ]},
-    { title: "Communication", items: [
+    { title: t.nav_communication, items: [
       { href: "/maintenance", label: t.maintenance, icon: <Wrench className={iconClass} />, badge: badges?.tickets },
       { href: "/messagerie", label: t.messagerie, icon: <MessageCircle className={iconClass} />, badge: badges?.messages },
     ]},
     { title: "Admin", items: [
-      { href: "/parametres", label: "Paramètres", icon: <Settings className={iconClass} /> },
+      { href: "/parametres", label: t.parametres_titre, icon: <Settings className={iconClass} /> },
     ]},
   ];
 

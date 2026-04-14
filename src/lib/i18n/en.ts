@@ -13,6 +13,11 @@ export const en = {
   emails: "Emails",
   deconnexion: "Logout",
 
+  // Navigation sections
+  nav_principal: "Main",
+  nav_finance: "Finance",
+  nav_communication: "Communication",
+
   // Login
   connexion: "Login",
   email: "Email",
