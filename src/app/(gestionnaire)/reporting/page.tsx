@@ -56,11 +56,18 @@ export default function ReportingPage() {
       const headers = ["POS", "Logement", "Locataire", "Loyer", "Charges", "Date entrée", "Période (j)", "Période (m)", "Attendu", "Réglé", "Différence", "Jours rest.", "Caution", "Total perçu", "Obs."];
       rows.push(headers.map(h => styledCell(h, HEADER_STYLE)));
 
+      let lastImm = "";
       let lastEtage = "";
       data.suiviPaiements.forEach((r: any, i: number) => {
+        const immLabel = r.immeuble || "Sans immeuble";
         const el = ETAGE_LABELS[r.etage] || r.etage;
+        if (immLabel !== lastImm) {
+          rows.push([styledCell(`🏢 ${immLabel}`, { font: { bold: true, color: WHITE, sz: 13 }, fill: { fgColor: { rgb: "0D3B5E" } } })]);
+          lastImm = immLabel;
+          lastEtage = "";
+        }
         if (el !== lastEtage) {
-          rows.push([styledCell(el, { font: { bold: true, color: BLUE, sz: 12 }, fill: { fgColor: { rgb: "E3F2FD" } } })]);
+          rows.push([styledCell(`  ${el}`, { font: { bold: true, color: BLUE, sz: 12 }, fill: { fgColor: { rgb: "E3F2FD" } } })]);
           lastEtage = el;
         }
         const rowStyle = r.difference < 0 ? { fill: { fgColor: RED_BG } } : r.difference === 0 ? {} : { fill: { fgColor: GREEN_BG } };
@@ -91,9 +98,13 @@ export default function ReportingPage() {
 
       // === STATISTIQUES ===
       const stats: any[][] = [[styledCell("STATISTIQUES IMMOSTAR SCI", TITLE_STYLE)], []];
-      const etages = Array.from(new Set(data.suiviPaiements.map((r: any) => r.etage)));
-      etages.forEach((etage: string) => {
-        const locs = data.suiviPaiements.filter((r: any) => r.etage === etage);
+      const immeubles = Array.from(new Set(data.suiviPaiements.map((r: any) => r.immeuble || "Sans immeuble")));
+      immeubles.forEach((imm: string) => {
+        stats.push([styledCell(`🏢 ${imm}`, { font: { bold: true, color: WHITE, sz: 13 }, fill: { fgColor: { rgb: "0D3B5E" } } })]);
+        const immLocs = data.suiviPaiements.filter((r: any) => (r.immeuble || "Sans immeuble") === imm);
+        const etages = Array.from(new Set(immLocs.map((r: any) => r.etage)));
+        etages.forEach((etage: string) => {
+          const locs = immLocs.filter((r: any) => r.etage === etage);
         const tAE = locs.reduce((s: number, r: any) => s + r.attendu, 0);
         const tRE = locs.reduce((s: number, r: any) => s + r.regle, 0);
         const pct = tAE > 0 ? Math.round(tRE / tAE * 100) : 0;
@@ -106,18 +117,25 @@ export default function ReportingPage() {
         });
         stats.push([null, styledCell("TOTAL", TOTAL_STYLE), null, null, styledCell(tAE, { ...TOTAL_STYLE, numFmt: NUM_FMT }), styledCell(tRE, { ...TOTAL_STYLE, numFmt: NUM_FMT }), styledCell(tRE - tAE, { ...TOTAL_STYLE, numFmt: NUM_FMT })]);
         stats.push([]);
-      });
+      }); // end etages
+      }); // end immeubles
       const ws3 = XLSX.utils.aoa_to_sheet(stats);
       ws3["!cols"] = [{ wch: 20 }, { wch: 36 }, { wch: 14 }, { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 14 }, { wch: 10 }];
       XLSX.utils.book_append_sheet(wb, ws3, "STATISTIQUES");
 
       // === ETAT CONTRATS ===
       const ecb: any[][] = [[styledCell("ETAT DES CONTRATS DE BAIL — IMMOSTAR SCI", TITLE_STYLE)], []];
-      ecb.push(["Étage", "Logement", "Locataire", "Loyer", "Charges", "Caution", "Date entrée", "Périodicité"].map(h => styledCell(h, HEADER_STYLE)));
+      ecb.push(["Immeuble", "Étage", "Logement", "Locataire", "Loyer", "Charges", "Caution", "Date entrée", "Périodicité"].map(h => styledCell(h, HEADER_STYLE)));
+      let leImm = "";
       let le = "";
       data.etatContrats.forEach((r: any) => {
+        const immLabel = r.immeuble || "Sans immeuble";
         const el = ETAGE_LABELS[r.etage] || r.etage;
-        ecb.push([styledCell(el !== le ? el : "", { font: { bold: el !== le } }), styledCell(r.logement), styledCell(r.locataire), styledCell(r.loyerMensuel, { numFmt: NUM_FMT }), styledCell(r.chargesMensuelles, { numFmt: NUM_FMT }), styledCell(r.caution, { numFmt: NUM_FMT }), styledCell(fmtDate(r.dateEntree)), styledCell(r.periodicite)]);
+        if (immLabel !== leImm) {
+          ecb.push([styledCell(`🏢 ${immLabel}`, { font: { bold: true, color: WHITE, sz: 12 }, fill: { fgColor: { rgb: "0D3B5E" } } })]);
+          leImm = immLabel; le = "";
+        }
+        ecb.push([styledCell(el !== le ? el : ""), styledCell(el !== le ? el : ""), styledCell(r.logement), styledCell(r.locataire), styledCell(r.loyerMensuel, { numFmt: NUM_FMT }), styledCell(r.chargesMensuelles, { numFmt: NUM_FMT }), styledCell(r.caution, { numFmt: NUM_FMT }), styledCell(fmtDate(r.dateEntree)), styledCell(r.periodicite)]);
         le = el;
       });
       const ws5 = XLSX.utils.aoa_to_sheet(ecb);

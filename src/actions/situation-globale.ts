@@ -7,7 +7,8 @@ export async function getSituationGlobale() {
   const now = new Date();
   const bauxActifs = await prisma.bail.findMany({
     where: { statut: { in: ["ACTIF", "SUSPENDU"] } },
-    include: { locataire: { select: { id: true, nom: true, prenom: true, photo: true } }, appartement: { select: { numero: true, etage: true } }, paiements: true },
+    include: { locataire: { select: { id: true, nom: true, prenom: true, photo: true } }, appartement: { select: { numero: true, etage: true, immeuble: { select: { nom: true } } } }, paiements: true },
+    orderBy: [{ appartement: { immeuble: { nom: "asc" } } }, { appartement: { etage: "asc" } }, { appartement: { numero: "asc" } }],
   });
 
   return bauxActifs.map((b) => {
@@ -66,5 +67,5 @@ export async function getSituationGlobale() {
       detailMois: detailMois.slice(-12),
       statut: b.statut,
     };
-  }).sort((a, b) => a.locataire.localeCompare(b.locataire, "fr"));
+  }); // already sorted by immeuble/etage from DB
 }

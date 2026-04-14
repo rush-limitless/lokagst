@@ -36,8 +36,8 @@ export async function getBilanImpayes() {
 
 export async function getRapportCautions() {
   const baux = await prisma.bail.findMany({
-    include: { locataire: true, appartement: true },
-    orderBy: { appartement: { numero: "asc" } },
+    include: { locataire: true, appartement: { include: { immeuble: true } } },
+    orderBy: [{ appartement: { immeuble: { nom: "asc" } } }, { appartement: { etage: "asc" } }, { appartement: { numero: "asc" } }],
   });
 
   const actifs = baux.filter((b) => b.statut === "ACTIF" || b.statut === "SUSPENDU");

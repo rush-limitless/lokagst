@@ -44,6 +44,18 @@ export async function enregistrerPaiement(formData: FormData) {
     const moisDepart = dateRef.getDate() > 15
       ? new Date(dateRef.getFullYear(), dateRef.getMonth() + 1, 1)
       : new Date(dateRef.getFullYear(), dateRef.getMonth(), 1);
+
+    // Vérifier qu'aucun paiement complet n'existe déjà pour ces mois
+    for (let i = 0; i < nbMois; i++) {
+      const mois = new Date(moisDepart.getFullYear(), moisDepart.getMonth() + i, 1);
+      const existing = await prisma.paiement.findFirst({
+        where: { bailId: parsed.data.bailId, moisConcerne: mois, statut: "PAYE" },
+      });
+      if (existing) {
+        const moisLabel = mois.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+        return { error: `Le mois de ${moisLabel} est déjà entièrement payé` };
+      }
+    }
     const loyerTotal = parsed.data.montantLoyer;
     const chargesTotal = parsed.data.montantCharges;
 

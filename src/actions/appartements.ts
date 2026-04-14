@@ -15,7 +15,7 @@ export async function getAppartements(filters?: { etage?: string; statut?: strin
   const appartements = await prisma.appartement.findMany({
     where,
     include: { baux: { where: { statut: "ACTIF" }, include: { locataire: { select: { nom: true, prenom: true } } } }, immeuble: { select: { id: true, nom: true } } },
-    orderBy: [{ etage: "asc" }, { numero: "asc" }],
+    orderBy: [{ immeuble: { nom: "asc" } }, { etage: "asc" }, { numero: "asc" }],
   });
 
   return appartements.map((a) => ({

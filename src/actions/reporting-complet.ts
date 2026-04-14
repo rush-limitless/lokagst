@@ -6,14 +6,14 @@ export async function getReportingComplet() {
   const now = new Date();
   const bauxActifs = await prisma.bail.findMany({
     where: { statut: { in: ["ACTIF", "SUSPENDU"] } },
-    include: { locataire: true, appartement: true, paiements: { orderBy: { moisConcerne: "asc" } }, penalites: true },
-    orderBy: { appartement: { numero: "asc" } },
+    include: { locataire: true, appartement: { include: { immeuble: true } }, paiements: { orderBy: { moisConcerne: "asc" } }, penalites: true },
+    orderBy: [{ appartement: { immeuble: { nom: "asc" } } }, { appartement: { etage: "asc" } }, { appartement: { numero: "asc" } }],
   });
 
   const bauxAnciens = await prisma.bail.findMany({
     where: { statut: { in: ["RESILIE", "TERMINE", "EXPIRE"] } },
-    include: { locataire: true, appartement: true, paiements: true },
-    orderBy: { dateFin: "desc" },
+    include: { locataire: true, appartement: { include: { immeuble: true } }, paiements: true },
+    orderBy: [{ appartement: { immeuble: { nom: "asc" } } }, { appartement: { etage: "asc" } }],
   });
 
   // Suivi des paiements
@@ -32,6 +32,7 @@ export async function getReportingComplet() {
     // Prochaine échéance
 
     return {
+      immeuble: b.appartement.immeuble?.nom || "Sans immeuble",
       etage: b.appartement.etage,
       logement: b.appartement.numero,
       locataire: `${b.locataire.prenom} ${b.locataire.nom}`,
@@ -72,6 +73,7 @@ export async function getReportingComplet() {
     });
 
     return {
+      immeuble: b.appartement.immeuble?.nom || "Sans immeuble",
       etage: b.appartement.etage,
       logement: b.appartement.numero,
       locataire: `${b.locataire.prenom} ${b.locataire.nom}`,
@@ -110,7 +112,8 @@ export async function getReportingComplet() {
 
   // Etat contrats
   const etatContrats = bauxActifs.map((b) => ({
-    etage: b.appartement.etage,
+    immeuble: b.appartement.immeuble?.nom || "Sans immeuble",
+      etage: b.appartement.etage,
     logement: b.appartement.numero,
     locataire: `${b.locataire.prenom} ${b.locataire.nom}`,
     loyerMensuel: b.montantLoyer,
