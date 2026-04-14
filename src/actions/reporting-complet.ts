@@ -41,8 +41,6 @@ export async function getReportingComplet() {
     const premierDebut = allBauxForLoc.reduce((min, ab) => ab.dateDebut < min ? ab.dateDebut : min, b.dateDebut);
     const debut = new Date(premierDebut);
     const moisDepuisDebut = (now.getFullYear() - debut.getFullYear()) * 12 + (now.getMonth() - debut.getMonth()) + 1;
-    const freqMois: Record<string, number> = { MENSUEL: 1, TRIMESTRIEL: 3, SEMESTRIEL: 6, ANNUEL: 12 };
-    const freq = freqMois[b.periodicite] || 1;
     // Attendu = nombre total de mois depuis le premier bail × loyer+charges mensuel
     const attendu = loyerCharges * moisDepuisDebut;
     // Réglé = ALL paiements across all baux for this locataire+appartement
