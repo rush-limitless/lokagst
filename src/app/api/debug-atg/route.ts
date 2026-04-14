@@ -4,17 +4,17 @@ import { NextResponse } from "next/server";
 export async function GET() {
   const atg1 = await prisma.locataire.findFirst({
     where: { nom: { contains: "ATG 1", mode: "insensitive" } },
-    include: { baux: { include: { paiements: { orderBy: { moisConcerne: "asc" }, take: 3 } }, appartement: { select: { numero: true } } }, orderBy: { dateDebut: "asc" } } },
+    include: { baux: { include: { paiements: { orderBy: { moisConcerne: "asc" } } }, orderBy: { dateDebut: "asc" } } },
   });
 
   const atg2 = await prisma.locataire.findFirst({
     where: { nom: { contains: "ATG 2", mode: "insensitive" } },
-    include: { baux: { include: { paiements: { orderBy: { moisConcerne: "asc" }, take: 3 } }, appartement: { select: { numero: true } } }, orderBy: { dateDebut: "asc" } } },
+    include: { baux: { include: { paiements: { orderBy: { moisConcerne: "asc" } } }, orderBy: { dateDebut: "asc" } } },
   });
 
-  function summarize(loc: any) {
+  function summarize(loc: typeof atg1) {
     if (!loc) return "non trouvé";
-    return loc.baux.map((b: any) => ({
+    return loc.baux.map((b) => ({
       bailId: b.id.slice(0, 8),
       statut: b.statut,
       debut: b.dateDebut.toISOString().slice(0, 10),
@@ -23,12 +23,8 @@ export async function GET() {
       charges: b.totalCharges,
       caution: b.montantCaution,
       nbPaiements: b.paiements.length,
-      exemples: b.paiements.map((p: any) => ({
-        mois: p.moisConcerne.toISOString().slice(0, 7),
-        loyer: p.montantLoyer,
-        charges: p.montantCharges,
-        total: p.montant,
-      })),
+      premiers3: b.paiements.slice(0, 3).map((p) => ({ mois: p.moisConcerne.toISOString().slice(0, 7), loyer: p.montantLoyer, charges: p.montantCharges, total: p.montant })),
+      derniers3: b.paiements.slice(-3).map((p) => ({ mois: p.moisConcerne.toISOString().slice(0, 7), loyer: p.montantLoyer, charges: p.montantCharges, total: p.montant })),
     }));
   }
 
