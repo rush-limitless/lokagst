@@ -129,7 +129,10 @@ function PaiementsTab({ locataire: loc }: { locataire: Locataire }) {
             <span className="font-bold text-emerald-600">{formatFCFA(filtered.reduce((s, p) => s + p.montant, 0))}</span>
           </div>
           {(() => {
-            const cautionPayee = loc.baux.filter((b) => b.montantCaution > 0).reduce((s, b) => s + b.montantCaution, 0);
+            // Caution: show only for "Toutes" or the year the bail started
+            const cautionPayee = loc.baux
+              .filter((b) => b.montantCaution > 0 && (!selectedYear || new Date(b.dateDebut).getFullYear() === selectedYear))
+              .reduce((s, b) => s + b.montantCaution, 0);
             if (cautionPayee > 0) return (
               <>
                 <div><span className="text-muted-foreground">Caution versée : </span><span className="font-medium">{formatFCFA(cautionPayee)}</span></div>
