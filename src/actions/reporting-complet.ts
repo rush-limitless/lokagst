@@ -21,9 +21,10 @@ export async function getReportingComplet() {
     const loyerCharges = b.totalMensuel || (b.montantLoyer + b.totalCharges);
     const joursHabitation = Math.ceil((now.getTime() - new Date(b.dateDebut).getTime()) / 86400000);
     const moisHabitation = joursHabitation / 30.5;
-    const moisHabitationArrondi = Math.ceil(moisHabitation);
+    // Attendu = nombre de mois échus (entiers) × loyer+charges
+    const moisEchus = Math.floor(moisHabitation);
     const regle = b.paiements.reduce((s, p) => s + p.montant, 0);
-    const attendu = loyerCharges * moisHabitationArrondi;
+    const attendu = loyerCharges * moisEchus;
     const difference = regle - attendu;
     const joursRestants = Math.ceil((new Date(b.dateFin).getTime() - now.getTime()) / 86400000);
     const moisRestants = joursRestants / 30.5;
@@ -42,7 +43,7 @@ export async function getReportingComplet() {
       dateSortie: b.dateFin ? new Date(b.dateFin) : null,
       joursHabitation,
       moisHabitation: Math.round(moisHabitation * 10) / 10,
-      moisHabitationArrondi: Math.ceil(moisHabitation),
+      moisHabitationArrondi: moisEchus,
       attendu,
       regle,
       difference,
