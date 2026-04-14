@@ -24,9 +24,16 @@ export async function getReportingComplet() {
     // Mois échus = nombre de mois complets depuis le début du bail jusqu'à maintenant
     const debut = new Date(b.dateDebut);
     const moisEchus = (now.getFullYear() - debut.getFullYear()) * 12 + (now.getMonth() - debut.getMonth());
+    // Réglé = somme de tous les paiements (loyer+charges uniquement, sans caution/autres)
+    const regleLoyerCharges = b.paiements.reduce((s, p) => {
+      const loyer = p.montantLoyer || 0;
+      const charges = p.montantCharges || 0;
+      // Si montantLoyer=0 (ancien seed), utiliser montant total comme approximation
+      return s + (loyer > 0 ? loyer + charges : p.montant);
+    }, 0);
     const regle = b.paiements.reduce((s, p) => s + p.montant, 0);
     const attendu = loyerCharges * Math.max(0, moisEchus);
-    const difference = regle - attendu;
+    const difference = regleLoyerCharges - attendu;
     const joursRestants = Math.ceil((new Date(b.dateFin).getTime() - now.getTime()) / 86400000);
     const moisRestants = joursRestants / 30.5;
     const penalitesTotal = b.penalites.reduce((s, p) => s + p.montant, 0);
