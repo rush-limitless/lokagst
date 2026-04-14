@@ -10,9 +10,16 @@ import { useRouter } from "next/navigation";
 
 export function ModifierPaiementButton({ paiement: p }: { paiement: any }) {
   const [open, setOpen] = useState(false);
+  const [loyer, setLoyer] = useState(p.montantLoyer || 0);
+  const [charges, setCharges] = useState(p.montantCharges || 0);
+  const [caution, setCaution] = useState(p.montantCaution || 0);
+  const [autres, setAutres] = useState(p.montantAutres || 0);
   const router = useRouter();
 
+  const total = loyer + charges + caution + autres;
+
   async function handleSubmit(formData: FormData) {
+    formData.set("montant", total.toString());
     const result = await modifierPaiement(p.id, formData);
     if ("error" in result) { toast.error(result.error as string); return; }
     toast.success("Paiement modifié");
@@ -28,12 +35,16 @@ export function ModifierPaiementButton({ paiement: p }: { paiement: any }) {
         <h3 className="text-lg font-bold text-foreground">Modifier le paiement</h3>
         <form action={handleSubmit} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1"><Label className="text-xs">Loyer</Label><Input name="montantLoyer" type="number" defaultValue={p.montantLoyer} /></div>
-            <div className="space-y-1"><Label className="text-xs">Charges</Label><Input name="montantCharges" type="number" defaultValue={p.montantCharges} /></div>
-            <div className="space-y-1"><Label className="text-xs">Caution</Label><Input name="montantCaution" type="number" defaultValue={p.montantCaution} /></div>
-            <div className="space-y-1"><Label className="text-xs">Autres</Label><Input name="montantAutres" type="number" defaultValue={p.montantAutres} /></div>
+            <div className="space-y-1"><Label className="text-xs">Loyer</Label><Input name="montantLoyer" type="number" value={loyer} onChange={(e) => setLoyer(parseInt(e.target.value) || 0)} /></div>
+            <div className="space-y-1"><Label className="text-xs">Charges</Label><Input name="montantCharges" type="number" value={charges} onChange={(e) => setCharges(parseInt(e.target.value) || 0)} /></div>
+            <div className="space-y-1"><Label className="text-xs">Caution</Label><Input name="montantCaution" type="number" value={caution} onChange={(e) => setCaution(parseInt(e.target.value) || 0)} /></div>
+            <div className="space-y-1"><Label className="text-xs">Autres</Label><Input name="montantAutres" type="number" value={autres} onChange={(e) => setAutres(parseInt(e.target.value) || 0)} /></div>
           </div>
-          <div className="space-y-1"><Label className="text-xs">Total</Label><Input name="montant" type="number" defaultValue={p.montant} required /></div>
+          <div className="bg-muted/30 rounded-lg p-3 text-center">
+            <span className="text-xs text-muted-foreground">Total calculé : </span>
+            <span className="text-lg font-bold text-foreground">{total.toLocaleString()} FCFA</span>
+          </div>
+          <input type="hidden" name="montant" value={total} />
           <div className="space-y-1"><Label className="text-xs">Notes</Label><Input name="notes" defaultValue={p.notes || ""} /></div>
           <div className="flex gap-2">
             <Button type="submit" className="flex-1">Enregistrer</Button>
