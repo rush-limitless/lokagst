@@ -257,6 +257,8 @@ export default function ReportingPage() {
                   <th className="p-1.5 text-right border border-[#1565c0]">Charges</th>
                   <th className="p-1.5 text-right border border-[#1565c0]">Attendu</th>
                   <th className="p-1.5 text-right border border-[#1565c0]">Réglé</th>
+                  <th className="p-1.5 text-right border border-[#1565c0]">Caution</th>
+                  <th className="p-1.5 text-right border border-[#1565c0]">Total perçu</th>
                   <th className="p-1.5 text-right border border-[#1565c0]">Différence</th>
                   <th className="p-1.5 text-center border border-[#1565c0]">Statut</th>
                 </tr>
@@ -273,6 +275,8 @@ export default function ReportingPage() {
                       <td className="p-1 border border-gray-300 text-right">{r.chargesMensuelles.toLocaleString()}</td>
                       <td className="p-1 border border-gray-300 text-right">{r.attendu.toLocaleString()}</td>
                       <td className="p-1 border border-gray-300 text-right font-bold">{r.regle.toLocaleString()}</td>
+                      <td className="p-1 border border-gray-300 text-right">{r.caution?.toLocaleString() || "0"}</td>
+                      <td className="p-1 border border-gray-300 text-right font-bold">{(r.totalPercu || r.regle).toLocaleString()}</td>
                       <td className="p-1 border border-gray-300 text-right font-bold" style={{ color: r.difference < 0 ? "#c62828" : "#2e7d32" }}>{r.difference.toLocaleString()}</td>
                       <td className="p-1 border border-gray-300 text-center font-bold" style={{ color: r.difference < 0 ? "#c62828" : "#2e7d32" }}>{r.difference < 0 ? "IMPAYÉ" : "À JOUR"}</td>
                     </tr>
@@ -282,6 +286,8 @@ export default function ReportingPage() {
                   <td className="p-1.5 border border-gray-400" colSpan={5}>TOTAL</td>
                   <td className="p-1.5 border border-gray-400 text-right">{pdfData.suiviPaiements.reduce((s: number, r: any) => s + r.attendu, 0).toLocaleString()}</td>
                   <td className="p-1.5 border border-gray-400 text-right">{pdfData.suiviPaiements.reduce((s: number, r: any) => s + r.regle, 0).toLocaleString()}</td>
+                  <td className="p-1.5 border border-gray-400 text-right">{pdfData.suiviPaiements.reduce((s: number, r: any) => s + (r.caution || 0), 0).toLocaleString()}</td>
+                  <td className="p-1.5 border border-gray-400 text-right">{pdfData.suiviPaiements.reduce((s: number, r: any) => s + (r.totalPercu || r.regle), 0).toLocaleString()}</td>
                   <td className="p-1.5 border border-gray-400 text-right">{(pdfData.suiviPaiements.reduce((s: number, r: any) => s + r.regle, 0) - pdfData.suiviPaiements.reduce((s: number, r: any) => s + r.attendu, 0)).toLocaleString()}</td>
                   <td className="p-1.5 border border-gray-400" />
                 </tr>
