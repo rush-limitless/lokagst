@@ -23,7 +23,7 @@ export async function getReportingComplet() {
     const moisHabitation = joursHabitation / 30.5;
     // Mois échus = nombre de mois complets depuis le début du bail jusqu'à maintenant
     const debut = new Date(b.dateDebut);
-    const moisEchus = (now.getFullYear() - debut.getFullYear()) * 12 + (now.getMonth() - debut.getMonth());
+    const moisEchus = (now.getFullYear() - debut.getFullYear()) * 12 + (now.getMonth() - debut.getMonth()) + 1; // +1: mois en cours = dû
     // Réglé = somme de tous les paiements (loyer+charges uniquement, sans caution/autres)
     const regleLoyerCharges = b.paiements.reduce((s, p) => {
       const loyer = p.montantLoyer || 0;
