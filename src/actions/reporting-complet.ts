@@ -21,9 +21,14 @@ export async function getReportingComplet() {
     const loyerCharges = b.totalMensuel || (b.montantLoyer + b.totalCharges);
     const joursHabitation = Math.ceil((now.getTime() - new Date(b.dateDebut).getTime()) / 86400000);
     const moisHabitation = joursHabitation / 30.5;
-    // Mois échus = nombre de mois complets depuis le début du bail jusqu'à maintenant
+    // Mois échus selon la périodicité
     const debut = new Date(b.dateDebut);
-    const moisEchus = (now.getFullYear() - debut.getFullYear()) * 12 + (now.getMonth() - debut.getMonth()) + 1; // +1: mois en cours = dû
+    const moisDepuisDebut = (now.getFullYear() - debut.getFullYear()) * 12 + (now.getMonth() - debut.getMonth()) + 1;
+    const freqMois: Record<string, number> = { MENSUEL: 1, TRIMESTRIEL: 3, SEMESTRIEL: 6, ANNUEL: 12 };
+    const freq = freqMois[b.periodicite] || 1;
+    // Nombre d'échéances dues = nombre de périodes complètes écoulées
+    const nbEcheances = Math.ceil(moisDepuisDebut / freq);
+    const attendu = loyerCharges * freq * nbEcheances;
     // Réglé = somme de tous les paiements (loyer+charges uniquement, sans caution/autres)
     const regleLoyerCharges = b.paiements.reduce((s, p) => {
       const loyer = p.montantLoyer || 0;
@@ -32,7 +37,6 @@ export async function getReportingComplet() {
       return s + (loyer > 0 ? loyer + charges : p.montant);
     }, 0);
     const regle = b.paiements.reduce((s, p) => s + p.montant, 0);
-    const attendu = loyerCharges * Math.max(0, moisEchus);
     const difference = regleLoyerCharges - attendu;
     const joursRestants = Math.ceil((new Date(b.dateFin).getTime() - now.getTime()) / 86400000);
     const moisRestants = joursRestants / 30.5;
@@ -51,7 +55,7 @@ export async function getReportingComplet() {
       dateSortie: b.dateFin ? new Date(b.dateFin) : null,
       joursHabitation,
       moisHabitation: Math.round(moisHabitation * 10) / 10,
-      moisHabitationArrondi: moisEchus,
+      moisHabitationArrondi: moisDepuisDebut,
       attendu,
       regle,
       difference,
