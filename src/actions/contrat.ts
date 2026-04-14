@@ -29,7 +29,7 @@ export async function genererContratData(bailId: string) {
     type: bail.appartement.type,
     // Durée
     dateDebut: bail.dateDebut.toLocaleDateString("fr-FR"),
-    dateFin: bail.dateFin.toLocaleDateString("fr-FR"),
+    dateFin: new Date(bail.dateFin.getTime() - 86400000).toLocaleDateString("fr-FR"),
     dureeMois: bail.dureeMois,
     periodicite: PERIODICITE_LABELS[bail.periodicite] || "Mensuel",
     // Finances

@@ -36,7 +36,7 @@ export default function ContratPage() {
         <p className="mb-4">Le bailleur donne en location au locataire le logement suivant : Appartement <strong>{data.appartement}</strong>, situé au <strong>{data.etage}</strong>, de type <strong>{data.type}</strong>.</p>
 
         <h2 className="font-bold text-lg mb-3 border-b pb-1">ARTICLE 3 — DURÉE</h2>
-        <p className="mb-4">Le présent bail est conclu pour une durée de <strong>{data.dureeMois} mois</strong>, du <strong>{data.dateDebut}</strong> au <strong>{data.dateFin}</strong>.</p>
+        <p className="mb-4">Le présent bail est conclu pour une durée de <strong>{data.dureeMois} mois</strong> de date à date, prenant effet le <strong>{data.dateDebut}</strong> pour expirer le <strong>{data.dateFin}</strong>.</p>
         {data.renouvellementAuto && <p className="mb-4">Le bail sera renouvelé automatiquement pour une durée de {data.dureeRenouvellement || data.dureeMois} mois si le locataire est à jour de ses obligations.{data.augmentationLoyer ? ` Le loyer sera majoré de ${data.augmentationLoyer}% au renouvellement.` : ""}</p>}
 
         <h2 className="font-bold text-lg mb-3 border-b pb-1">ARTICLE 4 — CONDITIONS FINANCIÈRES</h2>
