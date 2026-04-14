@@ -18,7 +18,7 @@ export async function GET() {
     groups.get(key)!.push(b);
   }
 
-  for (const [key, baux] of Array.from(groups)) {
+  for (const [, baux] of Array.from(groups)) {
     if (baux.length < 2) continue; // Only fix locataires with multiple baux
 
     const sorted = baux.sort((a, b) => a.dateDebut.getTime() - b.dateDebut.getTime());
@@ -36,9 +36,6 @@ export async function GET() {
       }
 
       // Fix paiements: update montantLoyer and montantCharges to match THIS bail's values
-      const bailStart = new Date(bail.dateDebut.getFullYear(), bail.dateDebut.getMonth(), 1);
-      const bailEnd = new Date(bail.dateFin.getFullYear(), bail.dateFin.getMonth(), 1);
-
       let fixedCount = 0;
       for (const p of bail.paiements) {
         const needsFix = p.montantLoyer !== bail.montantLoyer || p.montantCharges !== bail.totalCharges;
