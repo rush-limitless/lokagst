@@ -79,7 +79,7 @@ export default function ReportingPage() {
           styledCell(r.difference, { ...rowStyle, numFmt: NUM_FMT, font: { color: { rgb: r.difference < 0 ? "CC0000" : "008800" }, bold: true } }),
           styledCell(r.joursRestants, rowStyle), styledCell(r.caution, { ...rowStyle, numFmt: NUM_FMT }),
           styledCell(r.totalPercu, { ...rowStyle, numFmt: NUM_FMT }),
-          styledCell(r.difference < 0 ? "IMPAYÉ" : "À JOUR", { font: { bold: true, color: { rgb: r.difference < 0 ? "CC0000" : "008800" } } }),
+          styledCell(r.difference < 0 ? "IMPAYÉ" : r.difference > 0 ? "AVANCE" : "À JOUR", { font: { bold: true, color: { rgb: r.difference < 0 ? "CC0000" : "008800" } } }),
         ]);
       });
 
@@ -278,7 +278,7 @@ export default function ReportingPage() {
                       <td className="p-1 border border-gray-300 text-right">{r.caution?.toLocaleString() || "0"}</td>
                       <td className="p-1 border border-gray-300 text-right font-bold">{(r.totalPercu || r.regle).toLocaleString()}</td>
                       <td className="p-1 border border-gray-300 text-right font-bold" style={{ color: r.difference < 0 ? "#c62828" : "#2e7d32" }}>{r.difference.toLocaleString()}</td>
-                      <td className="p-1 border border-gray-300 text-center font-bold" style={{ color: r.difference < 0 ? "#c62828" : "#2e7d32" }}>{r.difference < 0 ? "IMPAYÉ" : "À JOUR"}</td>
+                      <td className="p-1 border border-gray-300 text-center font-bold" style={{ color: r.difference < 0 ? "#c62828" : "#2e7d32" }}>{r.difference < 0 ? "IMPAYÉ" : r.difference > 0 ? "AVANCE" : "À JOUR"}</td>
                     </tr>
                   );
                 })}
