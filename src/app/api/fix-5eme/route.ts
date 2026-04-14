@@ -53,22 +53,28 @@ export async function GET() {
     results.push("Enum Role: SUPER_ADMIN ajouté");
   } catch { results.push("Enum Role: SUPER_ADMIN déjà présent"); }
 
-  // 6. Create super admin account if not exists
-  const superAdmin = await prisma.utilisateur.findUnique({ where: { email: "superadmin@immostar.cm" } });
-  if (!superAdmin) {
-    const { hash } = await import("bcryptjs");
-    const mdp = await hash("superadmin2026", 12);
-    await prisma.utilisateur.create({ data: { email: "superadmin@immostar.cm", motDePasse: mdp, role: "SUPER_ADMIN" } });
-    results.push("Compte SUPER_ADMIN créé: superadmin@immostar.cm");
-  } else {
-    // Update existing to SUPER_ADMIN if needed
-    if (superAdmin.role !== "SUPER_ADMIN") {
-      await prisma.utilisateur.update({ where: { id: superAdmin.id }, data: { role: "SUPER_ADMIN" } });
-      results.push("Compte superadmin mis à jour en SUPER_ADMIN");
+  // 6. Setup admin accounts: admin@immostar.cm = SUPER_ADMIN, gestion1/2 = GESTIONNAIRE
+  const { hash } = await import("bcryptjs");
+  const accounts = [
+    { email: "admin@immostar.cm", mdp: "admin123", role: "SUPER_ADMIN" },
+    { email: "gestion1@immostar.cm", mdp: "gestion123", role: "GESTIONNAIRE" },
+    { email: "gestion2@immostar.cm", mdp: "gestion123", role: "GESTIONNAIRE" },
+  ];
+  for (const acc of accounts) {
+    const existing = await prisma.utilisateur.findUnique({ where: { email: acc.email } });
+    if (!existing) {
+      const hashed = await hash(acc.mdp, 12);
+      await prisma.utilisateur.create({ data: { email: acc.email, motDePasse: hashed, role: acc.role as any } });
+      results.push(`Compte ${acc.role} créé: ${acc.email}`);
+    } else if (existing.role !== acc.role) {
+      await prisma.utilisateur.update({ where: { id: existing.id }, data: { role: acc.role as any } });
+      results.push(`${acc.email} → ${acc.role}`);
     } else {
-      results.push("Compte SUPER_ADMIN existe déjà");
+      results.push(`${acc.email} OK`);
     }
   }
+  // Remove old superadmin@immostar.cm if exists
+  try { await prisma.utilisateur.delete({ where: { email: "superadmin@immostar.cm" } }); results.push("Ancien superadmin@ supprimé"); } catch { /* */ }
 
   // 7. Fix orphan apartments: OCCUPE without any active bail → set to LIBRE
   const occupes = await prisma.appartement.findMany({ where: { statut: "OCCUPE" } });

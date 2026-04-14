@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ModifierPaiementButton } from "./modifier-paiement";
 
 export default async function PaiementDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -49,7 +50,7 @@ export default async function PaiementDetail({ params }: { params: Promise<{ id:
             <table className="w-full text-sm">
               <tbody>
                 <tr className="border-b"><td className="p-3 text-muted-foreground">Loyer</td><td className="p-3 text-right font-medium">{formatFCFA(p.montantLoyer || p.bail.montantLoyer)}</td></tr>
-                <tr className="border-b"><td className="p-3 text-muted-foreground">Charges</td><td className="p-3 text-right font-medium">{formatFCFA(p.montantCharges || p.bail.totalCharges)}</td></tr>
+                {(p.montantCharges > 0 || (p.montantCharges === 0 && p.montantLoyer === 0 && p.bail.totalCharges > 0)) && <tr className="border-b"><td className="p-3 text-muted-foreground">Charges</td><td className="p-3 text-right font-medium">{formatFCFA(p.montantCharges)}</td></tr>}
                 {p.montantCaution > 0 && <tr className="border-b"><td className="p-3 text-muted-foreground">Caution</td><td className="p-3 text-right font-medium">{formatFCFA(p.montantCaution)}</td></tr>}
                 {p.montantAutres > 0 && <tr className="border-b"><td className="p-3 text-muted-foreground">Autres {p.notesAutres ? `(${p.notesAutres})` : ""}</td><td className="p-3 text-right font-medium">{formatFCFA(p.montantAutres)}</td></tr>}
                 {p.penalites > 0 && <tr className="border-b"><td className="p-3 text-red-600">Pénalités</td><td className="p-3 text-right font-medium text-red-600">{formatFCFA(p.penalites)}</td></tr>}
@@ -72,6 +73,7 @@ export default async function PaiementDetail({ params }: { params: Promise<{ id:
       </Card>
 
       <div className="flex gap-2">
+        <ModifierPaiementButton paiement={JSON.parse(JSON.stringify(p))} />
         <Link href={`/paiements/recu?id=${p.id}`}><Button variant="outline" size="sm">🧾 Reçu</Button></Link>
         {p.statut === "PAYE" && <Link href={`/paiements/quittance?id=${p.id}`}><Button variant="outline" size="sm">📄 Quittance</Button></Link>}
         <Link href={`/baux/${p.bailId}`}><Button variant="outline" size="sm">📄 Voir le bail</Button></Link>
