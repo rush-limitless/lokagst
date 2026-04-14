@@ -129,14 +129,22 @@ function PaiementsTab({ locataire: loc }: { locataire: Locataire }) {
             <span className="font-bold text-emerald-600">{formatFCFA(filtered.reduce((s, p) => s + p.montant, 0))}</span>
           </div>
           {(() => {
-            // Caution: show only for "Toutes" or the year the bail started
-            const cautionPayee = loc.baux
-              .filter((b) => b.montantCaution > 0 && (!selectedYear || new Date(b.dateDebut).getFullYear() === selectedYear))
-              .reduce((s, b) => s + b.montantCaution, 0);
-            if (cautionPayee > 0) return (
+            // Caution = montant du bail le plus récent (pas la somme de tous les baux)
+            // Car le locataire ne paye que le complément lors d'un renouvellement
+            const bauxTries = [...loc.baux].sort((a, b) => new Date(b.dateDebut).getTime() - new Date(a.dateDebut).getTime());
+            const bailRecent = bauxTries[0];
+            const cautionActuelle = bailRecent?.montantCaution || 0;
+            const showCaution = cautionActuelle > 0 && (!selectedYear || new Date(bailRecent.dateDebut).getFullYear() === selectedYear || !selectedYear);
+            if (showCaution && !selectedYear) return (
               <>
-                <div><span className="text-muted-foreground">Caution versée : </span><span className="font-medium">{formatFCFA(cautionPayee)}</span></div>
-                <div><span className="text-muted-foreground">Total encaissé (paiements + caution) : </span><span className="font-bold text-emerald-600 text-base">{formatFCFA(filtered.reduce((s, p) => s + p.montant, 0) + cautionPayee)}</span></div>
+                <div><span className="text-muted-foreground">Caution versée : </span><span className="font-medium">{formatFCFA(cautionActuelle)}</span></div>
+                <div><span className="text-muted-foreground">Total encaissé (paiements + caution) : </span><span className="font-bold text-emerald-600 text-base">{formatFCFA(filtered.reduce((s, p) => s + p.montant, 0) + cautionActuelle)}</span></div>
+              </>
+            );
+            if (showCaution && selectedYear && new Date(bailRecent.dateDebut).getFullYear() === selectedYear) return (
+              <>
+                <div><span className="text-muted-foreground">Caution versée : </span><span className="font-medium">{formatFCFA(cautionActuelle)}</span></div>
+                <div><span className="text-muted-foreground">Total encaissé (paiements + caution) : </span><span className="font-bold text-emerald-600 text-base">{formatFCFA(filtered.reduce((s, p) => s + p.montant, 0) + cautionActuelle)}</span></div>
               </>
             );
             return null;
