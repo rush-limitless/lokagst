@@ -4,6 +4,7 @@ import { prisma, safeAction } from "@/lib/prisma";
 import { paiementSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
 import { envoyerRecuPaiement } from "./emails";
+import { logAction } from "@/lib/audit";
 
 export async function getPaiements(filters?: { bailId?: string; locataireId?: string; page?: number; limit?: number }) {
   const where: any = {};
@@ -69,6 +70,7 @@ export async function enregistrerPaiement(formData: FormData) {
     }
 
     envoyerRecuPaiement(paiements[0].id).catch(() => {});
+    logAction("Paiement", "Paiement", paiements[0].id, `${nbMois} mois — ${parsed.data.montant} FCFA — Bail ${parsed.data.bailId.slice(0, 8)}`);
     revalidatePath("/paiements");
     return { success: true };
   });
@@ -101,7 +103,9 @@ export async function modifierPaiement(id: string, formData: FormData) {
 
 export async function supprimerPaiement(id: string) {
   return safeAction(async () => {
+    const p = await prisma.paiement.findUnique({ where: { id }, select: { montant: true, bailId: true, moisConcerne: true } });
     await prisma.paiement.delete({ where: { id } });
+    if (p) logAction("Suppression", "Paiement", id, `${p.montant} FCFA — ${p.moisConcerne.toISOString().slice(0, 7)}`);
     revalidatePath("/paiements");
     return { success: true };
   });

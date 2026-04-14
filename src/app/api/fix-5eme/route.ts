@@ -47,7 +47,30 @@ export async function GET() {
     results.push("Colonne reglementInterieur ajoutée");
   } catch { results.push("Colonne reglementInterieur déjà présente"); }
 
-  // 5. Fix orphan apartments: OCCUPE without any active bail → set to LIBRE
+  // 5. Add SUPER_ADMIN role enum
+  try {
+    await prisma.$executeRawUnsafe(`ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'SUPER_ADMIN'`);
+    results.push("Enum Role: SUPER_ADMIN ajouté");
+  } catch { results.push("Enum Role: SUPER_ADMIN déjà présent"); }
+
+  // 6. Create super admin account if not exists
+  const superAdmin = await prisma.utilisateur.findUnique({ where: { email: "superadmin@immostar.cm" } });
+  if (!superAdmin) {
+    const { hash } = await import("bcryptjs");
+    const mdp = await hash("superadmin2026", 12);
+    await prisma.utilisateur.create({ data: { email: "superadmin@immostar.cm", motDePasse: mdp, role: "SUPER_ADMIN" } });
+    results.push("Compte SUPER_ADMIN créé: superadmin@immostar.cm");
+  } else {
+    // Update existing to SUPER_ADMIN if needed
+    if (superAdmin.role !== "SUPER_ADMIN") {
+      await prisma.utilisateur.update({ where: { id: superAdmin.id }, data: { role: "SUPER_ADMIN" } });
+      results.push("Compte superadmin mis à jour en SUPER_ADMIN");
+    } else {
+      results.push("Compte SUPER_ADMIN existe déjà");
+    }
+  }
+
+  // 7. Fix orphan apartments: OCCUPE without any active bail → set to LIBRE
   const occupes = await prisma.appartement.findMany({ where: { statut: "OCCUPE" } });
   let fixed = 0;
   for (const a of occupes) {

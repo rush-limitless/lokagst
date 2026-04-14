@@ -10,7 +10,7 @@ import { Breadcrumb } from "@/components/breadcrumb";
 
 export default async function GestionnaireLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
-  if (!session || session.user.role !== "GESTIONNAIRE") redirect("/login");
+  if (!session || !["GESTIONNAIRE", "SUPER_ADMIN"].includes(session.user.role as string)) redirect("/login");
 
   return (
     <div className="min-h-screen flex bg-background text-foreground">

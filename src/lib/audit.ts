@@ -4,13 +4,19 @@ import { auth } from "./auth";
 export async function logAction(action: string, entite: string, entiteId?: string, details?: string) {
   try {
     const session = await auth();
+    const email = session?.user?.email || "système";
+    const role = (session?.user as any)?.role || "SYSTEM";
+
+    // Build rich details
+    const richDetails = [details, `[${role}] ${email}`].filter(Boolean).join(" | ");
+
     await prisma.auditLog.create({
       data: {
-        utilisateur: session?.user?.email || "système",
+        utilisateur: email,
         action,
         entite,
         entiteId: entiteId || null,
-        details: details || null,
+        details: richDetails,
       },
     });
   } catch {

@@ -17,7 +17,7 @@ export async function getBaux(filters?: { statut?: string; expirantDans?: number
 
   return prisma.bail.findMany({
     where,
-    include: { locataire: { select: { nom: true, prenom: true, photo: true } }, appartement: { select: { numero: true, etage: true } } },
+    include: { locataire: { select: { nom: true, prenom: true, photo: true } }, appartement: { select: { numero: true, etage: true, immeubleId: true, immeuble: { select: { nom: true } } } } },
     orderBy: [{ locataire: { nom: "asc" } }],
   });
 }

@@ -1,4 +1,5 @@
 import { getAuditLogs, getAuditStats } from "@/actions/audit";
+import { auth } from "@/lib/auth";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { AuditDetailRow } from "./audit-detail-row";
@@ -17,9 +18,14 @@ const ACTION_COLORS: Record<string, string> = {
 
 export default async function AuditPage({ searchParams }: { searchParams: Promise<{ action?: string; entite?: string }> }) {
   const { action, entite } = await searchParams;
+  const session = await auth();
+  const role = (session?.user as any)?.role;
+  const email = session?.user?.email;
+  // SUPER_ADMIN voit tout, GESTIONNAIRE voit seulement ses propres actions
+  const userFilter = role === "SUPER_ADMIN" ? undefined : (email || undefined);
   const [logs, stats] = await Promise.all([
-    getAuditLogs(100, { action, entite }),
-    getAuditStats(),
+    getAuditLogs(100, { action, entite, utilisateur: userFilter }),
+    getAuditStats(userFilter),
   ]);
 
   const serializedLogs = logs.map((l) => ({

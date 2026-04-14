@@ -23,6 +23,7 @@ model Utilisateur {
 }
 
 enum Role {
+  SUPER_ADMIN
   GESTIONNAIRE
   LOCATAIRE
 }
