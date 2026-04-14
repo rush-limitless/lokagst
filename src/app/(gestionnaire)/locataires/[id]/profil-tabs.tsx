@@ -41,28 +41,52 @@ function PaiementsTab({ locataire: loc }: { locataire: Locataire }) {
 
   const years = Array.from(new Set(allPaiements.map((p) => new Date(p.moisConcerne).getFullYear()))).sort((a, b) => b - a);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const filtered = selectedYear ? allPaiements.filter((p) => new Date(p.moisConcerne).getFullYear() === selectedYear) : allPaiements;
 
-  async function handleDelete(id: string) {
-    if (!confirm("Supprimer ce paiement ?")) return;
-    const res = await supprimerPaiement(id);
-    if ("error" in res) { toast.error(res.error as string); return; }
-    toast.success("Paiement supprimé");
+  function toggleSelect(id: string) {
+    setSelected((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  }
+  function toggleAll() {
+    setSelected(selected.length === filtered.length ? [] : filtered.map((p) => p.id));
+  }
+  async function handleBatchDelete() {
+    setDeleting(true);
+    for (const id of selected) { await supprimerPaiement(id); }
+    setDeleting(false); setSelected([]); setShowConfirm(false);
+    toast.success(`${selected.length} paiement(s) supprimé(s)`);
     router.refresh();
   }
 
   return (
     <div>
-      {/* Year filter */}
-      {years.length > 1 && (
-        <div className="flex gap-2 mb-4 flex-wrap">
+      <div className="flex gap-2 mb-4 flex-wrap items-center">
+        {years.length > 1 && <>
           <button onClick={() => setSelectedYear(null)} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!selectedYear ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Toutes ({allPaiements.length})</button>
           {years.map((y) => (
             <button key={y} onClick={() => setSelectedYear(y)} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${selectedYear === y ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>
               {y} ({allPaiements.filter((p) => new Date(p.moisConcerne).getFullYear() === y).length})
             </button>
           ))}
+        </>}
+        {selected.length > 0 && (
+          <button onClick={() => setShowConfirm(true)} className="ml-auto text-xs px-3 py-1.5 rounded-full bg-red-500 text-white hover:bg-red-600">🗑️ Supprimer ({selected.length})</button>
+        )}
+      </div>
+
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowConfirm(false)}>
+          <div className="bg-card rounded-xl p-6 max-w-sm w-full shadow-xl border space-y-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-foreground">⚠️ Supprimer {selected.length} paiement(s)</h3>
+            <p className="text-sm text-muted-foreground">Cette action est irréversible.</p>
+            <div className="flex gap-2">
+              <button onClick={handleBatchDelete} disabled={deleting} className="flex-1 bg-red-500 text-white rounded-lg py-2 text-sm font-medium hover:bg-red-600 disabled:opacity-50">{deleting ? "Suppression..." : "Confirmer"}</button>
+              <button onClick={() => setShowConfirm(false)} className="px-4 py-2 border rounded-lg text-sm">Annuler</button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -71,6 +95,7 @@ function PaiementsTab({ locataire: loc }: { locataire: Locataire }) {
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr>
+                <th className="p-3 w-8"><input type="checkbox" checked={selected.length === filtered.length && filtered.length > 0} onChange={toggleAll} className="rounded" /></th>
                 <th className="text-left p-3 font-medium">Mois</th>
                 <th className="text-left p-3 font-medium">Appart.</th>
                 <th className="text-right p-3 font-medium">Loyer</th>
@@ -78,12 +103,12 @@ function PaiementsTab({ locataire: loc }: { locataire: Locataire }) {
                 <th className="text-right p-3 font-medium">Total</th>
                 <th className="text-left p-3 font-medium">Mode</th>
                 <th className="text-left p-3 font-medium">Statut</th>
-                <th className="p-3"></th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((p) => (
-                <tr key={p.id} className="border-t hover:bg-muted/30 cursor-pointer" onClick={() => window.location.href = `/paiements?search=${p.id}`}>
+                <tr key={p.id} className={`border-t hover:bg-muted/30 cursor-pointer ${selected.includes(p.id) ? "bg-primary/5" : ""}`} onClick={() => window.location.href = `/paiements/${p.id}`}>
+                  <td className="p-3" onClick={(e) => e.stopPropagation()}><input type="checkbox" checked={selected.includes(p.id)} onChange={() => toggleSelect(p.id)} className="rounded" /></td>
                   <td className="p-3">{formatDate(p.moisConcerne)}</td>
                   <td className="p-3 text-muted-foreground">{p.bail.appartement.numero}</td>
                   <td className="p-3 text-right">{formatFCFA(p.montantLoyer || p.bail.montantLoyer)}</td>
@@ -91,7 +116,6 @@ function PaiementsTab({ locataire: loc }: { locataire: Locataire }) {
                   <td className="p-3 text-right font-medium">{formatFCFA(p.montant)}</td>
                   <td className="p-3">{MODE_PAIEMENT_LABELS[p.modePaiement]}</td>
                   <td className="p-3"><Badge variant={p.statut === "PAYE" ? "outline" : "destructive"} className={p.statut === "PAYE" ? "text-emerald-600" : ""}>{p.statut === "PAYE" ? "Payé" : "Partiel"}</Badge></td>
-                  <td className="p-3"><button onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }} className="text-red-500 hover:text-red-700 text-xs">🗑️</button></td>
                 </tr>
               ))}
             </tbody>
