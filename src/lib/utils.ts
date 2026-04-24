@@ -58,17 +58,21 @@ export const MODE_PAIEMENT_LABELS: Record<string, string> = {
 };
 
 export const PERIODICITE_LABELS: Record<string, string> = {
+  JOURNALIER: "Journalier",
   MENSUEL: "Mensuel",
   TRIMESTRIEL: "Trimestriel (3 mois)",
   SEMESTRIEL: "Semestriel (6 mois)",
   ANNUEL: "Annuel (12 mois)",
+  NON_APPLICABLE: "Non applicable",
 };
 
 export const PERIODICITE_MOIS: Record<string, number> = {
+  JOURNALIER: 0,
   MENSUEL: 1,
   TRIMESTRIEL: 3,
   SEMESTRIEL: 6,
   ANNUEL: 12,
+  NON_APPLICABLE: 0,
 };
 
 /**
@@ -78,6 +82,7 @@ export const PERIODICITE_MOIS: Record<string, number> = {
  */
 export function isMoisEcheance(mois: Date, dateDebut: Date, periodicite: string): boolean {
   const freq = PERIODICITE_MOIS[periodicite] || 1;
+  if (freq === 0) return periodicite === "JOURNALIER"; // JOURNALIER = chaque mois aussi, NON_APPLICABLE = jamais
   if (freq === 1) return true;
   const debutMois = dateDebut.getMonth();
   const moisCourant = mois.getMonth();

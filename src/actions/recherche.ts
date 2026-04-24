@@ -10,6 +10,7 @@ export async function rechercheGlobale(query: string) {
       where: { OR: [{ nom: { contains: query, mode: "insensitive" } }, { prenom: { contains: query, mode: "insensitive" } }, { telephone: { contains: query } }] },
       select: { id: true, nom: true, prenom: true, telephone: true, statut: true, photo: true },
       take: 5,
+      orderBy: [{ nom: "asc" }],
     }),
     prisma.appartement.findMany({
       where: { numero: { contains: query, mode: "insensitive" } },

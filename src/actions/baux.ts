@@ -42,16 +42,17 @@ export async function creerBail(formData: FormData) {
     dateFin.setMonth(dateFin.getMonth() + parsed.data.dureeMois);
 
     const dateDebut = new Date(parsed.data.dateDebut);
-    let datePremierLoyer: Date;
-    if (dateDebut.getDate() > 15) {
-      datePremierLoyer = new Date(dateDebut.getFullYear(), dateDebut.getMonth() + 1, 1);
-    } else {
-      datePremierLoyer = new Date(dateDebut.getFullYear(), dateDebut.getMonth(), 1);
-    }
+    // Date réelle d'entrée du locataire (pas le 1er du mois)
+    const datePremierLoyer = new Date(dateDebut);
 
     let charges: { type: string; montant: number }[] = [];
     try { charges = parsed.data.chargesLocatives ? JSON.parse(parsed.data.chargesLocatives) : []; } catch { charges = []; }
     const totalCharges = charges.reduce((s, c) => s + c.montant, 0);
+
+    let impotsTaxes: { type: string; montant: number }[] = [];
+    try { impotsTaxes = parsed.data.impotsTaxes ? JSON.parse(parsed.data.impotsTaxes) : []; } catch { impotsTaxes = []; }
+    const totalImpotsTaxes = impotsTaxes.reduce((s, c) => s + c.montant, 0);
+
     const totalMensuel = parsed.data.montantLoyer + totalCharges;
 
     // Check if there's an existing bail — handle caution difference
@@ -75,6 +76,7 @@ export async function creerBail(formData: FormData) {
           cautionPayee,
           datePremierLoyer, periodicite: parsed.data.periodicite as any,
           chargesLocatives: charges, totalCharges, totalMensuel,
+          impotsTaxes, totalImpotsTaxes,
           jourLimitePaiement: parsed.data.jourLimitePaiement, delaiGrace: parsed.data.delaiGrace,
           penaliteType: parsed.data.penaliteType, penaliteMontant: parsed.data.penaliteMontant,
           penaliteRecurrente: parsed.data.penaliteRecurrente, renouvellementAuto: parsed.data.renouvellementAuto,
@@ -143,9 +145,13 @@ export async function modifierBail(id: string, formData: FormData) {
     try { const raw = formData.get("chargesLocatives") as string; if (raw) charges = JSON.parse(raw); } catch {}
     const totalCharges = charges.reduce((s, c) => s + c.montant, 0);
 
+    let impotsTaxes = (bail.impotsTaxes || []) as { type: string; montant: number }[];
+    try { const raw = formData.get("impotsTaxes") as string; if (raw) impotsTaxes = JSON.parse(raw); } catch {}
+    const totalImpotsTaxes = impotsTaxes.reduce((s, c) => s + c.montant, 0);
+
     await prisma.bail.update({
       where: { id },
-      data: { dateDebut, dateFin, montantLoyer, montantCaution, renouvellementAuto, periodicite: periodicite as any, chargesLocatives: charges, totalCharges, totalMensuel: montantLoyer + totalCharges },
+      data: { dateDebut, dateFin, montantLoyer, montantCaution, renouvellementAuto, periodicite: periodicite as any, chargesLocatives: charges, totalCharges, impotsTaxes, totalImpotsTaxes, totalMensuel: montantLoyer + totalCharges },
     });
 
     revalidatePath(`/baux/${id}`);

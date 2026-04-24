@@ -18,6 +18,9 @@ export default function NouveauBail() {
   const [charges, setCharges] = useState<{ type: string; montant: number }[]>([]);
   const [newChargeType, setNewChargeType] = useState("Eau");
   const [newChargeMontant, setNewChargeMontant] = useState("");
+  const [impotsTaxes, setImpotsTaxes] = useState<{ type: string; montant: number }[]>([]);
+  const [newImpotType, setNewImpotType] = useState("ENREGISTREMENT BAIL");
+  const [newImpotMontant, setNewImpotMontant] = useState("");
   const [selectedLocataire, setSelectedLocataire] = useState("");
   const [selectedAppart, setSelectedAppart] = useState("");
   const [existingBail, setExistingBail] = useState<any>(null);
@@ -40,11 +43,6 @@ export default function NouveauBail() {
     }
   }, [selectedLocataire, selectedAppart, locataires]);
 
-  useEffect(() => {
-    getLocataires({ statut: "ACTIF" }).then(setLocataires);
-    getAppartements().then(setApparts);
-  }, []);
-
   function ajouterCharge() {
     if (!newChargeMontant) return;
     setCharges([...charges, { type: newChargeType, montant: parseInt(newChargeMontant) }]);
@@ -55,7 +53,18 @@ export default function NouveauBail() {
     setCharges(charges.filter((_, idx) => idx !== i));
   }
 
+  function ajouterImpot() {
+    if (!newImpotMontant) return;
+    setImpotsTaxes([...impotsTaxes, { type: newImpotType, montant: parseInt(newImpotMontant) }]);
+    setNewImpotMontant("");
+  }
+
+  function supprimerImpot(i: number) {
+    setImpotsTaxes(impotsTaxes.filter((_, idx) => idx !== i));
+  }
+
   const totalCharges = charges.reduce((s, c) => s + c.montant, 0);
+  const totalImpots = impotsTaxes.reduce((s, c) => s + c.montant, 0);
 
   async function handleSubmit(formData: FormData) {
     if (existingBail && !confirmReplace) {
@@ -63,6 +72,7 @@ export default function NouveauBail() {
       return;
     }
     formData.set("chargesLocatives", JSON.stringify(charges));
+    formData.set("impotsTaxes", JSON.stringify(impotsTaxes));
     const result = await creerBail(formData);
     if (result.error) { toast.error(result.error); return; }
     toast.success("Bail créé" + (existingBail ? " — ancien bail terminé" : ""));
@@ -118,15 +128,17 @@ export default function NouveauBail() {
             <div className="space-y-2">
               <Label>Périodicité de paiement</Label>
               <select name="periodicite" className="w-full border rounded-md p-2">
-                <option value="MENSUEL">Mensuel</option>
-                <option value="TRIMESTRIEL">Trimestriel (3 mois)</option>
-                <option value="SEMESTRIEL">Semestriel (6 mois)</option>
                 <option value="ANNUEL">Annuel (12 mois)</option>
+                <option value="SEMESTRIEL">Semestriel (6 mois)</option>
+                <option value="TRIMESTRIEL">Trimestriel (3 mois)</option>
+                <option value="MENSUEL">Mensuel</option>
+                <option value="JOURNALIER">Journalier</option>
+                <option value="NON_APPLICABLE">Non applicable</option>
               </select>
               <p className="text-xs text-gray-500">Les factures et reçus seront émis selon cette périodicité</p>
             </div>
             <div className="bg-blue-50 p-3 rounded text-sm text-blue-800">
-              <strong>Règle :</strong> Si le contrat est signé avant le 15 du mois → le locataire paye le mois entier. Après le 15 → le reste du mois est offert, le loyer commence le mois suivant.
+              <strong>Note :</strong> La date de début du bail correspond à la date réelle d&apos;entrée du locataire dans le logement.
             </div>
           </CardContent>
         </Card>
@@ -155,6 +167,29 @@ export default function NouveauBail() {
                     </div>
                   ))}
                   <div className="text-right font-medium text-sm">Total charges : {totalCharges.toLocaleString()} FCFA</div>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Impôts et Taxes</Label>
+              <div className="flex gap-2">
+                <select value={newImpotType} onChange={(e) => setNewImpotType(e.target.value)} className="border rounded-md p-2">
+                  <option>ENREGISTREMENT BAIL</option><option>PRECOMPTE BAIL</option><option>TAXES FONCIERES</option><option>AUTRES</option>
+                </select>
+                <Input type="number" placeholder="Montant" value={newImpotMontant} onChange={(e) => setNewImpotMontant(e.target.value)} className="w-32" />
+                <Button type="button" variant="outline" onClick={ajouterImpot}>+</Button>
+              </div>
+              {impotsTaxes.length > 0 && (
+                <div className="space-y-1 mt-2">
+                  {impotsTaxes.map((c, i) => (
+                    <div key={i} className="flex justify-between items-center bg-amber-50 p-2 rounded text-sm">
+                      <span>{c.type}</span>
+                      <span>{c.montant.toLocaleString()} FCFA</span>
+                      <button type="button" onClick={() => supprimerImpot(i)} className="text-red-500">✕</button>
+                    </div>
+                  ))}
+                  <div className="text-right font-medium text-sm">Total impôts/taxes : {totalImpots.toLocaleString()} FCFA</div>
                 </div>
               )}
             </div>

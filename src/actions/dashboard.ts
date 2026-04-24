@@ -7,7 +7,7 @@ export async function getDashboardStats() {
   const [appartements, bauxActifs, paiementsMois] = await Promise.all([
     prisma.appartement.groupBy({ by: ["statut"], _count: true }),
     prisma.bail.findMany({ where: { statut: "ACTIF" }, include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true } }, paiements: true } }),
-    prisma.paiement.findMany({ where: { moisConcerne: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) } } }),
+    prisma.paiement.findMany({ where: { moisConcerne: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1), lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1) } } }),
   ]);
 
   const total = appartements.reduce((s, a) => s + a._count, 0);
@@ -35,15 +35,33 @@ export async function getDashboardStats() {
     .map((b) => ({ bailId: b.id, locataire: `${b.locataire.prenom} ${b.locataire.nom}`, appartement: b.appartement.numero, dateFin: b.dateFin, joursRestants: Math.ceil((b.dateFin.getTime() - now.getTime()) / 86400000) }));
 
   const moisCourant = new Date(now.getFullYear(), now.getMonth(), 1);
+  const moisSuivant = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const jourDuMois = now.getDate();
   const impayesLocataires = bauxActifs
     .filter((b) => {
       if (jourDuMois <= b.jourLimitePaiement) return false;
       if (!isMoisEcheance(moisCourant, b.dateDebut, b.periodicite)) return false;
-      return !b.paiements.some((p) => p.moisConcerne.getTime() === moisCourant.getTime() && p.statut === "PAYE");
+      return !b.paiements.some((p) => {
+        const mc = new Date(p.moisConcerne);
+        return mc >= moisCourant && mc < moisSuivant && p.statut === "PAYE";
+      });
     })
-    .map((b) => ({ locataireId: b.locataireId, nom: `${b.locataire.prenom} ${b.locataire.nom}`, montantDu: b.totalMensuel || b.montantLoyer }))
+    .map((b) => {
+      const freq = PERIODICITE_MOIS[b.periodicite] || 1;
+      return {
+        locataireId: b.locataireId,
+        nom: `${b.locataire.prenom} ${b.locataire.nom}`,
+        montantDu: (b.totalMensuel || b.montantLoyer) * (freq > 0 ? freq : 1),
+        loyerDu: b.montantLoyer * (freq > 0 ? freq : 1),
+        chargesDu: b.totalCharges * (freq > 0 ? freq : 1),
+      };
+    })
     .sort((a, b) => a.nom.localeCompare(b.nom, "fr"));
+
+  // Impayés = somme des montants dus par les locataires en retard (pas la soustraction globale)
+  const impayesMois = impayesLocataires.reduce((s, l) => s + l.montantDu, 0);
+  const impayesLoyers = impayesLocataires.reduce((s, l) => s + l.loyerDu, 0);
+  const impayesCharges = impayesLocataires.reduce((s, l) => s + l.chargesDu, 0);
 
   const moisLabel = now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 
@@ -53,9 +71,9 @@ export async function getDashboardStats() {
       revenusMois, revenusAttendus,
       revenusLoyers, revenusCharges, revenusCautions,
       loyersAttendus, chargesAttendues, cautionsNonPayees,
-      impayesMois: jourDuMois > 5 ? Math.max(0, revenusAttendus - revenusMois) : 0,
-      impayesLoyers: jourDuMois > 5 ? Math.max(0, loyersAttendus - revenusLoyers) : 0,
-      impayesCharges: jourDuMois > 5 ? Math.max(0, chargesAttendues - revenusCharges) : 0,
+      impayesMois,
+      impayesLoyers,
+      impayesCharges,
       periode: moisLabel,
     },
     alertes: { bauxExpirants, impayesLocataires },

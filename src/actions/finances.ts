@@ -11,7 +11,7 @@ export async function getFinancesStats(annee?: number) {
   const [paiements, baux, allBaux, depenses] = await Promise.all([
     prisma.paiement.findMany({ where: { moisConcerne: { gte: debut, lt: fin } }, include: { bail: { include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true } } } } } }),
     prisma.bail.findMany({ where: { statut: { in: ["ACTIF", "SUSPENDU"] } }, include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true, immeubleId: true } } } }),
-    prisma.bail.findMany({ where: { dateDebut: { lte: fin }, dateFin: { gte: debut } }, include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true, immeubleId: true } } } }),
+    prisma.bail.findMany({ where: { statut: { in: ["ACTIF", "SUSPENDU"] }, dateDebut: { lte: fin }, dateFin: { gte: debut } }, include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true, immeubleId: true } } } }),
     prisma.depense.findMany({ where: { date: { gte: debut, lt: fin } } }).catch(() => []),
   ]);
 

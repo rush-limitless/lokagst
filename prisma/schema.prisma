@@ -120,7 +120,9 @@ model Bail {
   cautionPayee          Boolean     @default(false)
   datePremierLoyer      DateTime?
   chargesLocatives      Json        @default("[]")
+  impotsTaxes           Json        @default("[]")
   totalCharges          Int         @default(0)
+  totalImpotsTaxes      Int         @default(0)
   totalMensuel          Int         @default(0)
   jourLimitePaiement    Int         @default(5)
   periodicite           Periodicite @default(MENSUEL)
@@ -154,10 +156,12 @@ enum PenaliteType {
 }
 
 enum Periodicite {
+  JOURNALIER
   MENSUEL
   TRIMESTRIEL
   SEMESTRIEL
   ANNUEL
+  NON_APPLICABLE
 }
 
 enum StatutBail {
