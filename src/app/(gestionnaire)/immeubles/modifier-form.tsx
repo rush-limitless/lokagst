@@ -23,7 +23,7 @@ export function ModifierImmeubleForm({ immeuble }: { immeuble: { id: string; nom
   if (!editing) return <button onClick={() => setEditing(true)} className="text-xs text-primary hover:underline">Modifier</button>;
 
   return (
-    <form action={handleSubmit} className="grid grid-cols-2 gap-3 p-3 bg-white/10 rounded-lg mt-3">
+    <form action={handleSubmit} className="grid grid-cols-2 gap-3 p-3 bg-card/10 rounded-lg mt-3">
       <div className="space-y-1"><Label className="text-white/70 text-xs">Nom</Label><Input name="nom" defaultValue={immeuble.nom} required className="h-8 text-xs" /></div>
       <div className="space-y-1"><Label className="text-white/70 text-xs">Ville</Label><Input name="ville" defaultValue={immeuble.ville} required className="h-8 text-xs" /></div>
       <div className="space-y-1"><Label className="text-white/70 text-xs">Adresse</Label><Input name="adresse" defaultValue={immeuble.adresse} required className="h-8 text-xs" /></div>

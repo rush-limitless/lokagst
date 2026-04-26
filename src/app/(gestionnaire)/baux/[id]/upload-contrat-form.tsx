@@ -31,7 +31,7 @@ export function UploadContratForm({ bailId }: { bailId: string }) {
 
   return (
     <div>
-      <p className="text-sm text-gray-500 mb-3">Uploadez le scan ou PDF du contrat enregistré :</p>
+      <p className="text-sm text-muted-foreground mb-3">Uploadez le scan ou PDF du contrat enregistré :</p>
       <input ref={fileRef} type="file" accept="image/*,.pdf" onChange={handleUpload} className="hidden" />
       <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
         {uploading ? "Upload en cours..." : "📎 Choisir un fichier"}

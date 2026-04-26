@@ -46,7 +46,7 @@ export default function NouveauTicket() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-2xl font-bold text-blue-950 mb-6">Signaler un problème</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Signaler un problème</h1>
       <Card>
         <CardContent className="pt-6">
           <form action={handleSubmit} className="space-y-4">

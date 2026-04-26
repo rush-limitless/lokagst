@@ -41,7 +41,7 @@ export default async function BauxPage({ searchParams }: { searchParams: Promise
       <div className="flex gap-1 flex-wrap">
         <Link href="/baux" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!statut ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Tous ({baux.length})</Link>
         <Link href="/baux?statut=ACTIF" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "ACTIF" ? "bg-emerald-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Actifs ({baux.filter((b) => b.statut === "ACTIF").length})</Link>
-        <Link href="/baux?statut=TERMINE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "TERMINE" ? "bg-gray-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Terminés</Link>
+        <Link href="/baux?statut=TERMINE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "TERMINE" ? "bg-muted/500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Terminés</Link>
         <Link href="/baux?statut=RESILIE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "RESILIE" ? "bg-red-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Résiliés</Link>
       </div>
 

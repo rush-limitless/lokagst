@@ -62,12 +62,12 @@ export default async function DashboardPage() {
               <p className="text-sky-200/80 text-sm mt-1">{now.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
             </div>
             <div className="flex gap-2 flex-wrap">
-              <Link href="/paiements/nouveau"><Button size="sm" className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm gap-1.5"><Plus className="size-3.5" /> Paiement</Button></Link>
-              <Link href="/baux/nouveau"><Button size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm gap-1.5" variant="outline"><FileText className="size-3.5" /> Bail</Button></Link>
-              <Link href="/locataires/nouveau"><Button size="sm" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm gap-1.5" variant="outline"><Users className="size-3.5" /> Locataire</Button></Link>
+              <Link href="/paiements/nouveau"><Button size="sm" className="bg-card/20 hover:bg-card/30 text-white border-0 backdrop-blur-sm gap-1.5"><Plus className="size-3.5" /> Paiement</Button></Link>
+              <Link href="/baux/nouveau"><Button size="sm" className="bg-card/10 hover:bg-card/20 text-white border-white/20 backdrop-blur-sm gap-1.5" variant="outline"><FileText className="size-3.5" /> Bail</Button></Link>
+              <Link href="/locataires/nouveau"><Button size="sm" className="bg-card/10 hover:bg-card/20 text-white border-white/20 backdrop-blur-sm gap-1.5" variant="outline"><Users className="size-3.5" /> Locataire</Button></Link>
             </div>
           </div>
-          <div className="mt-5 bg-white/10 rounded-full h-2 overflow-hidden">
+          <div className="mt-5 bg-card/10 rounded-full h-2 overflow-hidden">
             <div className="h-full bg-gradient-to-r from-sky-300 to-emerald-400 rounded-full progress-animated" style={{ width: `${pct}%` }} />
           </div>
           <p className="text-sky-200/60 text-xs mt-1.5">{pct}% d&apos;occupation — {stats.appartements.occupes}/{stats.appartements.total} appartements</p>

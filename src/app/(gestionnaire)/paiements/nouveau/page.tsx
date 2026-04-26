@@ -51,7 +51,7 @@ export default function NouveauPaiement() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-2xl font-bold text-blue-950 mb-6">Enregistrer un paiement</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Enregistrer un paiement</h1>
       <Card>
         <CardContent className="pt-6">
           <form action={handleSubmit} className="space-y-4">
@@ -65,7 +65,7 @@ export default function NouveauPaiement() {
               </select>
             </div>
             {selectedBail && (
-              <div className="bg-blue-50 p-3 rounded text-sm space-y-1">
+              <div className="bg-primary/5 p-3 rounded text-sm space-y-1">
                 <p>Loyer : <strong>{selectedBail.montantLoyer.toLocaleString()} FCFA</strong></p>
                 <p>Charges : <strong>{selectedBail.totalCharges.toLocaleString()} FCFA</strong></p>
                 <p>Total mensuel : <strong>{selectedBail.totalMensuel.toLocaleString()} FCFA</strong></p>

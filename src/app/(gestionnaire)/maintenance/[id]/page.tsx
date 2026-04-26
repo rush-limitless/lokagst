@@ -16,22 +16,22 @@ export default async function MaintenanceDetail({ params }: { params: Promise<{ 
   return (
     <div className="space-y-6 max-w-2xl">
       <div className="flex items-center gap-4">
-        <h1 className="text-2xl font-bold text-blue-950">{ticket.titre}</h1>
+        <h1 className="text-2xl font-bold text-foreground">{ticket.titre}</h1>
         <Badge variant="outline" className={STATUT_COLORS[ticket.statut]}>{STATUT_LABELS[ticket.statut]}</Badge>
-        <span className={`text-sm font-medium ${ticket.priorite === "URGENTE" ? "text-red-600" : ticket.priorite === "NORMALE" ? "text-blue-600" : "text-gray-500"}`}>{ticket.priorite}</span>
+        <span className={`text-sm font-medium ${ticket.priorite === "URGENTE" ? "text-red-600" : ticket.priorite === "NORMALE" ? "text-blue-600" : "text-muted-foreground"}`}>{ticket.priorite}</span>
       </div>
 
       <Card>
         <CardHeader><CardTitle>Détails</CardTitle></CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="grid grid-cols-2 gap-4">
-            <div><span className="text-gray-500">Locataire</span><p className="font-medium">{ticket.locataire.prenom} {ticket.locataire.nom}</p></div>
-            <div><span className="text-gray-500">Appartement</span><p className="font-medium">{ticket.appartement.numero}</p></div>
-            <div><span className="text-gray-500">Signalé le</span><p className="font-medium">{formatDate(ticket.creeLe)}</p></div>
-            {ticket.technicien && <div><span className="text-gray-500">Technicien</span><p className="font-medium">{ticket.technicien}</p></div>}
+            <div><span className="text-muted-foreground">Locataire</span><p className="font-medium">{ticket.locataire.prenom} {ticket.locataire.nom}</p></div>
+            <div><span className="text-muted-foreground">Appartement</span><p className="font-medium">{ticket.appartement.numero}</p></div>
+            <div><span className="text-muted-foreground">Signalé le</span><p className="font-medium">{formatDate(ticket.creeLe)}</p></div>
+            {ticket.technicien && <div><span className="text-muted-foreground">Technicien</span><p className="font-medium">{ticket.technicien}</p></div>}
           </div>
-          <div><span className="text-gray-500">Description</span><p className="mt-1 whitespace-pre-wrap">{ticket.description}</p></div>
-          {ticket.commentaire && <div><span className="text-gray-500">Commentaire gestionnaire</span><p className="mt-1 whitespace-pre-wrap">{ticket.commentaire}</p></div>}
+          <div><span className="text-muted-foreground">Description</span><p className="mt-1 whitespace-pre-wrap">{ticket.description}</p></div>
+          {ticket.commentaire && <div><span className="text-muted-foreground">Commentaire gestionnaire</span><p className="mt-1 whitespace-pre-wrap">{ticket.commentaire}</p></div>}
         </CardContent>
       </Card>
 

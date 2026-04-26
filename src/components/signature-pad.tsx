@@ -59,7 +59,7 @@ export function SignaturePad({ onSave }: { onSave: (dataUrl: string) => void }) 
 
   return (
     <div className="space-y-2">
-      <div className="border-2 border-dashed border-gray-300 rounded-lg bg-white">
+      <div className="border-2 border-dashed border-gray-300 rounded-lg bg-card">
         <canvas
           ref={canvasRef}
           width={400}

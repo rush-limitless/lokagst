@@ -20,10 +20,10 @@ export default function ContratPage() {
       <div className="flex justify-end mb-4 print:hidden">
         <Button onClick={() => window.print()}>🖨️ Imprimer / PDF</Button>
       </div>
-      <div className="bg-white border rounded-lg p-10 print:border-none print:p-0 text-sm leading-relaxed">
+      <div className="bg-card border rounded-lg p-10 print:border-none print:p-0 text-sm leading-relaxed">
         <div className="text-center border-b-2 border-black pb-4 mb-6">
           <h1 className="text-2xl font-bold">CONTRAT DE BAIL D&apos;HABITATION</h1>
-          <p className="text-gray-500 mt-1">N° {data.numero}</p>
+          <p className="text-muted-foreground mt-1">N° {data.numero}</p>
         </div>
 
         <p className="text-right mb-6">Fait à Yaoundé, le {data.date}</p>
@@ -83,7 +83,7 @@ export default function ContratPage() {
             <p className="font-bold mb-1">LE BAILLEUR</p>
             <p>{data.bailleur}</p>
             <div className="mt-12 border-b border-gray-400 w-48"></div>
-            <p className="text-xs text-gray-400 mt-1">Signature et cachet</p>
+            <p className="text-xs text-muted-foreground mt-1">Signature et cachet</p>
           </div>
           <div>
             <p className="font-bold mb-1">LE LOCATAIRE</p>
@@ -91,18 +91,18 @@ export default function ContratPage() {
             {data.signatureLocataire ? (
               <div className="mt-4">
                 <img src={data.signatureLocataire} alt="Signature" className="h-16" />
-                <p className="text-xs text-gray-400">Signé le {data.dateSignature}</p>
+                <p className="text-xs text-muted-foreground">Signé le {data.dateSignature}</p>
               </div>
             ) : (
               <>
                 <div className="mt-12 border-b border-gray-400 w-48"></div>
-                <p className="text-xs text-gray-400 mt-1">Signature</p>
+                <p className="text-xs text-muted-foreground mt-1">Signature</p>
               </>
             )}
           </div>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-8">Fait en deux exemplaires originaux, un pour chaque partie.</p>
+        <p className="text-center text-xs text-muted-foreground mt-8">Fait en deux exemplaires originaux, un pour chaque partie.</p>
       </div>
     </div>
   );

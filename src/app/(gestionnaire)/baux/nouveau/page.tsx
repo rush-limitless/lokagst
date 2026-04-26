@@ -81,7 +81,7 @@ export default function NouveauBail() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-blue-950 mb-6">Nouveau bail</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Nouveau bail</h1>
       <form action={handleSubmit} className="space-y-6">
 
         <Card>
@@ -135,9 +135,9 @@ export default function NouveauBail() {
                 <option value="JOURNALIER">Journalier</option>
                 <option value="NON_APPLICABLE">Non applicable</option>
               </select>
-              <p className="text-xs text-gray-500">Les factures et reçus seront émis selon cette périodicité</p>
+              <p className="text-xs text-muted-foreground">Les factures et reçus seront émis selon cette périodicité</p>
             </div>
-            <div className="bg-blue-50 p-3 rounded text-sm text-blue-800">
+            <div className="bg-primary/5 p-3 rounded text-sm text-primary">
               <strong>Note :</strong> La date de début du bail correspond à la date réelle d&apos;entrée du locataire dans le logement.
             </div>
           </CardContent>
@@ -160,7 +160,7 @@ export default function NouveauBail() {
               {charges.length > 0 && (
                 <div className="space-y-1 mt-2">
                   {charges.map((c, i) => (
-                    <div key={i} className="flex justify-between items-center bg-gray-50 p-2 rounded text-sm">
+                    <div key={i} className="flex justify-between items-center bg-muted/50 p-2 rounded text-sm">
                       <span>{c.type}</span>
                       <span>{c.montant.toLocaleString()} FCFA</span>
                       <button type="button" onClick={() => supprimerCharge(i)} className="text-red-500">✕</button>

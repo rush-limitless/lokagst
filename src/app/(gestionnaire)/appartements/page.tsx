@@ -71,7 +71,7 @@ export default async function AppartementsPage({ searchParams }: { searchParams:
             <div className="space-y-6">
               {grouped.map(({ imm: grpImm, apps }) => {
                 const colors = grpImm ? IMM_COLORS[grpImm.id] : COLOR_LIST[0];
-                const badgeColor = grpImm ? BADGE_COLORS[immeubles.findIndex((i) => i.id === grpImm.id) % BADGE_COLORS.length] : "bg-gray-500";
+                const badgeColor = grpImm ? BADGE_COLORS[immeubles.findIndex((i) => i.id === grpImm.id) % BADGE_COLORS.length] : "bg-muted/500";
                 return (
                   <div key={grpImm?.id || "sans"}>
                     <div className="flex items-center gap-2 mb-3">

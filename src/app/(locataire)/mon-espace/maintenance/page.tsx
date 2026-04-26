@@ -11,7 +11,7 @@ export default async function MaMaintenancePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-blue-950">Maintenance</h1>
+      <h1 className="text-2xl font-bold text-foreground">Maintenance</h1>
 
       <SignalerForm />
 
@@ -20,13 +20,13 @@ export default async function MaMaintenancePage() {
           <h2 className="font-bold text-lg mb-3">Mes signalements</h2>
           <div className="space-y-3">
             {tickets.map((t) => (
-              <div key={t.id} className="bg-white border rounded-lg p-4">
+              <div key={t.id} className="bg-card border rounded-lg p-4">
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-medium">{t.titre}</span>
                   <Badge variant="outline" className={STATUT_COLORS[t.statut]}>{STATUT_LABELS[t.statut]}</Badge>
                 </div>
-                <p className="text-sm text-gray-600">{t.description}</p>
-                <div className="flex justify-between items-center mt-2 text-xs text-gray-400">
+                <p className="text-sm text-foreground">{t.description}</p>
+                <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
                   <span>Appart. {t.appartement.numero}</span>
                   <span>{formatDate(t.creeLe)}</span>
                 </div>

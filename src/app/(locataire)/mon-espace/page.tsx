@@ -65,7 +65,7 @@ export default async function MonEspace() {
           <span className="text-xs font-medium text-foreground">Payer</span>
         </Link>
         <Link href="/mon-espace/bail" className="flex flex-col items-center gap-2 p-4 bg-card border rounded-xl hover:shadow-md transition-all hover:-translate-y-0.5">
-          <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center"><FileText className="w-5 h-5 text-blue-600" /></div>
+          <div className="w-12 h-12 rounded-full bg-primary/10 dark:bg-blue-900/30 flex items-center justify-center"><FileText className="w-5 h-5 text-blue-600" /></div>
           <span className="text-xs font-medium text-foreground">Mon bail</span>
         </Link>
         <Link href="/mon-espace/maintenance" className="flex flex-col items-center gap-2 p-4 bg-card border rounded-xl hover:shadow-md transition-all hover:-translate-y-0.5">

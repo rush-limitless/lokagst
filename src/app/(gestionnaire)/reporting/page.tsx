@@ -215,28 +215,28 @@ export default function ReportingPage() {
             <Button onClick={() => window.print()}>🖨️ Imprimer / Enregistrer PDF</Button>
             <Button variant="outline" onClick={() => setShowPdf(false)}>Fermer</Button>
           </div>
-          <div ref={printRef} className="bg-white text-black rounded-xl border p-8 print:border-none print:p-0 print:shadow-none text-sm">
+          <div ref={printRef} className="bg-card text-black rounded-xl border p-8 print:border-none print:p-0 print:shadow-none text-sm">
             {/* En-tête */}
             <div className="flex items-center justify-between border-b-3 border-[#1B6B9E] pb-4 mb-6">
               <div className="flex items-center gap-4">
                 <img src="/logo.jpg" alt="" className="w-16 h-16 rounded" />
                 <div>
                   <h1 className="text-2xl font-bold text-[#1B6B9E]">IMMOSTAR SCI</h1>
-                  <p className="text-gray-500 text-xs">Société Civile Immobilière — Yaoundé, Nkolfoulou</p>
+                  <p className="text-muted-foreground text-xs">Société Civile Immobilière — Yaoundé, Nkolfoulou</p>
                 </div>
               </div>
               <div className="text-right">
-                <h2 className="text-lg font-bold text-gray-800">TABLEAU DE SUIVI</h2>
-                <p className="text-gray-500 text-xs">{dateDebut && dateFin ? `Du ${fmtDate(dateDebut)} au ${fmtDate(dateFin)}` : `Au ${new Date().toLocaleDateString("fr-FR")}`}</p>
+                <h2 className="text-lg font-bold text-foreground">TABLEAU DE SUIVI</h2>
+                <p className="text-muted-foreground text-xs">{dateDebut && dateFin ? `Du ${fmtDate(dateDebut)} au ${fmtDate(dateFin)}` : `Au ${new Date().toLocaleDateString("fr-FR")}`}</p>
               </div>
             </div>
 
             {/* KPIs */}
             <div className="grid grid-cols-4 gap-3 mb-6">
-              <div className="bg-[#e8f5e9] p-3 rounded-lg text-center border border-[#a5d6a7]"><div className="text-lg font-bold text-[#2e7d32]">{pdfData.totalEncaisse.toLocaleString()}</div><p className="text-[10px] text-gray-600">FCFA Encaissé</p></div>
-              <div className="bg-[#ffebee] p-3 rounded-lg text-center border border-[#ef9a9a]"><div className="text-lg font-bold text-[#c62828]">{pdfData.totalPenalites.toLocaleString()}</div><p className="text-[10px] text-gray-600">FCFA Pénalités</p></div>
-              <div className="bg-[#e3f2fd] p-3 rounded-lg text-center border border-[#90caf9]"><div className="text-lg font-bold text-[#1565c0]">{pdfData.tauxOccupation}%</div><p className="text-[10px] text-gray-600">Occupation</p></div>
-              <div className="bg-[#f5f5f5] p-3 rounded-lg text-center border border-[#e0e0e0]"><div className="text-lg font-bold">{pdfData.appartements.total}</div><p className="text-[10px] text-gray-600">Appartements</p></div>
+              <div className="bg-[#e8f5e9] p-3 rounded-lg text-center border border-[#a5d6a7]"><div className="text-lg font-bold text-[#2e7d32]">{pdfData.totalEncaisse.toLocaleString()}</div><p className="text-[10px] text-foreground">FCFA Encaissé</p></div>
+              <div className="bg-[#ffebee] p-3 rounded-lg text-center border border-[#ef9a9a]"><div className="text-lg font-bold text-[#c62828]">{pdfData.totalPenalites.toLocaleString()}</div><p className="text-[10px] text-foreground">FCFA Pénalités</p></div>
+              <div className="bg-[#e3f2fd] p-3 rounded-lg text-center border border-[#90caf9]"><div className="text-lg font-bold text-[#1565c0]">{pdfData.tauxOccupation}%</div><p className="text-[10px] text-foreground">Occupation</p></div>
+              <div className="bg-[#f5f5f5] p-3 rounded-lg text-center border border-[#e0e0e0]"><div className="text-lg font-bold">{pdfData.appartements.total}</div><p className="text-[10px] text-foreground">Appartements</p></div>
             </div>
 
             {/* Légende */}
@@ -296,7 +296,7 @@ export default function ReportingPage() {
 
             {/* Footer */}
             <div className="border-t-2 border-[#1B6B9E] pt-3 flex justify-between items-end">
-              <div className="text-[10px] text-gray-500">
+              <div className="text-[10px] text-muted-foreground">
                 <p className="font-bold text-[#1B6B9E]">IMMOSTAR SCI</p>
                 <p>Résidence La&apos;ag Tchang — Yaoundé, Nkolfoulou</p>
                 <p>Généré par ImmoGest le {new Date().toLocaleDateString("fr-FR")}</p>

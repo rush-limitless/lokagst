@@ -17,7 +17,7 @@ export function SignerMonBailForm() {
 
   return (
     <div>
-      <p className="text-sm text-gray-500 mb-3">Signez votre bail ci-dessous avec le doigt ou la souris :</p>
+      <p className="text-sm text-muted-foreground mb-3">Signez votre bail ci-dessous avec le doigt ou la souris :</p>
       <SignaturePad onSave={handleSave} />
     </div>
   );

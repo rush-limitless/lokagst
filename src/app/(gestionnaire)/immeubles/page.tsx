@@ -61,7 +61,7 @@ export default async function ImmeublesPage() {
           <div key={imm.id} className="space-y-0">
             {/* Header immeuble */}
             <div className={`bg-gradient-to-r ${color} rounded-t-2xl p-5 text-white relative overflow-hidden`}>
-              <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute top-0 right-0 w-40 h-40 bg-card/5 rounded-full -translate-y-1/2 translate-x-1/2" />
               <div className="relative">
                 <div className="flex justify-between items-start">
                   <div>
@@ -94,8 +94,8 @@ export default async function ImmeublesPage() {
                       <span>Occupation</span>
                       <span>{pct}%</span>
                     </div>
-                    <div className="bg-white/20 rounded-full h-2 overflow-hidden">
-                      <div className="h-full bg-white/80 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                    <div className="bg-card/20 rounded-full h-2 overflow-hidden">
+                      <div className="h-full bg-card/80 rounded-full transition-all" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                   <div className="text-right">
