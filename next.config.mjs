@@ -11,4 +11,5 @@ export default withSentryConfig(nextConfig, {
   widenClientFileUpload: true,
   hideSourceMaps: true,
   disableLogger: true,
+  autoInstrumentMiddleware: false,
 });
