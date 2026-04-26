@@ -2,8 +2,15 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
 
+const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+  const isSecure = request.nextUrl.protocol === "https:";
+  const token = await getToken({
+    req: request,
+    secret,
+    cookieName: isSecure ? "__Secure-authjs.session-token" : "authjs.session-token",
+  });
 
   if (!token) {
     return NextResponse.redirect(new URL("/login", request.url));
