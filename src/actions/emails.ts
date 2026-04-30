@@ -35,7 +35,7 @@ export async function envoyerRecuPaiement(paiementId: string) {
 
   const loc = paiement.bail.locataire;
   const mois = paiement.moisConcerne.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-  const mode = { VIREMENT_BANCAIRE: "Virement bancaire", ORANGE_MONEY: "Orange Money" }[paiement.modePaiement];
+  const mode = { VIREMENT_BANCAIRE: "Virement bancaire", MOBILE_MONEY: "Mobile Money", ESPECES: "Espèces" }[paiement.modePaiement];
   const date = paiement.datePaiement.toLocaleDateString("fr-FR");
 
   const { sujet, contenu } = genererEmailRecu(loc.prenom, loc.nom, paiement.montant, mois, mode, date, paiement.bail.appartement.numero);

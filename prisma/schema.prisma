@@ -198,7 +198,8 @@ model Paiement {
 
 enum ModePaiement {
   VIREMENT_BANCAIRE
-  ORANGE_MONEY
+  MOBILE_MONEY
+  ESPECES
 }
 
 enum StatutPaiement {

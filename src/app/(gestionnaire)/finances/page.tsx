@@ -10,10 +10,11 @@ import {
   ArrowUpRight, Banknote, CreditCard, PiggyBank,
 } from "lucide-react";
 
-const MODE_LABELS: Record<string, string> = { VIREMENT_BANCAIRE: "Virement bancaire", ORANGE_MONEY: "Orange Money" };
+const MODE_LABELS: Record<string, string> = { VIREMENT_BANCAIRE: "Virement bancaire", MOBILE_MONEY: "Mobile Money", ESPECES: "Espèces" };
 const MODE_ICONS: Record<string, React.ReactNode> = {
   VIREMENT_BANCAIRE: <Banknote className="size-4 text-sky-600" />,
-  ORANGE_MONEY: <CreditCard className="size-4 text-orange-600" />,
+  MOBILE_MONEY: <CreditCard className="size-4 text-orange-600" />,
+  ESPECES: <Banknote className="size-4 text-emerald-600" />,
 };
 
 export default async function FinancesPage({ searchParams }: { searchParams: Promise<{ annee?: string }> }) {
@@ -158,7 +159,7 @@ export default async function FinancesPage({ searchParams }: { searchParams: Pro
                         <span className="text-muted-foreground">{formatFCFA(montant)} <span className="text-xs">({pct}%)</span></span>
                       </div>
                       <div className="bg-muted rounded-full h-2 overflow-hidden">
-                        <div className={`h-full rounded-full transition-all ${mode === "ORANGE_MONEY" ? "bg-orange-500" : "bg-sky-500"}`} style={{ width: `${pct}%` }} />
+                        <div className={`h-full rounded-full transition-all ${mode === "MOBILE_MONEY" ? "bg-orange-500" : mode === "ESPECES" ? "bg-emerald-500" : "bg-sky-500"}`} style={{ width: `${pct}%` }} />
                       </div>
                     </div>
                   );

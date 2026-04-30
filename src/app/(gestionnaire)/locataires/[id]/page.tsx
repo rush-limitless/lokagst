@@ -55,6 +55,7 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
         <div className="flex gap-4 p-3 bg-muted/30 rounded-lg text-sm flex-wrap">
           <span>🏠 Loyer : <strong>{formatFCFA(situation.bail?.montantLoyer || 0)}</strong></span>
           <span>⚡ Charges : <strong>{formatFCFA(situation.bail?.totalCharges || 0)}</strong></span>
+          <span>📅 Paiement le : <strong>{situation.bail?.jourLimitePaiement || "—"} du mois</strong></span>
           <span className={situation.totalDu > 0 ? "text-red-600" : "text-emerald-600"}>💰 Dû : <strong>{formatFCFA(situation.totalDu)}</strong></span>
           <span>📄 {loc.baux.length} bail(s)</span>
           <span>💳 {loc.baux.reduce((s, b) => s + b.paiements.length, 0)} paiement(s)</span>

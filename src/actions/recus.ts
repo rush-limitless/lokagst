@@ -18,7 +18,7 @@ export async function genererRecuData(paiementId: string) {
     montant: paiement.montant,
     moisConcerne: paiement.moisConcerne.toLocaleDateString("fr-FR", { month: "long", year: "numeric" }),
     datePaiement: paiement.datePaiement.toLocaleDateString("fr-FR"),
-    modePaiement: { VIREMENT_BANCAIRE: "Virement bancaire", ORANGE_MONEY: "Orange Money" }[paiement.modePaiement],
+    modePaiement: { VIREMENT_BANCAIRE: "Virement bancaire", MOBILE_MONEY: "Mobile Money", ESPECES: "Espèces" }[paiement.modePaiement],
     statut: paiement.statut === "PAYE" ? "Payé" : "Partiellement payé",
     resteDu: paiement.resteDu,
     loyerMensuel: paiement.bail.montantLoyer,

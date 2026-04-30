@@ -131,7 +131,7 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
                   <td className="p-3 text-right font-semibold text-foreground text-xs">{formatFCFA(p.montant)}</td>
                   <td className="p-3">
                     <Badge variant="secondary" className="text-[10px] font-normal">
-                      {p.modePaiement === "ORANGE_MONEY" ? "🟠 OM" : "🏦 Vir."}
+                      {p.modePaiement === "MOBILE_MONEY" ? "📱 MM" : p.modePaiement === "ESPECES" ? "💵 Esp." : "🏦 Vir."}
                     </Badge>
                   </td>
                   <td className="p-3">

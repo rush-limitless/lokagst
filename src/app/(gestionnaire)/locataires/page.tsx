@@ -138,6 +138,7 @@ export default async function LocatairesPage({ searchParams }: { searchParams: P
                       <th className="p-3 font-medium">Immeuble</th>
                       <th className="p-3 font-medium">Appartement</th>
                       <th className="p-3 font-medium">Loyer</th>
+                      <th className="p-3 font-medium">Jour limite</th>
                       <th className="p-3 font-medium">Statut</th>
                       <th className="p-3 font-medium text-right">Actions</th>
                     </tr>
@@ -162,6 +163,7 @@ export default async function LocatairesPage({ searchParams }: { searchParams: P
                           ) : "—"}
                         </td>
                         <td className="p-3 text-sm font-medium text-foreground">{l.baux[0] ? formatFCFA(l.baux[0].totalMensuel) : "—"}</td>
+                        <td className="p-3 text-sm text-muted-foreground">{l.baux[0] ? `Le ${l.baux[0].jourLimitePaiement}` : "—"}</td>
                         <td className="p-3"><StatusBadge status={l.statut === "ACTIF" ? "actif" : "archive"} label={l.statut === "ACTIF" ? "Actif" : "Archivé"} /></td>
                         <td className="p-3 text-right">
                           <Link href={`/locataires/${l.id}`}>
