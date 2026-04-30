@@ -28,14 +28,6 @@ export default function NouveauBail() {
 
   const [periodicite, setPeriodicite] = useState("MENSUEL");
 
-  const selectedAppartObj = apparts.find((a) => a.id === selectedAppart);
-  const isMeuble = selectedAppartObj && ["APPARTEMENT_MEUBLE", "CHAMBRE_MEUBLE", "STUDIO_MEUBLE"].includes(selectedAppartObj.type);
-
-  useEffect(() => {
-    if (isMeuble) setPeriodicite("JOURNALIER");
-    else if (periodicite === "JOURNALIER") setPeriodicite("MENSUEL");
-  }, [isMeuble]);
-
   useEffect(() => {
     getLocataires({ statut: "ACTIF" }).then(setLocataires);
     getAppartements().then(setApparts);
@@ -125,7 +117,7 @@ export default function NouveauBail() {
             )}
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2"><Label>Date de début</Label><Input name="dateDebut" type="date" required /></div>
-              <div className="space-y-2"><Label>{isMeuble ? "Durée (jours)" : "Durée (mois)"}</Label><Input name="dureeMois" type="number" min="1" defaultValue={isMeuble ? "1" : "12"} required /></div>
+              <div className="space-y-2"><Label>Durée (mois)</Label><Input name="dureeMois" type="number" min="1" defaultValue="12" required /></div>
               <div className="space-y-2">
                 <Label>Caution (FCFA)</Label>
                 <Input name="montantCaution" type="number" min="0" defaultValue="0" required />
@@ -136,9 +128,6 @@ export default function NouveauBail() {
             </div>
             <div className="space-y-2">
               <Label>Périodicité de paiement</Label>
-              {isMeuble ? (
-                <p className="text-sm text-muted-foreground p-2 bg-muted/50 rounded">Journalier (meublé)</p>
-              ) : (
               <select name="periodicite" className="w-full border rounded-md p-2" value={periodicite} onChange={(e) => setPeriodicite(e.target.value)}>
                 <option value="ANNUEL">Annuel (12 mois)</option>
                 <option value="SEMESTRIEL">Semestriel (6 mois)</option>
@@ -147,8 +136,6 @@ export default function NouveauBail() {
                 <option value="JOURNALIER">Journalier</option>
                 <option value="NON_APPLICABLE">Non applicable</option>
               </select>
-              )}
-              {isMeuble && <input type="hidden" name="periodicite" value="JOURNALIER" />}
               <p className="text-xs text-muted-foreground">Les factures et reçus seront émis selon cette périodicité</p>
             </div>
             <div className="bg-primary/5 p-3 rounded text-sm text-primary">
@@ -210,7 +197,6 @@ export default function NouveauBail() {
           </CardContent>
         </Card>
 
-        {!isMeuble && (
         <Card>
           <CardHeader><CardTitle>Modalités de paiement</CardTitle></CardHeader>
           <CardContent className="space-y-4">
@@ -236,9 +222,7 @@ export default function NouveauBail() {
             </div>
           </CardContent>
         </Card>
-        )}
 
-        {!isMeuble && (
         <Card>
           <CardHeader><CardTitle>Renouvellement et résiliation</CardTitle></CardHeader>
           <CardContent className="space-y-4">
@@ -260,7 +244,6 @@ export default function NouveauBail() {
             </div>
           </CardContent>
         </Card>
-        )}
 
         <Card>
           <CardHeader><CardTitle>Clauses particulières</CardTitle></CardHeader>
