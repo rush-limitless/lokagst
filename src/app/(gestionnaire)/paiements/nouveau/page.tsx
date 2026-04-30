@@ -24,6 +24,9 @@ export default function NouveauPaiement() {
 
   useEffect(() => { getBaux({ statut: "ACTIF" }).then(setBaux); }, []);
 
+  const isJournalier = selectedBail?.periodicite === "JOURNALIER";
+  const periodeLabel = isJournalier ? "jour(s)" : "mois";
+
   useEffect(() => {
     if (selectedBail) {
       setMontantLoyer(selectedBail.montantLoyer * nbMois);
@@ -66,18 +69,20 @@ export default function NouveauPaiement() {
             </div>
             {selectedBail && (
               <div className="bg-primary/5 p-3 rounded text-sm space-y-1">
-                <p>Loyer : <strong>{selectedBail.montantLoyer.toLocaleString()} FCFA</strong></p>
-                <p>Charges : <strong>{selectedBail.totalCharges.toLocaleString()} FCFA</strong></p>
-                <p>Total mensuel : <strong>{selectedBail.totalMensuel.toLocaleString()} FCFA</strong></p>
+                <p>Loyer{isJournalier ? "/jour" : ""} : <strong>{selectedBail.montantLoyer.toLocaleString()} FCFA</strong></p>
+                <p>Charges{isJournalier ? "/jour" : ""} : <strong>{selectedBail.totalCharges.toLocaleString()} FCFA</strong></p>
+                <p>Total {isJournalier ? "journalier" : "mensuel"} : <strong>{selectedBail.totalMensuel.toLocaleString()} FCFA</strong></p>
                 <p>Caution : <strong>{selectedBail.montantCaution.toLocaleString()} FCFA</strong> {selectedBail.cautionPayee ? "✅ Payée" : "❌ Non payée"}</p>
+                <p>Périodicité : <strong>{selectedBail.periodicite}</strong></p>
               </div>
             )}
             <div className="space-y-2">
-              <Label>Nombre de mois couverts</Label>
-              <Input type="number" min="1" max="12" value={nbMois} onChange={(e) => setNbMois(parseInt(e.target.value) || 1)} />
-              {nbMois > 1 && <p className="text-xs text-muted-foreground">Le paiement sera ventilé sur {nbMois} mois à partir de la date indiquée</p>}
+              <Label>Nombre de {periodeLabel} couverts</Label>
+              <Input type="number" min="1" max={isJournalier ? 365 : 12} value={nbMois} onChange={(e) => setNbMois(parseInt(e.target.value) || 1)} />
+              {nbMois > 1 && !isJournalier && <p className="text-xs text-muted-foreground">Le paiement sera ventilé sur {nbMois} mois à partir de la date indiquée</p>}
+              {isJournalier && <p className="text-xs text-muted-foreground">Paiement pour {nbMois} jour(s) — Total : {(selectedBail.totalMensuel * nbMois).toLocaleString()} FCFA</p>}
             </div>
-            <div className="space-y-2"><Label>Période concernée (1er jour du mois)</Label><Input name="moisConcerne" type="date" required /></div>
+            <div className="space-y-2"><Label>Période concernée (mois)</Label><Input name="moisConcerne" type="date" required />{selectedBail && <p className="text-xs text-muted-foreground">Le jour sera automatiquement ajusté au jour d&apos;entrée du locataire ({new Date(selectedBail.dateDebut).getDate()} du mois)</p>}</div>
 
             <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
               <p className="text-sm font-medium">Ventilation du paiement</p>

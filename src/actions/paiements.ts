@@ -39,14 +39,18 @@ export async function enregistrerPaiement(formData: FormData) {
     if (!bail) return { error: "Bail introuvable" };
 
     const nbMois = parsed.data.nbMois || 1;
-    // Le mois concerné est celui sélectionné par l'utilisateur (1er du mois)
-    const moisDepart = new Date(new Date(parsed.data.moisConcerne).getFullYear(), new Date(parsed.data.moisConcerne).getMonth(), 1);
+    // Utiliser le jour réel d'entrée du locataire (jour du dateDebut du bail)
+    const jourEntree = bail.dateDebut.getDate();
+    const moisConcerneInput = new Date(parsed.data.moisConcerne);
+    const moisDepart = new Date(moisConcerneInput.getFullYear(), moisConcerneInput.getMonth(), jourEntree);
 
     // Vérifier qu'aucun paiement complet n'existe déjà pour ces mois
     for (let i = 0; i < nbMois; i++) {
-      const mois = new Date(moisDepart.getFullYear(), moisDepart.getMonth() + i, 1);
+      const mois = new Date(moisDepart.getFullYear(), moisDepart.getMonth() + i, jourEntree);
+      const moisDebut = new Date(mois.getFullYear(), mois.getMonth(), 1);
+      const moisFin = new Date(mois.getFullYear(), mois.getMonth() + 1, 0);
       const existing = await prisma.paiement.findFirst({
-        where: { bailId: parsed.data.bailId, moisConcerne: mois, statut: "PAYE" },
+        where: { bailId: parsed.data.bailId, moisConcerne: { gte: moisDebut, lte: moisFin }, statut: "PAYE" },
       });
       if (existing) {
         const moisLabel = mois.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
@@ -55,6 +59,7 @@ export async function enregistrerPaiement(formData: FormData) {
     }
 
     // Smart ventilation: distribute month by month, filling each completely
+    // Pour JOURNALIER: totalMensuel = loyer/jour + charges/jour, chaque "mois" = 1 jour
     let remainingLoyer = parsed.data.montantLoyer;
     let remainingCharges = parsed.data.montantCharges;
     const updates: { id: string; addLoyer: number; addCharges: number }[] = [];
@@ -78,7 +83,7 @@ export async function enregistrerPaiement(formData: FormData) {
 
     // 2. Distribute remaining into new months, one at a time
     for (let i = 0; i < nbMois && (remainingLoyer > 0 || remainingCharges > 0); i++) {
-      const mois = new Date(moisDepart.getFullYear(), moisDepart.getMonth() + i, 1);
+      const mois = new Date(moisDepart.getFullYear(), moisDepart.getMonth() + i, jourEntree);
       const loyerCeMois = Math.min(remainingLoyer, bail.montantLoyer);
       const chargesCeMois = Math.min(remainingCharges, bail.totalCharges);
       if (loyerCeMois > 0 || chargesCeMois > 0) {
@@ -102,25 +107,52 @@ export async function enregistrerPaiement(formData: FormData) {
     }
 
     // Create new month entries
-    const paiements = creates.length > 0 ? await prisma.$transaction(
-      creates.map((c, i) => {
-        const montant = c.loyer + c.charges + (i === 0 ? (parsed.data.montantCaution || 0) + (parsed.data.montantAutres || 0) : 0);
-        const resteDu = Math.max(0, bail.totalMensuel - (c.loyer + c.charges));
-        return prisma.paiement.create({
-          data: {
-            bailId: parsed.data.bailId, montant,
-            montantLoyer: c.loyer, montantCharges: c.charges,
-            montantCaution: i === 0 ? (parsed.data.montantCaution || 0) : 0,
-            montantAutres: i === 0 ? (parsed.data.montantAutres || 0) : 0,
-            notesAutres: i === 0 ? (parsed.data.notesAutres || null) : null,
-            moisConcerne: c.moisConcerne, modePaiement: parsed.data.modePaiement,
-            resteDu, statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE",
-            preuvePaiement: parsed.data.preuvePaiement || null,
-            notes: i === 0 ? (parsed.data.notes || null) : `Ventilation mois ${i + 1}/${creates.length}`,
-          },
-        });
-      })
-    ) : [];
+    // Pour JOURNALIER: créer un seul paiement couvrant nbMois jours
+    const paiements: any[] = [];
+    const isJournalier = bail.periodicite === "JOURNALIER";
+    if (isJournalier && creates.length > 0) {
+      // Regrouper tous les jours en un seul paiement
+      const totalLoyer = creates.reduce((s, c) => s + c.loyer, 0);
+      const totalChargesP = creates.reduce((s, c) => s + c.charges, 0);
+      const montant = totalLoyer + totalChargesP + (parsed.data.montantCaution || 0) + (parsed.data.montantAutres || 0);
+      const attendu = bail.totalMensuel * nbMois;
+      const resteDu = Math.max(0, attendu - (totalLoyer + totalChargesP));
+      const paiement = await prisma.paiement.create({
+        data: {
+          bailId: parsed.data.bailId, montant,
+          montantLoyer: totalLoyer, montantCharges: totalChargesP,
+          montantCaution: parsed.data.montantCaution || 0,
+          montantAutres: parsed.data.montantAutres || 0,
+          notesAutres: parsed.data.notesAutres || null,
+          moisConcerne: creates[0].moisConcerne, modePaiement: parsed.data.modePaiement,
+          resteDu, statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE",
+          preuvePaiement: parsed.data.preuvePaiement || null,
+          notes: parsed.data.notes || `Paiement ${nbMois} jour(s)`,
+        },
+      });
+      paiements.push(paiement);
+    } else if (creates.length > 0) {
+      const created = await prisma.$transaction(
+        creates.map((c, i) => {
+          const montant = c.loyer + c.charges + (i === 0 ? (parsed.data.montantCaution || 0) + (parsed.data.montantAutres || 0) : 0);
+          const resteDu = Math.max(0, bail.totalMensuel - (c.loyer + c.charges));
+          return prisma.paiement.create({
+            data: {
+              bailId: parsed.data.bailId, montant,
+              montantLoyer: c.loyer, montantCharges: c.charges,
+              montantCaution: i === 0 ? (parsed.data.montantCaution || 0) : 0,
+              montantAutres: i === 0 ? (parsed.data.montantAutres || 0) : 0,
+              notesAutres: i === 0 ? (parsed.data.notesAutres || null) : null,
+              moisConcerne: c.moisConcerne, modePaiement: parsed.data.modePaiement,
+              resteDu, statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE",
+              preuvePaiement: parsed.data.preuvePaiement || null,
+              notes: i === 0 ? (parsed.data.notes || null) : `Ventilation mois ${i + 1}/${creates.length}`,
+            },
+          });
+        })
+      );
+      paiements.push(...created);
+    }
 
     if (parsed.data.montantCaution && parsed.data.montantCaution > 0) {
       await prisma.bail.update({ where: { id: parsed.data.bailId }, data: { cautionPayee: true } });

@@ -23,7 +23,11 @@ export async function getSituationGlobale() {
     while (d <= now) {
       const moisLabel = d.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
       const echeance = isMoisEcheance(d, debut, b.periodicite);
-      const paiement = b.paiements.find((p) => new Date(p.moisConcerne).getMonth() === d.getMonth() && new Date(p.moisConcerne).getFullYear() === d.getFullYear());
+      // Comparer par mois/année (pas par date exacte) pour trouver le paiement du mois
+      const paiement = b.paiements.find((p) => {
+        const mc = new Date(p.moisConcerne);
+        return mc.getMonth() === d.getMonth() && mc.getFullYear() === d.getFullYear();
+      });
       const montantPaye = paiement?.montant || 0;
 
       if (echeance) {

@@ -35,7 +35,6 @@ export async function getDashboardStats() {
     .map((b) => ({ bailId: b.id, locataire: `${b.locataire.prenom} ${b.locataire.nom}`, appartement: b.appartement.numero, dateFin: b.dateFin, joursRestants: Math.ceil((b.dateFin.getTime() - now.getTime()) / 86400000) }));
 
   const moisCourant = new Date(now.getFullYear(), now.getMonth(), 1);
-  const moisSuivant = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const jourDuMois = now.getDate();
   const impayesLocataires = bauxActifs
     .filter((b) => {
@@ -43,7 +42,7 @@ export async function getDashboardStats() {
       if (!isMoisEcheance(moisCourant, b.dateDebut, b.periodicite)) return false;
       return !b.paiements.some((p) => {
         const mc = new Date(p.moisConcerne);
-        return mc >= moisCourant && mc < moisSuivant && p.statut === "PAYE";
+        return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear() && p.statut === "PAYE";
       });
     })
     .map((b) => {

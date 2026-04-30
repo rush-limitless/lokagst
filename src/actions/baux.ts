@@ -54,6 +54,8 @@ export async function creerBail(formData: FormData) {
     const totalImpotsTaxes = impotsTaxes.reduce((s, c) => s + c.montant, 0);
 
     const totalMensuel = parsed.data.montantLoyer + totalCharges;
+    // Note: pour JOURNALIER, montantLoyer = loyer/jour, totalMensuel = loyer/jour + charges/jour
+    // Pour les autres périodicités, montantLoyer = loyer/mois, totalMensuel = loyer/mois + charges/mois
 
     // Check if there's an existing bail — handle caution difference
     const existingBail = await prisma.bail.findFirst({

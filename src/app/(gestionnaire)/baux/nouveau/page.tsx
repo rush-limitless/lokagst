@@ -26,6 +26,8 @@ export default function NouveauBail() {
   const [existingBail, setExistingBail] = useState<any>(null);
   const [confirmReplace, setConfirmReplace] = useState(false);
 
+  const [periodicite, setPeriodicite] = useState("MENSUEL");
+
   useEffect(() => {
     getLocataires({ statut: "ACTIF" }).then(setLocataires);
     getAppartements().then(setApparts);
@@ -71,8 +73,7 @@ export default function NouveauBail() {
       setConfirmReplace(true);
       return;
     }
-    formData.set("chargesLocatives", JSON.stringify(charges));
-    formData.set("impotsTaxes", JSON.stringify(impotsTaxes));
+    // Les charges et impôts sont déjà dans les champs hidden du formulaire
     const result = await creerBail(formData);
     if (result.error) { toast.error(result.error); return; }
     toast.success("Bail créé" + (existingBail ? " — ancien bail terminé" : ""));
@@ -127,7 +128,7 @@ export default function NouveauBail() {
             </div>
             <div className="space-y-2">
               <Label>Périodicité de paiement</Label>
-              <select name="periodicite" className="w-full border rounded-md p-2">
+              <select name="periodicite" className="w-full border rounded-md p-2" value={periodicite} onChange={(e) => setPeriodicite(e.target.value)}>
                 <option value="ANNUEL">Annuel (12 mois)</option>
                 <option value="SEMESTRIEL">Semestriel (6 mois)</option>
                 <option value="TRIMESTRIEL">Trimestriel (3 mois)</option>
@@ -146,7 +147,7 @@ export default function NouveauBail() {
         <Card>
           <CardHeader><CardTitle>Conditions financières</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2"><Label>Loyer mensuel (FCFA)</Label><Input name="montantLoyer" type="number" min="1" required /></div>
+            <div className="space-y-2"><Label>{periodicite === "JOURNALIER" ? "Loyer journalier (FCFA)" : "Loyer mensuel (FCFA)"}</Label><Input name="montantLoyer" type="number" min="1" required />{periodicite === "JOURNALIER" && <p className="text-xs text-muted-foreground">Saisissez le montant du loyer par jour</p>}{periodicite === "NON_APPLICABLE" && <p className="text-xs text-muted-foreground">Saisissez le montant total convenu</p>}</div>
 
             <div className="space-y-2">
               <Label>Charges locatives</Label>
@@ -252,6 +253,8 @@ export default function NouveauBail() {
         </Card>
 
         <Button type="submit" className="w-full" size="lg">Créer le bail</Button>
+        <input type="hidden" name="chargesLocatives" value={JSON.stringify(charges)} />
+        <input type="hidden" name="impotsTaxes" value={JSON.stringify(impotsTaxes)} />
       </form>
     </div>
   );
