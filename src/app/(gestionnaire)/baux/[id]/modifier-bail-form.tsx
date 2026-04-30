@@ -13,6 +13,7 @@ export function ModifierBailForm({ bail }: { bail: any }) {
   const [editing, setEditing] = useState(false);
   const charges = (bail.chargesLocatives as { type: string; montant: number }[]) || [];
   const [chargesList, setChargesList] = useState(charges);
+  const isMeuble = bail.appartement && ["APPARTEMENT_MEUBLE", "CHAMBRE_MEUBLE", "STUDIO_MEUBLE"].includes(bail.appartement.type);
 
   function addCharge() { setChargesList([...chargesList, { type: "", montant: 0 }]); }
   function removeCharge(i: number) { setChargesList(chargesList.filter((_, idx) => idx !== i)); }
@@ -42,14 +43,17 @@ export function ModifierBailForm({ bail }: { bail: any }) {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <div className="space-y-1"><Label className="text-xs">Début</Label><Input name="dateDebut" type="date" defaultValue={new Date(bail.dateDebut).toISOString().slice(0, 10)} /></div>
         <div className="space-y-1"><Label className="text-xs">Fin</Label><Input name="dateFin" type="date" defaultValue={new Date(bail.dateFin).toISOString().slice(0, 10)} /></div>
-        <div className="space-y-1"><Label className="text-xs">Loyer (FCFA)</Label><Input name="montantLoyer" type="number" defaultValue={bail.montantLoyer} /></div>
+        <div className="space-y-1"><Label className="text-xs">{isMeuble ? "Loyer journalier (FCFA)" : "Loyer (FCFA)"}</Label><Input name="montantLoyer" type="number" defaultValue={bail.montantLoyer} /></div>
         <div className="space-y-1"><Label className="text-xs">Caution (FCFA)</Label><Input name="montantCaution" type="number" defaultValue={bail.montantCaution} /></div>
+        {!isMeuble && (
         <div className="space-y-1">
           <Label className="text-xs">Renouvellement auto</Label>
           <select name="renouvellementAuto" defaultValue={bail.renouvellementAuto ? "true" : "false"} className="w-full border rounded-md p-2 text-sm bg-card">
             <option value="true">Oui</option><option value="false">Non</option>
           </select>
         </div>
+        )}
+        {!isMeuble ? (
         <div className="space-y-1">
           <Label className="text-xs">Périodicité</Label>
           <select name="periodicite" defaultValue={bail.periodicite} className="w-full border rounded-md p-2 text-sm bg-card">
@@ -60,6 +64,9 @@ export function ModifierBailForm({ bail }: { bail: any }) {
             <option value="ANNUEL">Annuel (12 mois)</option>
           </select>
         </div>
+        ) : (
+          <input type="hidden" name="periodicite" value="JOURNALIER" />
+        )}
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
