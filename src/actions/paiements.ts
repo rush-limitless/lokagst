@@ -186,7 +186,6 @@ export async function modifierPaiement(id: string, formData: FormData) {
     const montantCaution = parseInt(formData.get("montantCaution") as string) || 0;
     const montantAutres = parseInt(formData.get("montantAutres") as string) || 0;
     const notes = formData.get("notes") as string;
-    const moisConcerneRaw = formData.get("moisConcerne") as string;
 
     if (!montant || montant <= 0) return { error: "Montant invalide" };
 
@@ -196,7 +195,7 @@ export async function modifierPaiement(id: string, formData: FormData) {
     const resteDu = Math.max(0, paiement.bail.totalMensuel - montant);
     await prisma.paiement.update({
       where: { id },
-      data: { montant, montantLoyer, montantCharges, montantCaution, montantAutres, notes, resteDu, statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE", ...(moisConcerneRaw ? { moisConcerne: new Date(moisConcerneRaw) } : {}) },
+      data: { montant, montantLoyer, montantCharges, montantCaution, montantAutres, notes, resteDu, statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE" },
     });
 
     revalidatePath("/paiements");
