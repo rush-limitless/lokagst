@@ -35,6 +35,7 @@ export function ModifierPaiementButton({ paiement: p }: { paiement: any }) {
         <h3 className="text-lg font-bold text-foreground">Modifier le paiement</h3>
         <form action={handleSubmit} className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1 col-span-2"><Label className="text-xs">{p.bail?.periodicite === "JOURNALIER" ? "Date concernée" : "Mois concerné"}</Label><Input name="moisConcerne" type="date" defaultValue={new Date(p.moisConcerne).toISOString().slice(0, 10)} /></div>
             <div className="space-y-1"><Label className="text-xs">Loyer</Label><Input name="montantLoyer" type="number" value={loyer} onChange={(e) => setLoyer(parseInt(e.target.value) || 0)} /></div>
             <div className="space-y-1"><Label className="text-xs">Charges</Label><Input name="montantCharges" type="number" value={charges} onChange={(e) => setCharges(parseInt(e.target.value) || 0)} /></div>
             <div className="space-y-1"><Label className="text-xs">Caution</Label><Input name="montantCaution" type="number" value={caution} onChange={(e) => setCaution(parseInt(e.target.value) || 0)} /></div>
