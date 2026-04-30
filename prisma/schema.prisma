@@ -319,7 +319,6 @@ enum StatutBail {
 enum ModePaiement {
   VIREMENT_BANCAIRE
   ORANGE_MONEY
-  ESPECES
 }
 
 enum StatutPaiement {
