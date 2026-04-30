@@ -53,7 +53,6 @@ export function ModifierBailForm({ bail }: { bail: any }) {
         <div className="space-y-1">
           <Label className="text-xs">Périodicité</Label>
           <select name="periodicite" defaultValue={bail.periodicite} className="w-full border rounded-md p-2 text-sm bg-card">
-            <option value="JOURNALIER">Journalier</option>
             <option value="MENSUEL">Mensuel</option>
             <option value="TRIMESTRIEL">Trimestriel (3 mois)</option>
             <option value="SEMESTRIEL">Semestriel (6 mois)</option>
