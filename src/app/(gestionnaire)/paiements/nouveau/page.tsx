@@ -82,7 +82,7 @@ export default function NouveauPaiement() {
               {nbMois > 1 && !isJournalier && <p className="text-xs text-muted-foreground">Le paiement sera ventilé sur {nbMois} mois à partir de la date indiquée</p>}
               {isJournalier && <p className="text-xs text-muted-foreground">Paiement pour {nbMois} jour(s) — Total : {(selectedBail.totalMensuel * nbMois).toLocaleString()} FCFA</p>}
             </div>
-            <div className="space-y-2"><Label>Période concernée (mois)</Label><Input name="moisConcerne" type="date" required />{selectedBail && <p className="text-xs text-muted-foreground">Le jour sera automatiquement ajusté au jour d&apos;entrée du locataire ({new Date(selectedBail.dateDebut).getDate()} du mois)</p>}</div>
+            <div className="space-y-2"><Label>{isJournalier ? "Date concernée (jour)" : "Période concernée (mois)"}</Label><Input name="moisConcerne" type="date" required />{selectedBail && !isJournalier && <p className="text-xs text-muted-foreground">Le jour sera automatiquement ajusté au jour d&apos;entrée du locataire ({new Date(selectedBail.dateDebut).getDate()} du mois)</p>}</div>
 
             <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
               <p className="text-sm font-medium">Ventilation du paiement</p>
