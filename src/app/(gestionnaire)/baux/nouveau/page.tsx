@@ -93,7 +93,7 @@ export default function NouveauBail() {
                 <Label>Locataire</Label>
                 <select name="locataireId" className="w-full border rounded-md p-2" required value={selectedLocataire} onChange={(e) => setSelectedLocataire(e.target.value)}>
                   <option value="">Sélectionner...</option>
-                  {locataires.map((l) => <option key={l.id} value={l.id}>{l.nom} {l.prenom}</option>)}
+                  {locataires.map((l) => <option key={l.id} value={l.id}>{l.prenom} {l.nom}</option>)}
                 </select>
               </div>
               <div className="space-y-2">

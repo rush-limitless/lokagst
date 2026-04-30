@@ -135,7 +135,7 @@ async function main() {
         montantLoyer: l.loyer, montantCaution: l.caution, cautionPayee: true,
         totalCharges: l.charges, totalMensuel,
         chargesLocatives: [{ type: "Charges", montant: l.charges }],
-        jourLimitePaiement: Math.min(dateDebut.getDate(), 28), periodicite: "MENSUEL",
+        jourLimitePaiement: 5, periodicite: "MENSUEL",
       },
     });
 
@@ -155,7 +155,7 @@ async function main() {
             montant: totalMensuel,
             moisConcerne,
             datePaiement: new Date(moisConcerne.getFullYear(), moisConcerne.getMonth(), 5),
-            modePaiement: Math.random() > 0.5 ? "VIREMENT_BANCAIRE" : "MOBILE_MONEY",
+            modePaiement: Math.random() > 0.5 ? "VIREMENT_BANCAIRE" : "ORANGE_MONEY",
             totalDu: totalMensuel,
           },
         });

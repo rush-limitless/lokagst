@@ -63,7 +63,7 @@ export default function NouveauPaiement() {
               <select name="bailId" className="w-full border rounded-md p-2" required onChange={(e) => { setSelectedBail(baux.find((b) => b.id === e.target.value)); setNbMois(1); }}>
                 <option value="">Sélectionner...</option>
                 {baux.map((b) => (
-                  <option key={b.id} value={b.id}>{b.locataire.nom} {b.locataire.prenom} — {b.appartement.numero} ({periodiciteLabel[b.periodicite] || "mensuel"})</option>
+                  <option key={b.id} value={b.id}>{b.locataire.prenom} {b.locataire.nom} — {b.appartement.numero} ({periodiciteLabel[b.periodicite] || "mensuel"})</option>
                 ))}
               </select>
             </div>
@@ -100,8 +100,7 @@ export default function NouveauPaiement() {
               <Label>Mode de paiement</Label>
               <select name="modePaiement" className="w-full border rounded-md p-2" required>
                 <option value="VIREMENT_BANCAIRE">Virement bancaire</option>
-                <option value="MOBILE_MONEY">Mobile Money</option>
-                <option value="ESPECES">Espèces</option>
+                <option value="ORANGE_MONEY">Orange Money</option>
               </select>
             </div>
             <div className="space-y-2">

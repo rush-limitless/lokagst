@@ -54,9 +54,7 @@ export const STATUT_BAIL_LABELS: Record<string, string> = {
 
 export const MODE_PAIEMENT_LABELS: Record<string, string> = {
   VIREMENT_BANCAIRE: "Virement bancaire",
-  MOBILE_MONEY: "Mobile Money",
-  ESPECES: "Espèces",
-  ORANGE_MONEY: "Mobile Money",
+  ORANGE_MONEY: "Orange Money",
 };
 
 export const PERIODICITE_LABELS: Record<string, string> = {

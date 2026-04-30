@@ -59,7 +59,7 @@ export const paiementSchema = z.object({
   notesAutres: z.string().optional(),
   moisConcerne: z.coerce.date(),
   nbMois: z.coerce.number().int().min(1).default(1),
-  modePaiement: z.enum(["VIREMENT_BANCAIRE", "MOBILE_MONEY", "ESPECES"]),
+  modePaiement: z.enum(["VIREMENT_BANCAIRE", "ORANGE_MONEY"]),
   preuvePaiement: z.string().optional(),
   notes: z.string().optional(),
 });
