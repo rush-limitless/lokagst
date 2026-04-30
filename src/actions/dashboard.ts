@@ -35,29 +35,46 @@ export async function getDashboardStats() {
     .map((b) => ({ bailId: b.id, locataire: `${b.locataire.prenom} ${b.locataire.nom}`, appartement: b.appartement.numero, dateFin: b.dateFin, joursRestants: Math.ceil((b.dateFin.getTime() - now.getTime()) / 86400000) }));
 
   const moisCourant = new Date(now.getFullYear(), now.getMonth(), 1);
-  const jourDuMois = now.getDate();
+  
+  // Logique du fichier Excel du boss :
+  // Impayés = Loyers attendus - Loyers effectivement payés (la différence)
+  // Pas de condition sur le jour limite — on montre toujours la différence
   const impayesLocataires = bauxActifs
     .filter((b) => {
-      if (jourDuMois <= b.jourLimitePaiement) return false;
       if (!isMoisEcheance(moisCourant, b.dateDebut, b.periodicite)) return false;
-      return !b.paiements.some((p) => {
+      const freq = PERIODICITE_MOIS[b.periodicite] || 1;
+      const attendu = b.totalMensuel * (freq > 0 ? freq : 1);
+      // Trouver le paiement du mois courant
+      const paiementMois = b.paiements.filter((p) => {
         const mc = new Date(p.moisConcerne);
-        return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear() && p.statut === "PAYE";
+        return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear();
       });
+      const totalPaye = paiementMois.reduce((s, p) => s + p.montant, 0);
+      return totalPaye < attendu;
     })
     .map((b) => {
       const freq = PERIODICITE_MOIS[b.periodicite] || 1;
+      const loyerAttendu = b.montantLoyer * (freq > 0 ? freq : 1);
+      const chargesAttendues = b.totalCharges * (freq > 0 ? freq : 1);
+      // Calculer ce qui a été payé ce mois
+      const paiementMois = b.paiements.filter((p) => {
+        const mc = new Date(p.moisConcerne);
+        return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear();
+      });
+      const loyerPaye = paiementMois.reduce((s, p) => s + p.montantLoyer, 0);
+      const chargesPaye = paiementMois.reduce((s, p) => s + p.montantCharges, 0);
       return {
         locataireId: b.locataireId,
         nom: `${b.locataire.prenom} ${b.locataire.nom}`,
-        montantDu: (b.totalMensuel || b.montantLoyer) * (freq > 0 ? freq : 1),
-        loyerDu: b.montantLoyer * (freq > 0 ? freq : 1),
-        chargesDu: b.totalCharges * (freq > 0 ? freq : 1),
+        montantDu: Math.max(0, (loyerAttendu + chargesAttendues) - (loyerPaye + chargesPaye)),
+        loyerDu: Math.max(0, loyerAttendu - loyerPaye),
+        chargesDu: Math.max(0, chargesAttendues - chargesPaye),
       };
     })
+    .filter((l) => l.montantDu > 0)
     .sort((a, b) => a.nom.localeCompare(b.nom, "fr"));
 
-  // Impayés = somme des montants dus par les locataires en retard (pas la soustraction globale)
+  // Impayés = différence entre loyers attendus et loyers effectivement payés par locataire
   const impayesMois = impayesLocataires.reduce((s, l) => s + l.montantDu, 0);
   const impayesLoyers = impayesLocataires.reduce((s, l) => s + l.loyerDu, 0);
   const impayesCharges = impayesLocataires.reduce((s, l) => s + l.chargesDu, 0);
