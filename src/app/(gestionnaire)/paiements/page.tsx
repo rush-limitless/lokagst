@@ -160,9 +160,9 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
       {/* Pagination */}
       {pages > 1 && (
         <div className="flex justify-center gap-2">
-          {currentPage > 1 && <Link href={`/paiements?page=${currentPage - 1}${q ? `&q=${q}` : ""}`}><Button variant="outline" size="sm">← Précédent</Button></Link>}
+          {currentPage > 1 && <Link href={`/paiements?page=${currentPage - 1}${q ? `&q=${q}` : ""}${appart ? `&appart=${appart}` : ""}${mois ? `&mois=${mois}` : ""}`}><Button variant="outline" size="sm">← Précédent</Button></Link>}
           <span className="flex items-center text-sm text-muted-foreground px-3">Page {currentPage} / {pages} ({total})</span>
-          {currentPage < pages && <Link href={`/paiements?page=${currentPage + 1}${q ? `&q=${q}` : ""}`}><Button variant="outline" size="sm">Suivant →</Button></Link>}
+          {currentPage < pages && <Link href={`/paiements?page=${currentPage + 1}${q ? `&q=${q}` : ""}${appart ? `&appart=${appart}` : ""}${mois ? `&mois=${mois}` : ""}`}><Button variant="outline" size="sm">Suivant →</Button></Link>}
         </div>
       )}
     </div>
