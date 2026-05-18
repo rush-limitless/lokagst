@@ -12,15 +12,18 @@ import { Plus, Calendar, Wallet, Clock, Filter, X, Receipt, FileCheck, Paperclip
 export default async function PaiementsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string; appart?: string; mois?: string }> }) {
   const { q, page, appart, mois } = await searchParams;
   const currentPage = parseInt(page || "1");
-  const { paiements: allPaiements, total, pages } = await getPaiements({ page: currentPage, limit: 50 });
 
-  let filtered = allPaiements;
-  if (q) filtered = filtered.filter((p) => `${p.bail.locataire.prenom} ${p.bail.locataire.nom}`.toLowerCase().includes(q.toLowerCase()));
-  if (appart) filtered = filtered.filter((p) => p.bail.appartement.numero.toLowerCase().includes(appart.toLowerCase()));
+  // Filtre côté serveur
+  const where: any = {};
+  if (q) where.bail = { locataire: { OR: [{ nom: { contains: q, mode: "insensitive" } }, { prenom: { contains: q, mode: "insensitive" } }] } };
+  if (appart) where.bail = { ...where.bail, appartement: { numero: { contains: appart, mode: "insensitive" } } };
   if (mois) {
     const [y, m] = mois.split("-").map(Number);
-    filtered = filtered.filter((p) => new Date(p.moisConcerne).getFullYear() === y && new Date(p.moisConcerne).getMonth() === m - 1);
+    where.moisConcerne = { gte: new Date(y, m - 1, 1), lt: new Date(y, m, 1) };
   }
+
+  const { paiements: allPaiements, total, pages } = await getPaiements({ page: currentPage, limit: 50, where });
+  const filtered = allPaiements;
 
   const now = new Date();
   const totalMois = filtered.filter((p) => new Date(p.moisConcerne).getMonth() === now.getMonth() && new Date(p.moisConcerne).getFullYear() === now.getFullYear()).reduce((s, p) => s + p.montant, 0);
@@ -131,7 +134,7 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
                   <td className="p-3 text-right font-semibold text-foreground text-xs">{formatFCFA(p.montant)}</td>
                   <td className="p-3">
                     <Badge variant="secondary" className="text-[10px] font-normal">
-                      {p.modePaiement === "MOBILE_MONEY" ? "🟠 OM" : "🏦 Vir."}
+                      {p.modePaiement === "MOBILE_MONEY" ? "🟠 Mobile" : p.modePaiement === "ESPECES" ? "💵 Espèces" : "🏦 Vir."}
                     </Badge>
                   </td>
                   <td className="p-3">

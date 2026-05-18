@@ -13,3 +13,4 @@ docs/*.aux
 docs/*.out
 docs/*.toc
 docs/*.log
+.vercel

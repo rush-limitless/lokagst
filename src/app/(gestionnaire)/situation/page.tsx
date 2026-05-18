@@ -5,6 +5,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { StatusBadge } from "@/components/status-badge";
 import Link from "next/link";
 import { ImprimerDettesButton } from "./imprimer-dettes";
+import { RappelGroupeButton } from "./rappel-groupe-button";
 
 export default async function SituationPage({ searchParams }: { searchParams: Promise<{ filtre?: string }> }) {
   const { filtre } = await searchParams;
@@ -36,7 +37,8 @@ export default async function SituationPage({ searchParams }: { searchParams: Pr
         <Link href="/situation" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!filtre ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Tous ({situations.length})</Link>
         <Link href="/situation?filtre=ajour" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${filtre === "ajour" ? "bg-emerald-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>✅ À jour ({totalAJour})</Link>
         <Link href="/situation?filtre=impayes" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${filtre === "impayes" ? "bg-red-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>❌ Impayés ({totalImpayes})</Link>
-        <div className="ml-auto">
+        <div className="ml-auto flex gap-2">
+          <RappelGroupeButton nbImpayes={totalImpayes} />
           <ImprimerDettesButton />
         </div>
       </div>
@@ -48,7 +50,7 @@ export default async function SituationPage({ searchParams }: { searchParams: Pr
           <Link key={s.locataireId} href={`/locataires/${s.locataireId}`} className="block">
             <div className={`bg-card border rounded-xl p-4 hover:shadow-md transition-all ${s.aJour ? "border-emerald-200 dark:border-emerald-900" : "border-red-200 dark:border-red-900"}`}>
               <div className="flex items-center gap-4">
-                <UserAvatar nom={s.locataire.split(" ").pop() || ""} prenom={s.locataire.split(" ")[0]} photo={s.photo} />
+                <UserAvatar nom={s.locataire.split(" ").slice(-1)[0]} prenom={s.locataire.split(" ")[0]} photo={s.photo} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-foreground">{s.locataire}</p>

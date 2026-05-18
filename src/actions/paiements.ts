@@ -6,8 +6,8 @@ import { revalidatePath } from "next/cache";
 import { envoyerRecuPaiement } from "./emails";
 import { logAction } from "@/lib/audit";
 
-export async function getPaiements(filters?: { bailId?: string; locataireId?: string; page?: number; limit?: number }) {
-  const where: any = {};
+export async function getPaiements(filters?: { bailId?: string; locataireId?: string; page?: number; limit?: number; where?: any }) {
+  const where: any = filters?.where || {};
   if (filters?.bailId) where.bailId = filters.bailId;
   if (filters?.locataireId) where.bail = { locataireId: filters.locataireId };
 

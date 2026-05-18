@@ -10,10 +10,11 @@ import {
   ArrowUpRight, Banknote, CreditCard, PiggyBank,
 } from "lucide-react";
 
-const MODE_LABELS: Record<string, string> = { VIREMENT_BANCAIRE: "Virement bancaire", MOBILE_MONEY: "Mobile money" };
+const MODE_LABELS: Record<string, string> = { VIREMENT_BANCAIRE: "Virement bancaire", MOBILE_MONEY: "Mobile money", ESPECES: "Espèces" };
 const MODE_ICONS: Record<string, React.ReactNode> = {
   VIREMENT_BANCAIRE: <Banknote className="size-4 text-sky-600" />,
   MOBILE_MONEY: <CreditCard className="size-4 text-orange-600" />,
+  ESPECES: <PiggyBank className="size-4 text-emerald-600" />,
 };
 
 export default async function FinancesPage({ searchParams }: { searchParams: Promise<{ annee?: string }> }) {
