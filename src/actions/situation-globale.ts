@@ -39,7 +39,12 @@ export async function getSituationGlobale() {
         const chargesPaye = montantPaye >= totalAttendu;
 
         if (!loyerPaye) { moisLoyerImpayes++; montantLoyerDu += loyerAttendu - Math.min(montantPaye, loyerAttendu); }
-        if (!chargesPaye && b.totalCharges > 0) { moisChargesImpayes++; montantChargesDu += chargesAttendues - Math.max(0, montantPaye - loyerAttendu); }
+        if (!chargesPaye && b.totalCharges > 0) {
+          moisChargesImpayes++;
+          // Ce que le locataire a payé en charges = ce qui reste après avoir couvert le loyer (0 si loyer pas couvert)
+          const payePourCharges = montantPaye > loyerAttendu ? montantPaye - loyerAttendu : 0;
+          montantChargesDu += chargesAttendues - Math.min(payePourCharges, chargesAttendues);
+        }
 
         detailMois.push({ mois: moisLabel, loyerPaye, chargesPaye, montantPaye, echeance: true });
       } else {

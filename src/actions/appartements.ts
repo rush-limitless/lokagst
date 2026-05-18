@@ -14,13 +14,13 @@ export async function getAppartements(filters?: { etage?: string; statut?: strin
 
   const appartements = await prisma.appartement.findMany({
     where,
-    include: { baux: { where: { statut: "ACTIF" }, include: { locataire: { select: { nom: true, prenom: true } } } }, immeuble: { select: { id: true, nom: true } } },
+    include: { baux: { orderBy: { dateDebut: "desc" }, take: 2, include: { locataire: { select: { nom: true, prenom: true } } } }, immeuble: { select: { id: true, nom: true } } },
     orderBy: [{ immeuble: { nom: "asc" } }, { etage: "asc" }, { numero: "asc" }],
   });
 
   return appartements.map((a) => ({
     ...a,
-    locataireActuel: a.baux[0]?.locataire || null,
+    locataireActuel: a.baux.find((b) => b.statut === "ACTIF")?.locataire || null,
   }));
 }
 

@@ -52,11 +52,14 @@ export default function NouveauBail() {
   const isMeuble = selectedAppartData && ["APPARTEMENT_MEUBLE", "STUDIO_MEUBLE", "CHAMBRE_MEUBLE"].includes(selectedAppartData.type);
 
   useEffect(() => {
-    if (selectedAppartData && charges.length === 0) {
-      // Pré-remplir avec les charges du bail actif de l'appartement si disponible
-      const bailActif = selectedAppartData.baux?.find((b: any) => b.statut === "ACTIF");
-      if (bailActif?.chargesLocatives?.length > 0) {
-        setCharges(bailActif.chargesLocatives);
+    if (selectedAppartData) {
+      // Pré-remplir avec les charges du bail le plus récent (actif ou terminé)
+      const dernierBail = selectedAppartData.baux?.find((b: any) => b.statut === "ACTIF")
+        || selectedAppartData.baux?.[0];
+      if (dernierBail?.chargesLocatives?.length > 0) {
+        setCharges(dernierBail.chargesLocatives);
+      } else {
+        setCharges([]);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
