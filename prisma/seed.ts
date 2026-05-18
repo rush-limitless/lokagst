@@ -155,7 +155,7 @@ async function main() {
             montant: totalMensuel,
             moisConcerne,
             datePaiement: new Date(moisConcerne.getFullYear(), moisConcerne.getMonth(), 5),
-            modePaiement: Math.random() > 0.5 ? "VIREMENT_BANCAIRE" : "ORANGE_MONEY",
+            modePaiement: Math.random() > 0.5 ? "VIREMENT_BANCAIRE" : "MOBILE_MONEY",
             totalDu: totalMensuel,
           },
         });

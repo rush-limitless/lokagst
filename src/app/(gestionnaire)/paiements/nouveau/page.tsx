@@ -100,7 +100,8 @@ export default function NouveauPaiement() {
               <Label>Mode de paiement</Label>
               <select name="modePaiement" className="w-full border rounded-md p-2" required>
                 <option value="VIREMENT_BANCAIRE">Virement bancaire</option>
-                <option value="ORANGE_MONEY">Orange Money</option>
+                <option value="MOBILE_MONEY">Mobile money</option>
+                <option value="ESPECES">Espèces</option>
               </select>
             </div>
             <div className="space-y-2">

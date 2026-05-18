@@ -27,6 +27,8 @@ export default function NouveauBail() {
   const [confirmReplace, setConfirmReplace] = useState(false);
 
   const [periodicite, setPeriodicite] = useState("MENSUEL");
+  const [dureeJours, setDureeJours] = useState(1);
+  const [uniteduree, setUniteDuree] = useState<"jours" | "mois">("jours");
 
   useEffect(() => {
     getLocataires({ statut: "ACTIF" }).then(setLocataires);
@@ -44,6 +46,21 @@ export default function NouveauBail() {
       setExistingBail(null);
     }
   }, [selectedLocataire, selectedAppart, locataires]);
+
+  // Pré-remplir les charges depuis l'appartement sélectionné
+  const selectedAppartData = apparts.find((a) => a.id === selectedAppart);
+  const isMeuble = selectedAppartData && ["APPARTEMENT_MEUBLE", "STUDIO_MEUBLE", "CHAMBRE_MEUBLE"].includes(selectedAppartData.type);
+
+  useEffect(() => {
+    if (selectedAppartData && charges.length === 0) {
+      // Pré-remplir avec les charges du bail actif de l'appartement si disponible
+      const bailActif = selectedAppartData.baux?.find((b: any) => b.statut === "ACTIF");
+      if (bailActif?.chargesLocatives?.length > 0) {
+        setCharges(bailActif.chargesLocatives);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAppart]);
 
   function ajouterCharge() {
     if (!newChargeMontant) return;
@@ -73,7 +90,11 @@ export default function NouveauBail() {
       setConfirmReplace(true);
       return;
     }
-    // Les charges et impôts sont déjà dans les champs hidden du formulaire
+    // Pour meublé en jours : convertir en fraction de mois pour le champ dureeMois
+    if (isMeuble && uniteduree === "jours") {
+      formData.set("dureeMois", "1"); // 1 mois minimum pour la DB, la durée réelle est en jours
+      formData.set("dureeJours", dureeJours.toString());
+    }
     const result = await creerBail(formData);
     if (result.error) { toast.error(result.error); return; }
     toast.success("Bail créé" + (existingBail ? " — ancien bail terminé" : ""));
@@ -117,12 +138,39 @@ export default function NouveauBail() {
             )}
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2"><Label>Date de début</Label><Input name="dateDebut" type="date" required /></div>
-              <div className="space-y-2"><Label>Durée (mois)</Label><Input name="dureeMois" type="number" min="1" defaultValue="12" required /></div>
-              <div className="space-y-2">
-                <Label>Caution (FCFA)</Label>
+              {isMeuble ? (
+                <div className="space-y-2 col-span-2">
+                  <Label>Durée de location</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      name="dureeMois"
+                      type="number"
+                      min="1"
+                      max={uniteduree === "jours" ? 30 : 12}
+                      value={uniteduree === "jours" ? dureeJours : undefined}
+                      defaultValue={uniteduree === "mois" ? 1 : undefined}
+                      onChange={(e) => uniteduree === "jours" && setDureeJours(parseInt(e.target.value) || 1)}
+                      required
+                      className="w-24"
+                    />
+                    <select
+                      className="border rounded-md p-2"
+                      value={uniteduree}
+                      onChange={(e) => setUniteDuree(e.target.value as "jours" | "mois")}
+                    >
+                      <option value="jours">Jours (1-30)</option>
+                      <option value="mois">Mois</option>
+                    </select>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Appartement meublé — location courte durée possible</p>
+                </div>
+              ) : (
+                <div className="space-y-2"><Label>Durée (mois)</Label><Input name="dureeMois" type="number" min="1" defaultValue="12" required /></div>
+              )}
+              <div className="space-y-2"><Label>Caution (FCFA)</Label>
                 <Input name="montantCaution" type="number" min="0" defaultValue="0" required />
                 {existingBail && existingBail.montantCaution > 0 && (
-                  <p className="text-xs text-muted-foreground">Caution précédente : {existingBail.montantCaution.toLocaleString()} FCFA — le locataire ne paiera que la différence si la nouvelle caution est supérieure</p>
+                  <p className="text-xs text-muted-foreground">Caution précédente : {existingBail.montantCaution.toLocaleString()} FCFA</p>
                 )}
               </div>
             </div>
@@ -147,7 +195,13 @@ export default function NouveauBail() {
         <Card>
           <CardHeader><CardTitle>Conditions financières</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2"><Label>{periodicite === "JOURNALIER" ? "Loyer journalier (FCFA)" : "Loyer mensuel (FCFA)"}</Label><Input name="montantLoyer" type="number" min="1" required />{periodicite === "JOURNALIER" && <p className="text-xs text-muted-foreground">Saisissez le montant du loyer par jour</p>}{periodicite === "NON_APPLICABLE" && <p className="text-xs text-muted-foreground">Saisissez le montant total convenu</p>}</div>
+            <div className="space-y-2">
+              <Label>
+                {isMeuble && uniteduree === "jours" ? "Loyer journalier (FCFA)" : periodicite === "JOURNALIER" ? "Loyer journalier (FCFA)" : "Loyer mensuel (FCFA)"}
+              </Label>
+              <Input name="montantLoyer" type="number" min="1" required />
+              {isMeuble && uniteduree === "jours" && <p className="text-xs text-muted-foreground">Montant par jour pour cet appartement meublé</p>}
+            </div>
 
             <div className="space-y-2">
               <Label>Charges locatives</Label>
@@ -200,48 +254,83 @@ export default function NouveauBail() {
         <Card>
           <CardHeader><CardTitle>Modalités de paiement</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Jour limite de paiement</Label><Input name="jourLimitePaiement" type="number" min="1" max="28" defaultValue="5" /></div>
-              <div className="space-y-2"><Label>Délai de grâce (jours)</Label><Input name="delaiGrace" type="number" min="0" defaultValue="5" /></div>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Type de pénalité</Label>
-                <select name="penaliteType" className="w-full border rounded-md p-2">
-                  <option value="POURCENTAGE">Pourcentage du loyer</option>
-                  <option value="MONTANT_FIXE">Montant fixe (FCFA)</option>
-                </select>
+            {isMeuble && (
+              <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-sm text-blue-700 dark:text-blue-300">
+                ℹ️ Appartement meublé — modalités de paiement simplifiées (paiement à la réservation)
               </div>
-              <div className="space-y-2"><Label>Montant pénalité</Label><Input name="penaliteMontant" type="number" min="0" defaultValue="5" /></div>
-              <div className="space-y-2 flex items-end">
-                <label className="flex items-center gap-2 pb-2">
-                  <input type="checkbox" name="penaliteRecurrente" className="rounded" />
-                  <span className="text-sm">Récurrente (chaque semaine)</span>
-                </label>
-              </div>
-            </div>
+            )}
+            {!isMeuble && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2"><Label>Jour limite de paiement</Label><Input name="jourLimitePaiement" type="number" min="1" max="28" defaultValue="5" /></div>
+                  <div className="space-y-2"><Label>Délai de grâce (jours)</Label><Input name="delaiGrace" type="number" min="0" defaultValue="5" /></div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Type de pénalité</Label>
+                    <select name="penaliteType" className="w-full border rounded-md p-2">
+                      <option value="POURCENTAGE">Pourcentage du loyer</option>
+                      <option value="MONTANT_FIXE">Montant fixe (FCFA)</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2"><Label>Montant pénalité</Label><Input name="penaliteMontant" type="number" min="0" defaultValue="5" /></div>
+                  <div className="space-y-2 flex items-end">
+                    <label className="flex items-center gap-2 pb-2">
+                      <input type="checkbox" name="penaliteRecurrente" className="rounded" />
+                      <span className="text-sm">Récurrente (chaque semaine)</span>
+                    </label>
+                  </div>
+                </div>
+              </>
+            )}
+            {/* Champs hidden pour meublé avec valeurs par défaut */}
+            {isMeuble && (
+              <>
+                <input type="hidden" name="jourLimitePaiement" value="5" />
+                <input type="hidden" name="delaiGrace" value="0" />
+                <input type="hidden" name="penaliteType" value="POURCENTAGE" />
+                <input type="hidden" name="penaliteMontant" value="0" />
+              </>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader><CardTitle>Renouvellement et résiliation</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" name="renouvellementAuto" className="rounded" />
-              <span className="text-sm font-medium">Renouvellement automatique si locataire à jour</span>
-            </label>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Durée renouvellement (mois)</Label><Input name="dureeRenouvellement" type="number" min="1" defaultValue="12" /></div>
-              <div className="space-y-2"><Label>Augmentation loyer au renouvellement (%)</Label><Input name="augmentationLoyer" type="number" min="0" defaultValue="0" /></div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Préavis non-renouvellement (jours)</Label><Input name="preavisNonRenouv" type="number" min="0" defaultValue="30" /></div>
-              <div className="space-y-2"><Label>Préavis résiliation (jours)</Label><Input name="preavisResiliation" type="number" min="0" defaultValue="30" /></div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Seuil mise en demeure (mois d&apos;impayés)</Label><Input name="seuilMiseEnDemeure" type="number" min="1" defaultValue="2" /></div>
-              <div className="space-y-2"><Label>Seuil suspension (mois d&apos;impayés)</Label><Input name="seuilSuspension" type="number" min="1" defaultValue="3" /></div>
-            </div>
+            {isMeuble ? (
+              <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-sm text-blue-700 dark:text-blue-300">
+                ℹ️ Appartement meublé — pas de renouvellement automatique (location ponctuelle)
+              </div>
+            ) : (
+              <>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" name="renouvellementAuto" className="rounded" />
+                  <span className="text-sm font-medium">Renouvellement automatique si locataire à jour</span>
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2"><Label>Durée renouvellement (mois)</Label><Input name="dureeRenouvellement" type="number" min="1" defaultValue="12" /></div>
+                  <div className="space-y-2"><Label>Augmentation loyer au renouvellement (%)</Label><Input name="augmentationLoyer" type="number" min="0" defaultValue="0" /></div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2"><Label>Préavis non-renouvellement (jours)</Label><Input name="preavisNonRenouv" type="number" min="0" defaultValue="30" /></div>
+                  <div className="space-y-2"><Label>Préavis résiliation (jours)</Label><Input name="preavisResiliation" type="number" min="0" defaultValue="30" /></div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2"><Label>Seuil mise en demeure (mois d&apos;impayés)</Label><Input name="seuilMiseEnDemeure" type="number" min="1" defaultValue="2" /></div>
+                  <div className="space-y-2"><Label>Seuil suspension (mois d&apos;impayés)</Label><Input name="seuilSuspension" type="number" min="1" defaultValue="3" /></div>
+                </div>
+              </>
+            )}
+            {/* Champs hidden pour meublé */}
+            {isMeuble && (
+              <>
+                <input type="hidden" name="preavisNonRenouv" value="0" />
+                <input type="hidden" name="preavisResiliation" value="0" />
+                <input type="hidden" name="seuilMiseEnDemeure" value="1" />
+                <input type="hidden" name="seuilSuspension" value="1" />
+              </>
+            )}
           </CardContent>
         </Card>
 
