@@ -28,7 +28,7 @@ export const bailSchema = z.object({
   locataireId: z.string().min(1, "Locataire requis"),
   appartementId: z.string().min(1, "Appartement requis"),
   dateDebut: z.coerce.date(),
-  dureeMois: z.coerce.number().int().positive("Durée requise"),
+  dureeMois: z.coerce.number().int().min(0, "Durée requise"),
   montantLoyer: z.coerce.number().int().positive("Loyer requis"),
   montantCaution: z.coerce.number().int().min(0, "Caution invalide"),
   periodicite: z.enum(["JOURNALIER", "MENSUEL", "TRIMESTRIEL", "SEMESTRIEL", "ANNUEL", "NON_APPLICABLE"]).default("MENSUEL"),

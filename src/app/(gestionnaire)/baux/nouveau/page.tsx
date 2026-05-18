@@ -90,9 +90,9 @@ export default function NouveauBail() {
       setConfirmReplace(true);
       return;
     }
-    // Pour meublé en jours : convertir en fraction de mois pour le champ dureeMois
+    // Pour meublé en jours : stocker la durée en jours, l'action calculera dateFin correctement
     if (isMeuble && uniteduree === "jours") {
-      formData.set("dureeMois", "1"); // 1 mois minimum pour la DB, la durée réelle est en jours
+      formData.set("dureeMois", "0"); // signal: durée en jours
       formData.set("dureeJours", dureeJours.toString());
     }
     const result = await creerBail(formData);

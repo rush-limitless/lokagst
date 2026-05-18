@@ -39,7 +39,14 @@ export async function creerBail(formData: FormData) {
     if (!parsed.success) return { error: parsed.error.issues[0].message };
 
     const dateFin = new Date(parsed.data.dateDebut);
-    dateFin.setMonth(dateFin.getMonth() + parsed.data.dureeMois);
+    const dureeJours = raw.dureeJours ? parseInt(raw.dureeJours as string) : 0;
+    if (parsed.data.dureeMois === 0 && dureeJours > 0) {
+      // Location meublée en jours
+      dateFin.setDate(dateFin.getDate() + dureeJours);
+    } else {
+      dateFin.setMonth(dateFin.getMonth() + Math.max(1, parsed.data.dureeMois));
+    }
+    const dureeMoisFinal = parsed.data.dureeMois === 0 ? 1 : parsed.data.dureeMois;
 
     const dateDebut = new Date(parsed.data.dateDebut);
     // Date réelle d'entrée du locataire (pas le 1er du mois)
@@ -73,7 +80,7 @@ export async function creerBail(formData: FormData) {
       prisma.bail.create({
         data: {
           locataireId: parsed.data.locataireId, appartementId: parsed.data.appartementId,
-          dateDebut: parsed.data.dateDebut, dureeMois: parsed.data.dureeMois, dateFin,
+          dateDebut: parsed.data.dateDebut, dureeMois: dureeMoisFinal, dateFin,
           montantLoyer: parsed.data.montantLoyer, montantCaution: parsed.data.montantCaution,
           cautionPayee,
           datePremierLoyer, periodicite: parsed.data.periodicite as any,
