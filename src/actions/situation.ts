@@ -47,7 +47,8 @@ export async function getSituationLocataire(locataireId: string) {
         montantLoyerDu += loyerParEcheance - Math.min(montantPaye, loyerParEcheance);
       }
       if (montantPaye < loyerParEcheance + chargesParEcheance && bail.totalCharges > 0) {
-        montantChargesDu += chargesParEcheance - Math.max(0, montantPaye - loyerParEcheance);
+        const payePourCharges = montantPaye > loyerParEcheance ? montantPaye - loyerParEcheance : 0;
+        montantChargesDu += chargesParEcheance - Math.min(payePourCharges, chargesParEcheance);
       }
     }
     d2.setMonth(d2.getMonth() + 1);

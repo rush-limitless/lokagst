@@ -30,6 +30,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
           <p className="text-muted-foreground">Appartement {bail.appartement.numero}</p>
         </div>
         <Badge variant="outline" className={statusColor[bail.statut] || ""}>{STATUT_BAIL_LABELS[bail.statut]}</Badge>
+        {bail.statut === "ACTIF" && <Link href={`/paiements/nouveau?bailId=${bail.id}`}><Button size="sm" className="gap-1.5">💰 Enregistrer un paiement</Button></Link>}
         <Link href={`/baux/${bail.id}/contrat`}><Button variant="outline" size="sm">📄 Contrat PDF</Button></Link>
         <SupprimerBailButton bailId={bail.id} locataire={`${bail.locataire.prenom} ${bail.locataire.nom}`} />
       </div>

@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/status-badge";
 import Link from "next/link";
 import { ImprimerDettesButton } from "./imprimer-dettes";
 import { RappelGroupeButton } from "./rappel-groupe-button";
+import { Building2 } from "lucide-react";
 
 export default async function SituationPage({ searchParams }: { searchParams: Promise<{ filtre?: string }> }) {
   const { filtre } = await searchParams;
@@ -45,43 +46,56 @@ export default async function SituationPage({ searchParams }: { searchParams: Pr
 
       <div className="text-right text-sm font-bold text-red-600">Total global dû : {formatFCFA(totalGlobalDu)}</div>
 
-      <div className="space-y-3">
-        {filtered.map((s) => (
-          <Link key={s.locataireId} href={`/locataires/${s.locataireId}`} className="block">
-            <div className={`bg-card border rounded-xl p-4 hover:shadow-md transition-all ${s.aJour ? "border-emerald-200 dark:border-emerald-900" : "border-red-200 dark:border-red-900"}`}>
-              <div className="flex items-center gap-4">
-                <UserAvatar nom={s.locataire.split(" ").slice(-1)[0]} prenom={s.locataire.split(" ")[0]} photo={s.photo} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-foreground">{s.locataire}</p>
-                    <span className="text-xs text-muted-foreground">({s.appartement})</span>
-                    <StatusBadge status={s.aJour ? "actif" : "urgente"} label={s.aJour ? "À jour" : "Impayé"} />
-                  </div>
-                  {!s.aJour && (
-                    <div className="flex gap-4 mt-2 text-xs">
-                      {s.moisLoyerImpayes > 0 && <span className="text-red-600">🏠 Loyer : {s.moisLoyerImpayes} mois — {formatFCFA(s.montantLoyerDu)}</span>}
-                      {s.moisChargesImpayes > 0 && <span className="text-orange-600">⚡ Charges : {s.moisChargesImpayes} mois — {formatFCFA(s.montantChargesDu)}</span>}
+      <div className="space-y-6">
+        {Array.from(new Set(filtered.map((s) => s.immeuble))).map((imm) => {
+          const locs = filtered.filter((s) => s.immeuble === imm);
+          return (
+            <div key={imm}>
+              <div className="flex items-center gap-2 mb-2">
+                <Building2 className="size-3.5 text-primary" />
+                <span className="text-xs font-semibold text-primary">{imm}</span>
+                <span className="text-xs text-muted-foreground">· {locs.length} locataire(s)</span>
+              </div>
+              <div className="space-y-3">
+                {locs.map((s) => (
+                  <Link key={s.locataireId} href={`/locataires/${s.locataireId}`} className="block">
+                    <div className={`bg-card border rounded-xl p-4 hover:shadow-md transition-all ${s.aJour ? "border-emerald-200 dark:border-emerald-900" : "border-red-200 dark:border-red-900"}`}>
+                      <div className="flex items-center gap-4">
+                        <UserAvatar nom={s.locataire.split(" ").slice(-1)[0]} prenom={s.locataire.split(" ")[0]} photo={s.photo} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-foreground">{s.locataire}</p>
+                            <span className="text-xs text-muted-foreground">({s.appartement})</span>
+                            <StatusBadge status={s.aJour ? "actif" : "urgente"} label={s.aJour ? "À jour" : "Impayé"} />
+                          </div>
+                          {!s.aJour && (
+                            <div className="flex gap-4 mt-2 text-xs">
+                              {s.moisLoyerImpayes > 0 && <span className="text-red-600">🏠 Loyer : {s.moisLoyerImpayes} mois — {formatFCFA(s.montantLoyerDu)}</span>}
+                              {s.moisChargesImpayes > 0 && <span className="text-orange-600">⚡ Charges : {s.moisChargesImpayes} mois — {formatFCFA(s.montantChargesDu)}</span>}
+                            </div>
+                          )}
+                          <div className="flex gap-0.5 mt-2">
+                            {s.detailMois.map((m, i) => (
+                              <div key={i} title={`${m.mois} — ${m.montantPaye.toLocaleString()} FCFA`} className={`w-3 h-3 rounded-sm ${m.loyerPaye && m.chargesPaye ? "bg-emerald-500" : m.loyerPaye ? "bg-orange-400" : "bg-red-400"}`} />
+                            ))}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          {s.aJour ? (
+                            <span className="text-emerald-600 font-bold text-sm">0 FCFA</span>
+                          ) : (
+                            <span className="text-red-600 font-bold text-sm">{formatFCFA(s.totalDu)}</span>
+                          )}
+                          <p className="text-[10px] text-muted-foreground">{formatFCFA(s.totalMensuel)}/mois</p>
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  {/* Mini historique 12 derniers mois */}
-                  <div className="flex gap-0.5 mt-2">
-                    {s.detailMois.map((m, i) => (
-                      <div key={i} title={`${m.mois} — ${m.montantPaye.toLocaleString()} FCFA`} className={`w-3 h-3 rounded-sm ${m.loyerPaye && m.chargesPaye ? "bg-emerald-500" : m.loyerPaye ? "bg-orange-400" : "bg-red-400"}`} />
-                    ))}
-                  </div>
-                </div>
-                <div className="text-right">
-                  {s.aJour ? (
-                    <span className="text-emerald-600 font-bold text-sm">0 FCFA</span>
-                  ) : (
-                    <span className="text-red-600 font-bold text-sm">{formatFCFA(s.totalDu)}</span>
-                  )}
-                  <p className="text-[10px] text-muted-foreground">{formatFCFA(s.totalMensuel)}/mois</p>
-                </div>
+                  </Link>
+                ))}
               </div>
             </div>
-          </Link>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

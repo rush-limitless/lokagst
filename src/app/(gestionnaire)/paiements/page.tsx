@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/status-badge";
 import Link from "next/link";
 import { EnvoyerRecuButton } from "./envoyer-recu-button";
 import { SupprimerPaiementButton } from "./supprimer-paiement-button";
+import { ValiderPaiementButton } from "./valider-paiement-button";
 import { Plus, Calendar, Wallet, Clock, Filter, X, Receipt, FileCheck, Paperclip } from "lucide-react";
 
 export default async function PaiementsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string; appart?: string; mois?: string }> }) {
@@ -145,6 +146,7 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
                       <Link href={`/paiements/recu?id=${p.id}`} title="Reçu"><Button variant="ghost" size="icon-xs"><Receipt className="size-3.5 text-primary" /></Button></Link>
                       {p.statut === "PAYE" && <Link href={`/paiements/quittance?id=${p.id}`} title="Quittance"><Button variant="ghost" size="icon-xs"><FileCheck className="size-3.5 text-emerald-600" /></Button></Link>}
                       {p.preuvePaiement && <a href={p.preuvePaiement} target="_blank" title="Preuve"><Button variant="ghost" size="icon-xs"><Paperclip className="size-3.5 text-muted-foreground" /></Button></a>}
+                      {!p.valide && <ValiderPaiementButton id={p.id} />}
                       <EnvoyerRecuButton paiementId={p.id} />
                       <SupprimerPaiementButton id={p.id} />
                     </div>

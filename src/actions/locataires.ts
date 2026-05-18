@@ -14,7 +14,16 @@ export async function getLocataires(filters?: { recherche?: string; statut?: str
 
   return prisma.locataire.findMany({
     where,
-    include: { baux: { where: { statut: "ACTIF" }, include: { appartement: { select: { id: true, numero: true, etage: true, immeubleId: true, immeuble: { select: { id: true, nom: true } } } }, paiements: true } } },
+    include: {
+      baux: {
+        where: filters?.statut === "ARCHIVE"
+          ? { statut: { in: ["TERMINE", "RESILIE", "ACTIF"] } }
+          : { statut: "ACTIF" },
+        orderBy: { dateDebut: "desc" },
+        take: 1,
+        include: { appartement: { select: { id: true, numero: true, etage: true, immeubleId: true, immeuble: { select: { id: true, nom: true } } } }, paiements: true },
+      },
+    },
     orderBy: [{ nom: "asc" }, { prenom: "asc" }],
   });
 }

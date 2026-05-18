@@ -14,6 +14,8 @@ export function ModifierPaiementButton({ paiement: p }: { paiement: any }) {
   const [charges, setCharges] = useState(p.montantCharges || p.bail?.totalCharges || 0);
   const [caution, setCaution] = useState(p.montantCaution || 0);
   const [autres, setAutres] = useState(p.montantAutres || 0);
+  const mc = new Date(p.moisConcerne);
+  const defaultMois = `${mc.getFullYear()}-${String(mc.getMonth() + 1).padStart(2, "0")}-${String(mc.getDate()).padStart(2, "0")}`;
   const router = useRouter();
 
   const total = loyer + charges + caution + autres;
@@ -45,6 +47,7 @@ export function ModifierPaiementButton({ paiement: p }: { paiement: any }) {
             <span className="text-lg font-bold text-foreground">{total.toLocaleString()} FCFA</span>
           </div>
           <input type="hidden" name="montant" value={total} />
+          <div className="space-y-1"><Label className="text-xs">Mois concerné</Label><Input name="moisConcerne" type="date" defaultValue={defaultMois} /></div>
           <div className="space-y-1"><Label className="text-xs">Notes</Label><Input name="notes" defaultValue={p.notes || ""} /></div>
           <div className="flex gap-2">
             <Button type="submit" className="flex-1">Enregistrer</Button>

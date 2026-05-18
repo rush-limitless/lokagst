@@ -7,12 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileUpload } from "@/components/file-upload";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 
 export default function NouveauPaiement() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const bailIdParam = searchParams.get("bailId");
   const [baux, setBaux] = useState<any[]>([]);
   const [selectedBail, setSelectedBail] = useState<any>(null);
   const [preuveUrl, setPreuveUrl] = useState("");
@@ -21,8 +23,19 @@ export default function NouveauPaiement() {
   const [montantCaution, setMontantCaution] = useState(0);
   const [montantAutres, setMontantAutres] = useState(0);
   const [nbMois, setNbMois] = useState(1);
+  // Fix 5 : moisConcerne pré-rempli avec le mois courant
+  const today = new Date();
+  const defaultMoisConcerne = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
-  useEffect(() => { getBaux({ statut: "ACTIF" }).then(setBaux); }, []);
+  useEffect(() => {
+    getBaux({ statut: "ACTIF" }).then((data) => {
+      setBaux(data);
+      if (bailIdParam) {
+        const bail = data.find((b: any) => b.id === bailIdParam);
+        if (bail) setSelectedBail(bail);
+      }
+    });
+  }, [bailIdParam]);
 
   const isJournalier = selectedBail?.periodicite === "JOURNALIER";
   const periodeLabel = isJournalier ? "jour(s)" : "mois";
@@ -60,7 +73,7 @@ export default function NouveauPaiement() {
           <form action={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label>Bail (Locataire — Appartement)</Label>
-              <select name="bailId" className="w-full border rounded-md p-2" required onChange={(e) => { setSelectedBail(baux.find((b) => b.id === e.target.value)); setNbMois(1); }}>
+              <select name="bailId" className="w-full border rounded-md p-2" required value={selectedBail?.id || ""} onChange={(e) => { setSelectedBail(baux.find((b) => b.id === e.target.value) || null); setNbMois(1); }}>
                 <option value="">Sélectionner...</option>
                 {baux.map((b) => (
                   <option key={b.id} value={b.id}>{b.locataire.prenom} {b.locataire.nom} — {b.appartement.numero} ({periodiciteLabel[b.periodicite] || "mensuel"})</option>
@@ -82,14 +95,17 @@ export default function NouveauPaiement() {
               {nbMois > 1 && !isJournalier && <p className="text-xs text-muted-foreground">Le paiement sera ventilé sur {nbMois} mois à partir de la date indiquée</p>}
               {isJournalier && <p className="text-xs text-muted-foreground">Paiement pour {nbMois} jour(s) — Total : {(selectedBail.totalMensuel * nbMois).toLocaleString()} FCFA</p>}
             </div>
-            <div className="space-y-2"><Label>Période concernée (mois)</Label><Input name="moisConcerne" type="date" required />{selectedBail && <p className="text-xs text-muted-foreground">Le jour sera automatiquement ajusté au jour d&apos;entrée du locataire ({new Date(selectedBail.dateDebut).getDate()} du mois)</p>}</div>
+            <div className="space-y-2"><Label>Période concernée ({isJournalier ? "jour" : "mois"})</Label><Input name="moisConcerne" type="date" required defaultValue={defaultMoisConcerne} />{selectedBail && <p className="text-xs text-muted-foreground">Le jour sera automatiquement ajusté au jour d&apos;entrée du locataire ({new Date(selectedBail.dateDebut).getDate()} du mois)</p>}</div>
 
             <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
               <p className="text-sm font-medium">Ventilation du paiement</p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1"><Label className="text-xs">Loyer (FCFA)</Label><Input type="number" min="0" value={montantLoyer} onChange={(e) => setMontantLoyer(parseInt(e.target.value) || 0)} /></div>
                 <div className="space-y-1"><Label className="text-xs">Charges (FCFA)</Label><Input type="number" min="0" value={montantCharges} onChange={(e) => setMontantCharges(parseInt(e.target.value) || 0)} /></div>
-                <div className="space-y-1"><Label className="text-xs">Caution (FCFA)</Label><Input type="number" min="0" value={montantCaution} onChange={(e) => setMontantCaution(parseInt(e.target.value) || 0)} /></div>
+                {/* Fix 6 : masquer caution si déjà payée */}
+                {(!selectedBail || !selectedBail.cautionPayee) && (
+                  <div className="space-y-1"><Label className="text-xs">Caution (FCFA)</Label><Input type="number" min="0" value={montantCaution} onChange={(e) => setMontantCaution(parseInt(e.target.value) || 0)} /></div>
+                )}
                 <div className="space-y-1"><Label className="text-xs">Autres (FCFA)</Label><Input type="number" min="0" value={montantAutres} onChange={(e) => setMontantAutres(parseInt(e.target.value) || 0)} /></div>
               </div>
               <div className="space-y-1"><Label className="text-xs">Détail autres (optionnel)</Label><Input name="notesAutres" placeholder="Préciser..." /></div>

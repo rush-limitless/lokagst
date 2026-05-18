@@ -62,6 +62,7 @@ export async function getSituationGlobale() {
       locataire: `${b.locataire.prenom} ${b.locataire.nom}`,
       photo: b.locataire.photo,
       appartement: b.appartement.numero,
+      immeuble: b.appartement.immeuble?.nom || "Sans immeuble",
       etage: b.appartement.etage,
       loyerMensuel: b.montantLoyer,
       chargesMensuelles: b.totalCharges,

@@ -83,7 +83,7 @@ export const PERIODICITE_MOIS: Record<string, number> = {
  */
 export function isMoisEcheance(mois: Date, dateDebut: Date, periodicite: string): boolean {
   const freq = PERIODICITE_MOIS[periodicite] || 1;
-  if (freq === 0) return periodicite === "JOURNALIER"; // JOURNALIER = chaque mois aussi, NON_APPLICABLE = jamais
+  if (periodicite === "JOURNALIER" || periodicite === "NON_APPLICABLE") return false;
   if (freq === 1) return true;
   const debutMois = dateDebut.getMonth();
   const moisCourant = mois.getMonth();

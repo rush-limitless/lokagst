@@ -42,6 +42,7 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
+          {loc.statut === "ACTIF" && bailActif && <Link href={`/paiements/nouveau?bailId=${bailActif.id}`}><Button size="sm" className="gap-1.5">💰 Paiement</Button></Link>}
           {loc.statut === "ACTIF" && !loc.utilisateur && <CreerCompteButton locataireId={loc.id} email={loc.email} />}
           {loc.utilisateur && <GererCompteButton utilisateurId={loc.utilisateur.id} email={loc.utilisateur.email} />}
           <Link href={`/locataires/${loc.id}/documents`}><Button variant="outline" size="sm">📁 Documents</Button></Link>
