@@ -81,6 +81,38 @@ export async function getDashboardStats() {
 
   const moisLabel = now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 
+  // Locataires à encaisser cette semaine : bail actif, mois courant est une échéance, pas encore payé, et jourLimitePaiement dans les 7 prochains jours
+  const finSemaine = new Date(now);
+  finSemaine.setDate(finSemaine.getDate() + 7);
+  const aEncaisserSemaine = bauxActifs
+    .filter((b) => {
+      if (!isMoisEcheance(moisCourant, b.dateDebut, b.periodicite)) return false;
+      const jourLimite = new Date(now.getFullYear(), now.getMonth(), b.jourLimitePaiement);
+      if (jourLimite < now || jourLimite > finSemaine) return false;
+      const freq = PERIODICITE_MOIS[b.periodicite] || 1;
+      const attendu = b.totalMensuel * freq;
+      const paye = b.paiements
+        .filter((p) => { const mc = new Date(p.moisConcerne); return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear(); })
+        .reduce((s, p) => s + p.montant, 0);
+      return paye < attendu;
+    })
+    .map((b) => {
+      const freq = PERIODICITE_MOIS[b.periodicite] || 1;
+      const attendu = b.totalMensuel * freq;
+      const paye = b.paiements
+        .filter((p) => { const mc = new Date(p.moisConcerne); return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear(); })
+        .reduce((s, p) => s + p.montant, 0);
+      return {
+        bailId: b.id,
+        locataireId: b.locataireId,
+        nom: `${b.locataire.prenom} ${b.locataire.nom}`,
+        appartement: b.appartement.numero,
+        montantAttendu: attendu - paye,
+        jourLimite: b.jourLimitePaiement,
+      };
+    })
+    .sort((a, b) => a.jourLimite - b.jourLimite);
+
   return {
     appartements: { total, occupes, libres: total - occupes, tauxOccupation: total > 0 ? Math.round((occupes / total) * 100) : 0 },
     finances: {
@@ -92,7 +124,7 @@ export async function getDashboardStats() {
       impayesCharges,
       periode: moisLabel,
     },
-    alertes: { bauxExpirants, impayesLocataires },
+    alertes: { bauxExpirants, impayesLocataires, aEncaisserSemaine },
   };
 }
 

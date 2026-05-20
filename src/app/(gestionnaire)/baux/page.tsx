@@ -3,6 +3,7 @@ import { formatFCFA, formatDate, STATUT_BAIL_LABELS, ETAGE_LABELS } from "@/lib/
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/user-avatar";
 import { StatusBadge } from "@/components/status-badge";
+import { RenouvelerBailButton } from "./renouveler-button";
 import Link from "next/link";
 
 const ETAGE_ORDER = ["CINQUIEME", "QUATRIEME", "TROISIEME", "DEUXIEME", "PREMIER", "RDC", "AUTRE"];
@@ -75,7 +76,14 @@ export default async function BauxPage({ searchParams }: { searchParams: Promise
                           <td className="p-3 text-right font-medium text-foreground">{formatFCFA(b.totalMensuel)}</td>
                           <td className="p-3 text-center"><span className={`text-xs font-medium ${jours < 30 ? "text-red-600" : jours < 90 ? "text-orange-600" : "text-muted-foreground"}`}>{jours}j</span></td>
                           <td className="p-3"><StatusBadge status={b.statut.toLowerCase()} label={STATUT_BAIL_LABELS[b.statut]} /></td>
-                          <td className="p-3"><Link href={`/baux/${b.id}`} className="text-primary text-xs hover:underline font-medium">Voir</Link></td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-1">
+                              <Link href={`/baux/${b.id}`} className="text-primary text-xs hover:underline font-medium">Voir</Link>
+                              {(b.statut === "ACTIF" && jours <= 60) || b.statut === "TERMINE" || b.statut === "EXPIRE" ? (
+                                <RenouvelerBailButton bailId={b.id} dureeMois={b.dureeMois} locataire={`${b.locataire.prenom} ${b.locataire.nom}`} />
+                              ) : null}
+                            </div>
+                          </td>
                         </tr>
                       );
                     })}

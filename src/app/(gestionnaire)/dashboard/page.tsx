@@ -124,6 +124,31 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
+      {/* À encaisser cette semaine */}
+      {stats.alertes.aEncaisserSemaine.length > 0 && (
+        <Card className="border-sky-200 dark:border-sky-800">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">💳 À encaisser cette semaine</CardTitle>
+              <Badge variant="outline" className="text-sky-600 border-sky-300">{stats.alertes.aEncaisserSemaine.length}</Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {stats.alertes.aEncaisserSemaine.map((l) => (
+                <Link key={l.bailId} href={`/paiements/nouveau?bailId=${l.bailId}`} className="flex justify-between items-center p-2.5 bg-sky-50 dark:bg-sky-950/20 rounded-lg text-sm hover:bg-sky-100 dark:hover:bg-sky-950/30 transition-colors">
+                  <div>
+                    <p className="font-medium text-foreground text-xs">{l.nom}</p>
+                    <p className="text-[10px] text-muted-foreground">{l.appartement} · limite le {l.jourLimite}</p>
+                  </div>
+                  <Badge variant="outline" className="text-sky-700 border-sky-300 text-[10px]">{formatFCFA(l.montantAttendu)}</Badge>
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Alerts + Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 stagger-in">
         <Card className={stats.alertes.bauxExpirants.length > 0 ? "border-orange-200 dark:border-orange-800" : ""}>

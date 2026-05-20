@@ -52,15 +52,26 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
       </div>
 
       {/* Quick summary bar */}
-      {situation && (
-        <div className="flex gap-4 p-3 bg-muted/30 rounded-lg text-sm flex-wrap">
-          <span>🏠 Loyer : <strong>{formatFCFA(situation.bail?.montantLoyer || 0)}</strong></span>
-          <span>⚡ Charges : <strong>{formatFCFA(situation.bail?.totalCharges || 0)}</strong></span>
-          <span className={situation.totalDu > 0 ? "text-red-600" : "text-emerald-600"}>💰 Dû : <strong>{formatFCFA(situation.totalDu)}</strong></span>
-          <span>📄 {loc.baux.length} bail(s)</span>
-          <span>💳 {loc.baux.reduce((s, b) => s + b.paiements.length, 0)} paiement(s)</span>
-        </div>
-      )}
+      {situation && (() => {
+        const moisRetard = situation.loyer.moisImpayes;
+        const score = moisRetard === 0 ? "excellent" : moisRetard <= 1 ? "attention" : moisRetard <= 3 ? "risque" : "critique";
+        const scoreConfig = {
+          excellent: { label: "✅ À jour", cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400" },
+          attention:  { label: "⚠️ 1 mois de retard", cls: "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400" },
+          risque:     { label: `🔶 ${moisRetard} mois de retard`, cls: "bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400" },
+          critique:   { label: `🔴 ${moisRetard} mois de retard`, cls: "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400" },
+        }[score];
+        return (
+          <div className="flex gap-3 p-3 bg-muted/30 rounded-lg text-sm flex-wrap items-center">
+            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${scoreConfig.cls}`}>{scoreConfig.label}</span>
+            <span>🏠 Loyer : <strong>{formatFCFA(situation.bail?.montantLoyer || 0)}</strong></span>
+            <span>⚡ Charges : <strong>{formatFCFA(situation.bail?.totalCharges || 0)}</strong></span>
+            <span className={situation.totalDu > 0 ? "text-red-600" : "text-emerald-600"}>💰 Dû : <strong>{formatFCFA(situation.totalDu)}</strong></span>
+            <span>📄 {loc.baux.length} bail(s)</span>
+            <span>💳 {loc.baux.reduce((s, b) => s + b.paiements.length, 0)} paiement(s)</span>
+          </div>
+        );
+      })()}
 
       {/* Tabs */}
       <ProfilTabs locataire={JSON.parse(JSON.stringify(loc))} situation={situation ? JSON.parse(JSON.stringify(situation)) : null} />
