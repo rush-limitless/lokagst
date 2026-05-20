@@ -1,5 +1,5 @@
 import { getSituationGlobale } from "@/actions/situation-globale";
-import { formatFCFA } from "@/lib/utils";
+import { formatFCFA, formatDate } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { UserAvatar } from "@/components/user-avatar";
 import { StatusBadge } from "@/components/status-badge";
@@ -87,6 +87,11 @@ export default async function SituationPage({ searchParams }: { searchParams: Pr
                             <span className="text-red-600 font-bold text-sm">{formatFCFA(s.totalDu)}</span>
                           )}
                           <p className="text-[10px] text-muted-foreground">{formatFCFA(s.totalMensuel)}/mois</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {s.dernierPaiement
+                              ? `Dernier paiement : ${formatDate(s.dernierPaiement.date)}`
+                              : "Aucun paiement"}
+                          </p>
                         </div>
                       </div>
                     </div>

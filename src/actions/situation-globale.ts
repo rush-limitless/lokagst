@@ -57,6 +57,11 @@ export async function getSituationGlobale() {
     const totalDu = montantLoyerDu + montantChargesDu;
     const aJour = totalDu === 0;
 
+    // Dernier paiement enregistré
+    const dernierPaiement = b.paiements.length > 0
+      ? b.paiements.reduce((latest, p) => new Date(p.datePaiement) > new Date(latest.datePaiement) ? p : latest)
+      : null;
+
     return {
       locataireId: b.locataire.id,
       locataire: `${b.locataire.prenom} ${b.locataire.nom}`,
@@ -76,6 +81,7 @@ export async function getSituationGlobale() {
       aJour,
       detailMois: detailMois.slice(-12),
       statut: b.statut,
+      dernierPaiement: dernierPaiement ? { date: dernierPaiement.datePaiement, montant: dernierPaiement.montant } : null,
     };
   }); // already sorted by immeuble/etage from DB
 }
