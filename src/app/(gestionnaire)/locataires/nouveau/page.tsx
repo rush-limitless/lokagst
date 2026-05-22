@@ -28,6 +28,10 @@ export default function NouveauLocataire() {
     getImmeubles().then(setImmeubles);
   }, []);
 
+  const [selectedAppartId, setSelectedAppartId] = useState("");
+  const selectedAppart = apparts.find((a) => a.id === selectedAppartId);
+  const isMeuble = selectedAppart && ["APPARTEMENT_MEUBLE", "STUDIO_MEUBLE", "CHAMBRE_MEUBLE"].includes(selectedAppart.type);
+  const [dureeJours, setDureeJours] = useState(1);
   const filteredApparts = selectedImm ? apparts.filter((a) => a.immeubleId === selectedImm) : apparts;
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -52,6 +56,11 @@ export default function NouveauLocataire() {
   async function handleSubmit(formData: FormData) {
     if (photoUrl) formData.set("photo", photoUrl);
     formData.set("chargesLocatives", JSON.stringify(charges));
+    if (isMeuble) {
+      formData.set("dureeMois", "0");
+      formData.set("dureeJours", dureeJours.toString());
+      formData.set("periodicite", "JOURNALIER");
+    }
     const result = await creerLocataire(formData);
     if (result.error) { toast.error(result.error); return; }
     toast.success("Locataire et bail créés");
@@ -84,7 +93,7 @@ export default function NouveauLocataire() {
               <div className="space-y-2"><Label>Nom *</Label><Input name="nom" required /></div>
               <div className="space-y-2"><Label>Prénom</Label><Input name="prenom" /></div>
             </div>
-            <div className="space-y-2"><Label>Téléphone *</Label><Input name="telephone" placeholder="6XXXXXXXX" required /></div>
+            <div className="space-y-2"><Label>Téléphone *</Label><Input name="telephone" placeholder="+237 6XX XXX XXX ou international" required /></div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2"><Label>Email</Label><Input name="email" type="email" /></div>
               <div className="space-y-2"><Label>N° CNI</Label><Input name="numeroCNI" /></div>
@@ -107,7 +116,7 @@ export default function NouveauLocataire() {
             </div>
             <div className="space-y-2">
               <Label>Appartement (libres uniquement) *</Label>
-              <select name="appartementId" className="w-full border rounded-md p-2 bg-background" required>
+              <select name="appartementId" className="w-full border rounded-md p-2 bg-background" required value={selectedAppartId} onChange={(e) => setSelectedAppartId(e.target.value)}>
                 <option value="">Sélectionner...</option>
                 {filteredApparts.map((a) => (
                   <option key={a.id} value={a.id}>
@@ -125,19 +134,31 @@ export default function NouveauLocataire() {
           <CardHeader><CardTitle>Contrat de bail <span className="text-xs text-muted-foreground font-normal">(optionnel — peut être créé plus tard)</span></CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Loyer mensuel (FCFA)</Label><Input name="montantLoyer" type="number" min="0" /></div>
+              <div className="space-y-2"><Label>Loyer {isMeuble ? "journalier" : "mensuel"} (FCFA)</Label><Input name="montantLoyer" type="number" min="0" /></div>
               <div className="space-y-2"><Label>Caution (FCFA)</Label><Input name="montantCaution" type="number" min="0" defaultValue="0" /></div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Durée (mois)</Label><Input name="dureeMois" type="number" min="1" defaultValue="12" /></div>
+              {isMeuble ? (
+                <div className="space-y-2">
+                  <Label>Durée (jours)</Label>
+                  <Input type="number" min="1" value={dureeJours} onChange={(e) => setDureeJours(parseInt(e.target.value) || 1)} />
+                  <input type="hidden" name="dureeMois" value="0" />
+                </div>
+              ) : (
+                <div className="space-y-2"><Label>Durée (mois)</Label><Input name="dureeMois" type="number" min="1" defaultValue="12" /></div>
+              )}
               <div className="space-y-2">
                 <Label>Périodicité</Label>
-                <select name="periodicite" className="w-full border rounded-md p-2 bg-background">
-                  <option value="MENSUEL">Mensuel</option>
-                  <option value="TRIMESTRIEL">Trimestriel</option>
-                  <option value="SEMESTRIEL">Semestriel</option>
-                  <option value="ANNUEL">Annuel</option>
-                </select>
+                {isMeuble ? (
+                  <div className="p-2 border rounded-md bg-muted/30 text-sm text-muted-foreground">Journalier (auto)</div>
+                ) : (
+                  <select name="periodicite" className="w-full border rounded-md p-2 bg-background">
+                    <option value="MENSUEL">Mensuel</option>
+                    <option value="TRIMESTRIEL">Trimestriel</option>
+                    <option value="SEMESTRIEL">Semestriel</option>
+                    <option value="ANNUEL">Annuel</option>
+                  </select>
+                )}
               </div>
             </div>
 
@@ -161,6 +182,7 @@ export default function NouveauLocataire() {
             </div>
 
             {/* Modalités */}
+            {!isMeuble && (<>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2"><Label>Jour limite paiement</Label><Input name="jourLimitePaiement" type="number" min="1" max="28" defaultValue="5" /></div>
               <div className="space-y-2"><Label>Délai de grâce (jours)</Label><Input name="delaiGrace" type="number" min="0" defaultValue="5" /></div>
@@ -176,6 +198,13 @@ export default function NouveauLocataire() {
               <div className="space-y-2"><Label>Montant pénalité</Label><Input name="penaliteMontant" type="number" min="0" defaultValue="5" /></div>
             </div>
             <label className="flex items-center gap-2"><input type="checkbox" name="renouvellementAuto" className="rounded" defaultChecked /><span className="text-sm">Renouvellement automatique</span></label>
+            </>)}
+            {isMeuble && (<>
+              <input type="hidden" name="jourLimitePaiement" value="5" />
+              <input type="hidden" name="delaiGrace" value="0" />
+              <input type="hidden" name="penaliteType" value="POURCENTAGE" />
+              <input type="hidden" name="penaliteMontant" value="0" />
+            </>)}
             <div className="space-y-2"><Label>Clauses particulières</Label><textarea name="clausesParticulieres" className="w-full border rounded-md p-2 h-16 text-sm bg-background" placeholder="Conditions spécifiques..." /></div>
           </CardContent>
         </Card>

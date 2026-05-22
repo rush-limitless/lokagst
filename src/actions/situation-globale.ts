@@ -28,7 +28,8 @@ export async function getSituationGlobale() {
         const mc = new Date(p.moisConcerne);
         return mc.getMonth() === d.getMonth() && mc.getFullYear() === d.getFullYear();
       });
-      const montantPaye = paiement?.montant || 0;
+      // Exclure la caution du montant payé pour le calcul loyer/charges
+      const montantPaye = paiement ? (paiement.montant - (paiement.montantCaution || 0)) : 0;
 
       if (echeance) {
         const freq = PERIODICITE_MOIS[b.periodicite] || 1;

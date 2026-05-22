@@ -41,7 +41,7 @@ export async function getSituationLocataire(locataireId: string) {
   while (d2 <= now) {
     if (isMoisEcheance(d2, debut, bail.periodicite)) {
       const paiement = bail.paiements.find((p) => p.moisConcerne.getMonth() === d2.getMonth() && p.moisConcerne.getFullYear() === d2.getFullYear());
-      const montantPaye = paiement?.montant || 0;
+      const montantPaye = paiement ? (paiement.montant - (paiement.montantCaution || 0)) : 0;
       if (montantPaye < loyerParEcheance) {
         moisImpayes++;
         montantLoyerDu += loyerParEcheance - Math.min(montantPaye, loyerParEcheance);

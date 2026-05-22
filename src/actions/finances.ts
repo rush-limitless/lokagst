@@ -45,7 +45,8 @@ export async function getFinancesStats(annee?: number) {
     const loyers = mp.reduce((s, p) => s + p.montantLoyer, 0);
     const charges = mp.reduce((s, p) => s + p.montantCharges, 0);
     const cautions = mp.reduce((s, p) => s + p.montantCaution, 0);
-    const total = mp.reduce((s, p) => s + p.montant, 0);
+    // total = loyer + charges uniquement (hors caution) pour comparer avec attendu
+    const total = loyers + charges;
 
     const attendu = allBaux.filter((b) => b.dateDebut <= mFin && b.dateFin >= mDebut && isMoisEcheance(mDebut, b.dateDebut, b.periodicite)).reduce((s, b) => s + b.totalMensuel * (PERIODICITE_MOIS[b.periodicite] || 1), 0);
 
@@ -61,7 +62,7 @@ export async function getFinancesStats(annee?: number) {
     const freq = PERIODICITE_MOIS[b.periodicite] || 1;
     const echeances = nbEcheancesEntre(bDebut, bFin, b.dateDebut, b.periodicite);
     const attendu = b.totalMensuel * freq * echeances;
-    const paye = bp.reduce((s, p) => s + p.montant, 0);
+    const paye = bp.reduce((s, p) => s + p.montant - (p.montantCaution || 0), 0);
     const du = Math.max(0, attendu - paye);
     return { locataire: `${b.locataire.prenom} ${b.locataire.nom}`, appartement: b.appartement.numero, attendu, paye, du, taux: attendu > 0 ? Math.round((paye / attendu) * 100) : 100 };
   }).filter((l) => l.du > 0).sort((a, b) => a.locataire.localeCompare(b.locataire, "fr"));

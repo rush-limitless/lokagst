@@ -16,7 +16,7 @@ export const appartementSchema = z.object({
 export const locataireSchema = z.object({
   nom: z.string().min(1, "Nom requis"),
   prenom: z.string().optional().default(""),
-  telephone: z.string().regex(/^6\d{8}$/, "Format: 6XXXXXXXX"),
+  telephone: z.string().min(6, "Numéro trop court").max(20, "Numéro trop long"),
   email: z.string().email("Email invalide").optional().or(z.literal("")),
   numeroCNI: z.string().optional(),
   photo: z.string().optional(),
