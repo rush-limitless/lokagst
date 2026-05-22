@@ -7,7 +7,7 @@ export async function getDashboardStats() {
   const [appartements, bauxActifs, paiementsMois] = await Promise.all([
     prisma.appartement.groupBy({ by: ["statut"], _count: true }),
     prisma.bail.findMany({ where: { statut: "ACTIF" }, include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true } }, paiements: true } }),
-    prisma.paiement.findMany({ where: { moisConcerne: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1), lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1) } } }),
+    prisma.paiement.findMany({ where: { datePaiement: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1), lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1) } } }),
   ]);
 
   const total = appartements.reduce((s, a) => s + a._count, 0);

@@ -163,6 +163,16 @@ export async function modifierBail(id: string, formData: FormData) {
       data: { dateDebut, dateFin, montantLoyer, montantCaution, renouvellementAuto, periodicite: periodicite as any, chargesLocatives: charges, totalCharges, impotsTaxes, totalImpotsTaxes, totalMensuel: montantLoyer + totalCharges },
     });
 
+    // Recaler le jour de moisConcerne de tous les paiements sur le nouveau jour d'entrée
+    const jourEntree = new Date(dateDebut).getDate();
+    const paiements = await prisma.paiement.findMany({ where: { bailId: id } });
+    for (const p of paiements) {
+      const mc = new Date(p.moisConcerne);
+      if (mc.getDate() !== jourEntree) {
+        await prisma.paiement.update({ where: { id: p.id }, data: { moisConcerne: new Date(mc.getFullYear(), mc.getMonth(), jourEntree) } });
+      }
+    }
+
     revalidatePath(`/baux/${id}`);
     return { success: true };
   });
