@@ -165,13 +165,15 @@ export async function modifierBail(id: string, formData: FormData) {
 
     // Recaler le jour de moisConcerne de tous les paiements sur le nouveau jour d'entrée
     const jourEntree = new Date(dateDebut).getDate();
-    const paiements = await prisma.paiement.findMany({ where: { bailId: id } });
-    for (const p of paiements) {
-      const mc = new Date(p.moisConcerne);
-      if (mc.getDate() !== jourEntree) {
-        await prisma.paiement.update({ where: { id: p.id }, data: { moisConcerne: new Date(mc.getFullYear(), mc.getMonth(), jourEntree) } });
-      }
-    }
+    const paiements = await prisma.paiement.findMany({ where: { bailId: id }, select: { id: true, moisConcerne: true } });
+    await prisma.$transaction(
+      paiements
+        .filter((p) => new Date(p.moisConcerne).getDate() !== jourEntree)
+        .map((p) => {
+          const mc = new Date(p.moisConcerne);
+          return prisma.paiement.update({ where: { id: p.id }, data: { moisConcerne: new Date(mc.getFullYear(), mc.getMonth(), jourEntree) } });
+        })
+    );
 
     revalidatePath(`/baux/${id}`);
     return { success: true };

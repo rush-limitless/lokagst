@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getReportingComplet() {
   const now = new Date();
@@ -15,7 +16,6 @@ export async function getReportingComplet() {
     where: { statut: { in: ["ACTIF", "SUSPENDU", "TERMINE", "RESILIE"] } },
     include: { paiements: true },
   });
-
   // Map: locataireId+appartementId → total all paiements across all baux
   const allPaiementsMap = new Map<string, number>();
   for (const b of allBaux) {
@@ -40,9 +40,15 @@ export async function getReportingComplet() {
     const allBauxForLoc = allBaux.filter((ab) => ab.locataireId === b.locataireId && ab.appartementId === b.appartementId);
     const premierDebut = allBauxForLoc.reduce((min, ab) => ab.dateDebut < min ? ab.dateDebut : min, b.dateDebut);
     const debut = new Date(premierDebut);
-    const moisDepuisDebut = (now.getFullYear() - debut.getFullYear()) * 12 + (now.getMonth() - debut.getMonth()) + 1;
-    // Attendu = nombre total de mois depuis le premier bail × loyer+charges mensuel
-    const attendu = loyerCharges * moisDepuisDebut;
+    // Compter les échéances réelles depuis le premier bail selon la périodicité
+    let attendu = 0;
+    const dCpt = new Date(debut.getFullYear(), debut.getMonth(), 1);
+    while (dCpt <= now) {
+      if (isMoisEcheance(dCpt, debut, b.periodicite)) {
+        attendu += loyerCharges * (PERIODICITE_MOIS[b.periodicite] || 1);
+      }
+      dCpt.setMonth(dCpt.getMonth() + 1);
+    }
     // Réglé = ALL paiements across all baux for this locataire+appartement
     const allKey = `${b.locataireId}_${b.appartementId}`;
     const regle = allPaiementsMap.get(allKey) || 0;
@@ -65,7 +71,7 @@ export async function getReportingComplet() {
       dateSortie: b.dateFin ? new Date(b.dateFin) : null,
       joursHabitation,
       moisHabitation: Math.round(moisHabitation * 10) / 10,
-      moisHabitationArrondi: moisDepuisDebut,
+      moisHabitationArrondi: Math.ceil(moisHabitation),
       attendu,
       regle,
       difference,
