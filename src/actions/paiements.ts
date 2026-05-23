@@ -38,6 +38,10 @@ export async function enregistrerPaiement(formData: FormData) {
     const bail = await prisma.bail.findUnique({ where: { id: parsed.data.bailId } });
     if (!bail) return { error: "Bail introuvable" };
 
+    // Calculer le montant total côté serveur (ignorer la valeur client)
+    const montantServeur = (parsed.data.montantLoyer || 0) + (parsed.data.montantCharges || 0) + (parsed.data.montantCaution || 0) + (parsed.data.montantAutres || 0);
+    if (montantServeur <= 0) return { error: "Montant invalide" };
+
     const nbMois = parsed.data.nbMois || 1;
     // Utiliser le jour réel d'entrée du locataire (jour du dateDebut du bail)
     const jourEntree = bail.dateDebut.getDate();

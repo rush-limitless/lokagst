@@ -47,6 +47,7 @@ export const TYPE_LABELS: Record<string, string> = {
 
 export const STATUT_BAIL_LABELS: Record<string, string> = {
   ACTIF: "Actif",
+  SUSPENDU: "Suspendu",
   RESILIE: "Résilié",
   TERMINE: "Terminé",
   EXPIRE: "Expiré",

@@ -57,9 +57,12 @@ export async function getSituationLocataire(locataireId: string) {
   const penalitesImpayees = bail.penalites.reduce((s, p) => s + p.montant, 0);
 
   // totalDu: positive = owes money, negative = has advance
-  // Count advance: paiements for months AFTER current month
-  const moisActuel = new Date(now.getFullYear(), now.getMonth(), 1);
-  const paiementsAvance = bail.paiements.filter((p) => p.moisConcerne > moisActuel);
+  // Count advance: paiements for months strictly after current month (compare by month/year)
+  const paiementsAvance = bail.paiements.filter((p) => {
+    const mc = new Date(p.moisConcerne);
+    return mc.getFullYear() > now.getFullYear() ||
+      (mc.getFullYear() === now.getFullYear() && mc.getMonth() > now.getMonth());
+  });
   const montantAvance = paiementsAvance.reduce((s, p) => s + p.montant, 0);
 
   const totalDu = difference > 0

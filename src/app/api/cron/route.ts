@@ -25,9 +25,10 @@ export async function GET(req: NextRequest) {
     if (admin) {
       const moisPrec = new Date(now.getFullYear(), now.getMonth() - 1, 1);
       const label = moisPrec.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+      const { isMoisEcheance, PERIODICITE_MOIS } = await import("@/lib/utils");
       const bauxA = await prisma.bail.findMany({ where: { statut: "ACTIF" }, include: { paiements: true } });
       const totalRegle = bauxA.reduce((s, b) => s + b.paiements.filter(p => new Date(p.moisConcerne).getMonth() === moisPrec.getMonth() && new Date(p.moisConcerne).getFullYear() === moisPrec.getFullYear()).reduce((a, p) => a + p.montant, 0), 0);
-      const totalAttendu = bauxA.reduce((s, b) => s + b.totalMensuel, 0);
+      const totalAttendu = bauxA.filter(b => isMoisEcheance(moisPrec, b.dateDebut, b.periodicite)).reduce((s, b) => s + b.totalMensuel * (PERIODICITE_MOIS[b.periodicite] || 1), 0);
       const sujet = `Rapport mensuel IMMOSTAR SCI — ${label}`;
       const contenu = `<div style="font-family:Arial;max-width:600px;margin:0 auto"><div style="background:#1B6B9E;color:white;padding:20px;text-align:center"><h1 style="margin:0">IMMOSTAR SCI</h1><p style="margin:5px 0 0;opacity:0.8">Rapport mensuel — ${label}</p></div><div style="padding:20px;border:1px solid #eee"><table style="width:100%;border-collapse:collapse"><tr style="border-bottom:1px solid #eee"><td style="padding:8px;color:#666">Revenus encaissés</td><td style="padding:8px;font-weight:bold;color:#2e7d32">${totalRegle.toLocaleString("fr-FR")} FCFA</td></tr><tr style="border-bottom:1px solid #eee"><td style="padding:8px;color:#666">Revenus attendus</td><td style="padding:8px;font-weight:bold">${totalAttendu.toLocaleString("fr-FR")} FCFA</td></tr><tr><td style="padding:8px;color:#666">Taux de recouvrement</td><td style="padding:8px;font-weight:bold;color:${totalAttendu > 0 && totalRegle / totalAttendu >= 0.8 ? "#2e7d32" : "#c62828"}">${totalAttendu > 0 ? Math.round(totalRegle / totalAttendu * 100) : 0}%</td></tr></table><p style="margin-top:15px;color:#666;font-size:12px">Connectez-vous à ImmoGest pour le rapport détaillé.</p></div></div>`;
       try { await sendEmail(admin.email, sujet, contenu); } catch {}
@@ -42,7 +43,10 @@ export async function GET(req: NextRequest) {
   for (const bail of bauxActifs) {
     if (!bail.locataire.email) continue;
 
-    const paiementMois = bail.paiements.find((p) => p.moisConcerne.getTime() === moisCourant.getTime());
+    const paiementMois = bail.paiements.find((p) => {
+      const mc = new Date(p.moisConcerne);
+      return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear();
+    });
     const estPaye = paiementMois && paiementMois.statut === "PAYE";
 
     // 1. Rappel d'échéance (3 jours avant jour limite)
@@ -95,7 +99,10 @@ export async function GET(req: NextRequest) {
     let moisImpayes = 0;
     for (let i = 0; i < 6; i++) {
       const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const p = bail.paiements.find((pay) => pay.moisConcerne.getTime() === m.getTime());
+      const p = bail.paiements.find((pay) => {
+        const mc = new Date(pay.moisConcerne);
+        return mc.getMonth() === m.getMonth() && mc.getFullYear() === m.getFullYear();
+      });
       if (!p || p.statut !== "PAYE") moisImpayes++;
       else break;
     }

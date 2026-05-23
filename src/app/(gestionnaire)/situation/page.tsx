@@ -76,7 +76,19 @@ export default async function SituationPage({ searchParams }: { searchParams: Pr
                           )}
                           <div className="flex gap-0.5 mt-2">
                             {s.detailMois.map((m, i) => (
-                              <div key={i} title={`${m.mois} — ${m.montantPaye.toLocaleString()} FCFA`} className={`w-3 h-3 rounded-sm ${m.loyerPaye && m.chargesPaye ? "bg-emerald-500" : m.loyerPaye ? "bg-orange-400" : "bg-red-400"}`} />
+                              <div
+                                key={i}
+                                title={m.echeance ? `${m.mois} — ${m.montantPaye.toLocaleString()} FCFA` : `${m.mois} — hors échéance`}
+                                className={`w-3 h-3 rounded-sm ${
+                                  !m.echeance
+                                    ? "bg-muted-foreground/20"
+                                    : m.loyerPaye && m.chargesPaye
+                                    ? "bg-emerald-500"
+                                    : m.loyerPaye
+                                    ? "bg-orange-400"
+                                    : "bg-red-400"
+                                }`}
+                              />
                             ))}
                           </div>
                         </div>

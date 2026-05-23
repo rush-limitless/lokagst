@@ -8,6 +8,7 @@ import Link from "next/link";
 import { EnvoyerRecuButton } from "./envoyer-recu-button";
 import { SupprimerPaiementButton } from "./supprimer-paiement-button";
 import { ValiderPaiementButton } from "./valider-paiement-button";
+import { ExportPaiementsButton } from "./export-paiements-button";
 import { Plus, Calendar, Wallet, Clock, Filter, X, Receipt, FileCheck, Paperclip } from "lucide-react";
 
 export default async function PaiementsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string; appart?: string; mois?: string }> }) {

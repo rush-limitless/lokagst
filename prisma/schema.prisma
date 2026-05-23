@@ -109,6 +109,10 @@ model Bail {
   paiements            Paiement[]
   penalites            Penalite[]
 
+  @@index([locataireId])
+  @@index([appartementId])
+  @@index([statut])
+  @@index([locataireId, statut])
   @@map("baux")
 }
 
@@ -134,6 +138,9 @@ model Paiement {
   valide         Boolean        @default(true)
   bail           Bail           @relation(fields: [bailId], references: [id])
 
+  @@index([bailId])
+  @@index([moisConcerne])
+  @@index([bailId, moisConcerne])
   @@map("paiements")
 }
 
