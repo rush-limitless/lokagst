@@ -8,7 +8,7 @@ import Link from "next/link";
 import { EnvoyerRecuButton } from "./envoyer-recu-button";
 import { SupprimerPaiementButton } from "./supprimer-paiement-button";
 import { ValiderPaiementButton } from "./valider-paiement-button";
-import { Plus, Calendar, Wallet, Clock, Filter, X, Receipt, FileCheck, Paperclip } from "lucide-react";
+import { Plus, Calendar, Wallet, Filter, X, Receipt, FileCheck, Paperclip } from "lucide-react";
 
 export default async function PaiementsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string; appart?: string; mois?: string; valide?: string }> }) {
   const { q, page, appart, mois, valide } = await searchParams;
@@ -33,6 +33,15 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
   const enAttente = filtered.filter((p) => !p.valide).length;
   const hasFilters = q || appart || mois || valide;
 
+  // Soldes par immeuble (basé sur les paiements du mois courant)
+  const paiementsMoisCourant = allPaiements.filter((p) => new Date(p.moisConcerne).getMonth() === now.getMonth() && new Date(p.moisConcerne).getFullYear() === now.getFullYear());
+  const parImmeuble: Record<string, number> = {};
+  paiementsMoisCourant.forEach((p) => {
+    const appt = p.bail.appartement.numero;
+    const imm = appt.includes("SB") ? "Santa Barbara" : "La'ag Tchang";
+    parImmeuble[imm] = (parImmeuble[imm] || 0) + p.montant;
+  });
+
   return (
     <div className="space-y-6 animate-in">
       {/* Header */}
@@ -47,42 +56,23 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <Card>
-          <CardContent className="pt-5 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center"><Wallet className="size-5 text-emerald-600" /></div>
-              <div>
-                <p className="text-lg font-bold text-emerald-600">{formatFCFA(totalMois)}</p>
-                <p className="text-[11px] text-muted-foreground">Encaissé ce mois</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-5 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-sky-100 dark:bg-sky-900/40 flex items-center justify-center"><Receipt className="size-5 text-sky-600" /></div>
-              <div>
-                <p className="text-lg font-bold text-foreground">{total}</p>
-                <p className="text-[11px] text-muted-foreground">Total paiements</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Soldes par immeuble */}
+      <div className="flex gap-3 overflow-x-auto pb-1">
+        <div className="flex-shrink-0 bg-gradient-to-br from-sky-500 to-sky-700 rounded-xl p-4 text-white min-w-[180px]">
+          <p className="text-sky-100 text-[10px] uppercase tracking-wider">Total ce mois</p>
+          <p className="text-xl font-bold mt-1">{formatFCFA(totalMois)}</p>
+        </div>
+        {Object.entries(parImmeuble).map(([imm, montant]) => (
+          <div key={imm} className="flex-shrink-0 bg-card border rounded-xl p-4 min-w-[160px]">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">🏢 {imm}</p>
+            <p className="text-lg font-bold text-foreground mt-1">{formatFCFA(montant)}</p>
+          </div>
+        ))}
         {enAttente > 0 && (
-          <Card className="border-orange-200 dark:border-orange-800">
-            <CardContent className="pt-5 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center"><Clock className="size-5 text-orange-600" /></div>
-                <div>
-                  <p className="text-lg font-bold text-orange-600">{enAttente}</p>
-                  <p className="text-[11px] text-muted-foreground">En attente</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex-shrink-0 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4 min-w-[140px]">
+            <p className="text-[10px] text-orange-600 uppercase tracking-wider">⏳ En attente</p>
+            <p className="text-lg font-bold text-orange-600 mt-1">{enAttente}</p>
+          </div>
         )}
       </div>
 
