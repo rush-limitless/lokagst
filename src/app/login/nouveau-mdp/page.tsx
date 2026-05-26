@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function NouveauMdpPage() {
+function NouveauMdpContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [password, setPassword] = useState("");
@@ -104,4 +104,8 @@ export default function NouveauMdpPage() {
       </div>
     </div>
   );
+}
+
+export default function NouveauMdpPage() {
+  return <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">Chargement...</p></div>}><NouveauMdpContent /></Suspense>;
 }
