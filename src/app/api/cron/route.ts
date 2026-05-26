@@ -60,9 +60,9 @@ export async function GET(req: NextRequest) {
     });
 
     // 1. Rappel d'échéance (3 jours avant jour limite)
-    if (jour === bail.jourLimitePaiement - 3 && !paiementMois) {
+    if (jour === bail.jourLimitePaiement - 3 && !estPaye) {
       const moisLabel = moisCourant.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-      const { sujet, contenu } = genererEmailRappel(bail.locataire.prenom, bail.locataire.nom, bail.totalMensuel, moisLabel);
+      const { sujet, contenu } = genererEmailRappel(bail.locataire.prenom, bail.locataire.nom, attenduPeriode, moisLabel);
       try {
         await sendEmail(bail.locataire.email, sujet, contenu);
         await prisma.emailLog.create({ data: { locataireId: bail.locataireId, type: "RAPPEL_ECHEANCE", sujet, contenu, destinataire: bail.locataire.email } });
@@ -71,9 +71,9 @@ export async function GET(req: NextRequest) {
     }
 
     // 2. Notification impayé (jour après jour limite)
-    if (jour === bail.jourLimitePaiement + 1 && !paiementMois) {
+    if (jour === bail.jourLimitePaiement + 1 && !estPaye) {
       const sujet = `Notification d'impayé — ${moisCourant.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}`;
-      const contenu = `<p>Bonjour ${bail.locataire.prenom},</p><p>Votre loyer du mois en cours n'a pas été réglé à la date prévue du ${bail.jourLimitePaiement}. Montant dû : ${bail.totalMensuel.toLocaleString()} FCFA.</p><p>Merci de régulariser.</p>`;
+      const contenu = `<p>Bonjour ${bail.locataire.prenom},</p><p>Votre loyer du mois en cours n'a pas été réglé à la date prévue du ${bail.jourLimitePaiement}. Montant dû : ${attenduPeriode.toLocaleString()} FCFA.</p><p>Merci de régulariser.</p>`;
       try {
         await sendEmail(bail.locataire.email, sujet, contenu);
         await prisma.emailLog.create({ data: { locataireId: bail.locataireId, type: "RAPPEL_PAIEMENT", sujet, contenu, destinataire: bail.locataire.email } });
@@ -83,10 +83,16 @@ export async function GET(req: NextRequest) {
 
     // 3. Pénalité de retard (après délai de grâce)
     if (!estPaye && jour > bail.jourLimitePaiement + bail.delaiGrace) {
-      const dejaAppliquee = bail.penalites.some((p) => p.moisConcerne.getTime() === moisCourant.getTime());
+      const dejaAppliquee = bail.penalites.some((p) => {
+        const mc = new Date(p.moisConcerne);
+        return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear();
+      });
       const semainesRetard = Math.floor((jour - bail.jourLimitePaiement - bail.delaiGrace) / 7);
 
-      if (!dejaAppliquee || (bail.penaliteRecurrente && semainesRetard > bail.penalites.filter((p) => p.moisConcerne.getTime() === moisCourant.getTime()).length)) {
+      if (!dejaAppliquee || (bail.penaliteRecurrente && semainesRetard > bail.penalites.filter((p) => {
+        const mc = new Date(p.moisConcerne);
+        return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear();
+      }).length)) {
         const montantPenalite = bail.penaliteType === "POURCENTAGE"
           ? Math.round(bail.montantLoyer * bail.penaliteMontant / 100)
           : bail.penaliteMontant;
