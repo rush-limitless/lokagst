@@ -46,18 +46,13 @@ export async function getSituationLocataire(locataireId: string) {
     totalRegle += b.paiements.reduce((s, p) => s + p.montant - (p.montantCaution || 0), 0);
   }
 
-  // Nombre de mois impayés : on compte les échéances non couvertes sur le bail actif
-  // en tenant compte du solde global (si avance sur anciens baux, elle couvre les nouvelles échéances)
+  // Nombre de mois impayés : calculé depuis la dette globale
   const freq = PERIODICITE_MOIS[bail.periodicite] || 1;
   const loyerParEcheance = bail.montantLoyer * freq;
   const chargesParEcheance = bail.totalCharges * freq;
   const debut = new Date(bail.dateDebut);
 
-  let moisImpayes = 0;
-  let montantLoyerDu = 0;
-  let montantChargesDu = 0;
-
-  // Recalculer en parcourant uniquement le bail actif, en déduisant le solde reporté
+  // Solde reporté des anciens baux (positif = avance, négatif = dette)
   let soldeReporte = 0;
   {
     let attAnc = 0, reglAnc = 0;
@@ -76,11 +71,13 @@ export async function getSituationLocataire(locataireId: string) {
       }
       reglAnc += b.paiements.reduce((s, p) => s + p.montant - (p.montantCaution || 0), 0);
     }
-    soldeReporte = reglAnc - attAnc; // positif = avance reportée sur bail actif
+    soldeReporte = reglAnc - attAnc;
   }
 
+  // Compter moisImpayes sur bail actif en tenant compte du solde reporté
+  let moisImpayes = 0;
   const d2 = new Date(debut.getFullYear(), debut.getMonth(), 1);
-  let soldeDisponible = soldeReporte; // avance des anciens baux disponible pour couvrir le bail actif
+  let soldeDisponible = soldeReporte;
 
   while (d2 <= now) {
     if (isMoisEcheance(d2, debut, bail.periodicite)) {
@@ -97,13 +94,8 @@ export async function getSituationLocataire(locataireId: string) {
       const montantPayeEffectif = montantPayeBail + Math.max(0, soldeDisponible);
       soldeDisponible = Math.max(0, soldeDisponible - Math.max(0, loyerParEcheance + chargesParEcheance - montantPayeBail));
 
-      if (montantPayeEffectif < loyerParEcheance) {
-        moisImpayes++;
-        montantLoyerDu += loyerParEcheance - Math.min(montantPayeEffectif, loyerParEcheance);
-      }
-      if (montantPayeEffectif < loyerParEcheance + chargesParEcheance && bail.totalCharges > 0) {
-        const payePourCharges = montantPayeEffectif > loyerParEcheance ? montantPayeEffectif - loyerParEcheance : 0;
-        montantChargesDu += chargesParEcheance - Math.min(payePourCharges, chargesParEcheance);
+      if (montantPayeEffectif < loyerParEcheance + chargesParEcheance) {
+        moisImpayes += freq; // en mois réels
       }
     }
     d2.setMonth(d2.getMonth() + 1);
@@ -113,11 +105,18 @@ export async function getSituationLocataire(locataireId: string) {
   const difference = totalAttendu - totalRegle;
   const totalDu = Math.max(0, difference) + penalitesImpayees + (bail.cautionPayee ? 0 : bail.montantCaution);
 
+  // Loyer/charges dus proportionnellement
+  const detteGlobale = Math.max(0, difference);
+  const ratioLoyer = bail.totalMensuel > 0 ? bail.montantLoyer / bail.totalMensuel : 1;
+  const montantLoyerDuFinal = Math.round(detteGlobale * ratioLoyer);
+  const montantChargesDuFinal = detteGlobale - montantLoyerDuFinal;
+  const moisImpayesReels = bail.totalMensuel > 0 ? Math.round(detteGlobale / bail.totalMensuel) : moisImpayes * freq;
+
   return {
     bail,
     caution: { montant: bail.montantCaution, payee: bail.cautionPayee },
-    loyer: { aJour: moisImpayes === 0, moisImpayes, montantDu: montantLoyerDu },
-    charges: { aJour: montantChargesDu === 0, montantDu: montantChargesDu },
+    loyer: { aJour: moisImpayesReels === 0, moisImpayes: moisImpayesReels, montantDu: montantLoyerDuFinal },
+    charges: { aJour: montantChargesDuFinal === 0, montantDu: montantChargesDuFinal },
     penalites: { montant: penalitesImpayees, nombre: bail.penalites.length },
     totalDu,
   };
