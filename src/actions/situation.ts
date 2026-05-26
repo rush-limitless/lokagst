@@ -17,6 +17,7 @@ export async function getSituationLocataire(locataireId: string) {
   const loyerParEcheance = bail.montantLoyer * freq;
   const chargesParEcheance = bail.totalCharges * freq;
 
+  // Calculate total attendu up to current month
   let totalAttendu = 0;
   const d = new Date(debut.getFullYear(), debut.getMonth(), 1);
   while (d <= now) {
@@ -26,15 +27,21 @@ export async function getSituationLocataire(locataireId: string) {
     d.setMonth(d.getMonth() + 1);
   }
 
+  // Total réglé (all payments)
   const totalRegle = bail.paiements.reduce((s, p) => s + p.montant, 0);
+
+  // Difference: positive = dû, negative = avance
   const difference = totalAttendu - totalRegle;
 
+  // Count unpaid months for display
+  // Pour les baux non-mensuels : sommer tous les paiements de la période d'échéance
   let moisImpayes = 0;
   let montantLoyerDu = 0;
   let montantChargesDu = 0;
   const d2 = new Date(debut.getFullYear(), debut.getMonth(), 1);
   while (d2 <= now) {
     if (isMoisEcheance(d2, debut, bail.periodicite)) {
+      // Sommer tous les paiements de cette période d'échéance (d2 → d2+freq mois)
       const periodeDebut = new Date(d2);
       const periodeFin = new Date(d2.getFullYear(), d2.getMonth() + freq, 1);
       const montantPaye = bail.paiements
@@ -46,7 +53,7 @@ export async function getSituationLocataire(locataireId: string) {
         .reduce((s, p) => s + p.montant - (p.montantCaution || 0), 0);
 
       if (montantPaye < loyerParEcheance) {
-        moisImpayes += freq; // en mois réels
+        moisImpayes++;
         montantLoyerDu += loyerParEcheance - Math.min(montantPaye, loyerParEcheance);
       }
       if (montantPaye < loyerParEcheance + chargesParEcheance && bail.totalCharges > 0) {
@@ -59,6 +66,8 @@ export async function getSituationLocataire(locataireId: string) {
 
   const penalitesImpayees = bail.penalites.reduce((s, p) => s + p.montant, 0);
 
+  // totalDu: positive = owes money, negative = has advance
+  // Count advance: paiements for months strictly after current month (compare by month/year)
   const paiementsAvance = bail.paiements.filter((p) => {
     const mc = new Date(p.moisConcerne);
     return mc.getFullYear() > now.getFullYear() ||
@@ -68,7 +77,7 @@ export async function getSituationLocataire(locataireId: string) {
 
   const totalDu = difference > 0
     ? montantLoyerDu + montantChargesDu + penalitesImpayees + (bail.cautionPayee ? 0 : bail.montantCaution)
-    : -montantAvance;
+    : -montantAvance; // negative = advance (show as positive in UI)
 
   return {
     bail,
