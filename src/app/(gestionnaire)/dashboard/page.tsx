@@ -1,15 +1,12 @@
 import { getDashboardStats, getRevenusEvolution } from "@/actions/dashboard";
 import { getDernieresActivites } from "@/actions/activites";
-import { formatFCFA, formatDate } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { formatFCFA } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RevenusChart } from "@/components/charts/revenus-chart";
-import { OccupationPie } from "@/components/charts/occupation-pie";
 import Link from "next/link";
 import {
   Building2, TrendingUp, AlertTriangle, Key,
-  Plus, FileText, Users, ArrowUpRight, ArrowDownRight, Clock,
+  Plus, FileText, Users, ArrowUpRight, ArrowDownRight,
 } from "lucide-react";
 import { DashboardTabs } from "./dashboard-tabs";
 
