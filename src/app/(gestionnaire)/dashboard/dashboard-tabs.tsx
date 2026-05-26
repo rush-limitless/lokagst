@@ -25,51 +25,6 @@ export function DashboardTabs({ evolution, stats, activites }: { evolution: any;
 
       {tab === "overview" && (
         <div className="space-y-4">
-          {/* Property Overview + Pipeline */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Property Overview */}
-            <Card>
-              <CardContent className="pt-5 pb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-sm font-medium text-foreground">Occupation des logements</p>
-                  <span className="text-xs text-muted-foreground">{stats.appartements.total} total</span>
-                </div>
-                <div className="flex rounded-full h-3 overflow-hidden bg-muted">
-                  <div className="bg-sky-500 transition-all" style={{ width: `${(stats.appartements.occupes / stats.appartements.total) * 100}%` }} title={`${stats.appartements.occupes} occupés`} />
-                  <div className="bg-emerald-400 transition-all" style={{ width: `${(stats.appartements.libres / stats.appartements.total) * 100}%` }} title={`${stats.appartements.libres} libres`} />
-                </div>
-                <div className="flex justify-between mt-2 text-xs">
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-sky-500" />{stats.appartements.occupes} occupés</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />{stats.appartements.libres} libres</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Pipeline locataires */}
-            <Card>
-              <CardContent className="pt-5 pb-4">
-                <p className="text-sm font-medium text-foreground mb-3">Pipeline locataires</p>
-                {(() => {
-                  const aJour = stats.alertes.impayesLocataires ? stats.appartements.occupes - stats.alertes.impayesLocataires.length : stats.appartements.occupes;
-                  const enRetard = stats.alertes.impayesLocataires?.length || 0;
-                  const total = stats.appartements.occupes || 1;
-                  return (
-                    <>
-                      <div className="flex rounded-full h-3 overflow-hidden bg-muted">
-                        <div className="bg-emerald-500 transition-all" style={{ width: `${(aJour / total) * 100}%` }} />
-                        <div className="bg-red-500 transition-all" style={{ width: `${(enRetard / total) * 100}%` }} />
-                      </div>
-                      <div className="flex justify-between mt-2 text-xs">
-                        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />{aJour} à jour</span>
-                        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-500" />{enRetard} en retard</span>
-                      </div>
-                    </>
-                  );
-                })()}
-              </CardContent>
-            </Card>
-          </div>
-
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <Card className="lg:col-span-2">
