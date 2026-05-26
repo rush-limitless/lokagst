@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getReportingComplet() {
   const now = new Date();
@@ -38,11 +39,17 @@ export async function getReportingComplet() {
     // Mois échus depuis le PREMIER bail (pas juste le bail actif)
     const allBauxForLoc = allBaux.filter((ab) => ab.locataireId === b.locataireId && ab.appartementId === b.appartementId);
     const premierDebut = allBauxForLoc.reduce((min, ab) => ab.dateDebut < min ? ab.dateDebut : min, b.dateDebut);
-    // Attendu = loyer+charges mensuel × nombre de mois écoulés depuis le début
-    // (indépendant de la périodicité — on calcule ce qui aurait dû être payé mois par mois)
+    // Attendu = somme des échéances réelles selon la périodicité
     const debut = new Date(premierDebut);
-    const moisEcoules = (now.getFullYear() - debut.getFullYear()) * 12 + (now.getMonth() - debut.getMonth()) + 1;
-    const attendu = loyerCharges * moisEcoules;
+    const freq = PERIODICITE_MOIS[b.periodicite] || 1;
+    let attendu = 0;
+    const dEch = new Date(debut.getFullYear(), debut.getMonth(), 1);
+    while (dEch <= now) {
+      if (isMoisEcheance(dEch, debut, b.periodicite)) {
+        attendu += loyerCharges * freq;
+      }
+      dEch.setMonth(dEch.getMonth() + 1);
+    }
     // Réglé = ALL paiements across all baux for this locataire+appartement
     const allKey = `${b.locataireId}_${b.appartementId}`;
     const regle = allPaiementsMap.get(allKey) || 0;
@@ -115,9 +122,18 @@ export async function getReportingComplet() {
     const moisHab = joursHab / 30.5;
     const debut = new Date(b.dateDebut);
     const fin = new Date(b.dateFin);
-    // Attendu = totalMensuel × nombre de mois d'occupation
+    // Attendu = totalMensuel × nombre d'échéances réelles
     const moisOccupation = (fin.getFullYear() - debut.getFullYear()) * 12 + (fin.getMonth() - debut.getMonth());
-    const attendu = b.totalMensuel * Math.max(1, moisOccupation);
+    const freq = PERIODICITE_MOIS[b.periodicite] || 1;
+    let attendu = 0;
+    const dEch = new Date(debut.getFullYear(), debut.getMonth(), 1);
+    while (dEch < fin) {
+      if (isMoisEcheance(dEch, debut, b.periodicite)) {
+        attendu += b.totalMensuel * freq;
+      }
+      dEch.setMonth(dEch.getMonth() + 1);
+    }
+    if (attendu === 0) attendu = b.totalMensuel * Math.max(1, moisOccupation);
 
     return {
       logement: b.appartement.numero,
