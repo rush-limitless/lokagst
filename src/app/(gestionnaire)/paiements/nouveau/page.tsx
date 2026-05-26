@@ -49,6 +49,7 @@ export default function NouveauPaiement() {
       setMontantLoyer(selectedBail.montantLoyer * freq);
       setMontantCharges(selectedBail.totalCharges * freq);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedBail]);
 
   useEffect(() => {
