@@ -10,8 +10,10 @@ import {
 } from "lucide-react";
 import { DashboardTabs } from "./dashboard-tabs";
 
-function StatCard({ icon, iconBg, label, value, sub, trend, trendUp, href }: {
-  icon: React.ReactNode; iconBg: string; label: string; value: string; sub?: string; trend?: string; trendUp?: boolean; href?: string;
+import { Sparkline } from "@/components/sparkline";
+
+function StatCard({ icon, iconBg, label, value, sub, trend, trendUp, href, sparkData, sparkColor }: {
+  icon: React.ReactNode; iconBg: string; label: string; value: string; sub?: string; trend?: string; trendUp?: boolean; href?: string; sparkData?: number[]; sparkColor?: string;
 }) {
   const card = (
     <Card className="hover:shadow-md transition-all hover:-translate-y-0.5 group">
@@ -25,9 +27,12 @@ function StatCard({ icon, iconBg, label, value, sub, trend, trendUp, href }: {
             </span>
           )}
         </div>
-        <div className="mt-3">
-          <p className="text-2xl font-bold text-foreground">{value}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
+        <div className="mt-3 flex items-end justify-between">
+          <div>
+            <p className="text-2xl font-bold text-foreground">{value}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
+          </div>
+          {sparkData && sparkData.length > 1 && <Sparkline data={sparkData} color={sparkColor || "#10b981"} />}
         </div>
         {sub && <p className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed">{sub}</p>}
       </CardContent>
@@ -87,6 +92,8 @@ export default async function DashboardPage() {
           trend={stats.finances.revenusAttendus > 0 ? `${Math.round((stats.finances.revenusMois / stats.finances.revenusAttendus) * 100)}%` : undefined}
           trendUp={(stats.finances.revenusMois / (stats.finances.revenusAttendus || 1)) >= 0.8}
           href="/finances"
+          sparkData={evolution.map((e: any) => e.revenus)}
+          sparkColor="#10b981"
         />
         <StatCard
           icon={<AlertTriangle className="size-5 text-red-600" />}
@@ -95,6 +102,8 @@ export default async function DashboardPage() {
           value={formatFCFA(stats.finances.impayesMois)}
           sub={`Loyers: ${formatFCFA(stats.finances.impayesLoyers)} · Charges: ${formatFCFA(stats.finances.impayesCharges)}`}
           href="/situation"
+          sparkData={evolution.map((e: any) => e.attendus - e.revenus)}
+          sparkColor="#ef4444"
         />
         <StatCard
           icon={<Key className="size-5 text-sky-600" />}
