@@ -46,7 +46,7 @@ export default async function CalendrierPage({ searchParams }: { searchParams: P
           <CardContent className="max-h-64 overflow-y-auto space-y-2">
             {payes.map((e) => (
               <Link key={e.id} href={`/baux/${e.id}`} className="flex justify-between items-center p-2 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/10 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors">
-                <div><p className="text-sm font-medium text-foreground">{e.locataire}</p><p className="text-[10px] text-muted-foreground">{e.appartement}</p></div>
+                <div><p className="text-sm font-medium text-foreground">{e.locataire}</p><p className="text-[10px] text-muted-foreground">{e.appartement}{e.periodicite !== "MENSUEL" ? ` · ${e.periodicite.toLowerCase()}` : ""}</p></div>
                 <span className="text-xs font-bold text-emerald-600">{formatFCFA(e.montant)}</span>
               </Link>
             ))}
@@ -72,7 +72,7 @@ export default async function CalendrierPage({ searchParams }: { searchParams: P
           <CardContent className="max-h-64 overflow-y-auto space-y-2">
             {impayes.map((e) => (
               <Link key={e.id} href={`/baux/${e.id}`} className="flex justify-between items-center p-2 rounded-lg bg-red-50/50 dark:bg-red-950/10 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
-                <div><p className="text-sm font-medium text-foreground">{e.locataire}</p><p className="text-[10px] text-muted-foreground">{e.appartement} — dû le {e.jourLimite}</p></div>
+                <div><p className="text-sm font-medium text-foreground">{e.locataire}</p><p className="text-[10px] text-muted-foreground">{e.appartement} — dû le {e.jourLimite}{e.periodicite !== "MENSUEL" ? ` · ${e.periodicite.toLowerCase()}` : ""}</p></div>
                 <span className="text-xs font-bold text-red-600">{formatFCFA(e.montant)}</span>
               </Link>
             ))}
