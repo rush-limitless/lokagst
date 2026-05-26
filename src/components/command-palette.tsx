@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any>({ locataires: [], appartements: [], baux: [] });
+  const [results, setResults] = useState<any>({ locataires: [], appartements: [], baux: [], paiements: [] });
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -23,14 +23,14 @@ export function CommandPalette() {
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 100); }, [open]);
 
   useEffect(() => {
-    if (query.length < 2) { setResults({ locataires: [], appartements: [], baux: [] }); return; }
+    if (query.length < 2) { setResults({ locataires: [], appartements: [], baux: [], paiements: [] }); return; }
     const t = setTimeout(() => rechercheGlobale(query).then(setResults), 200);
     return () => clearTimeout(t);
   }, [query]);
 
   function navigate(href: string) { setOpen(false); setQuery(""); router.push(href); }
 
-  const hasResults = results.locataires.length + results.appartements.length + results.baux.length > 0;
+  const hasResults = results.locataires.length + results.appartements.length + results.baux.length + results.paiements.length > 0;
 
   if (!open) return (
     <button onClick={() => setOpen(true)} className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-muted/50 hover:bg-muted text-muted-foreground text-sm transition-colors">
@@ -102,15 +102,46 @@ export function CommandPalette() {
                   ))}
                 </div>
               )}
+
+              {results.paiements.length > 0 && (
+                <div>
+                  <p className="px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold bg-muted/30">Paiements</p>
+                  {results.paiements.map((p: any) => (
+                    <button key={p.id} onClick={() => navigate(`/paiements/recu?id=${p.id}`)} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left">
+                      <span className="text-lg">💰</span>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-foreground">{p.bail.locataire.prenom} {p.bail.locataire.nom}</p>
+                        <p className="text-xs text-muted-foreground">{p.bail.appartement.numero} · {new Date(p.moisConcerne).toLocaleDateString("fr-FR", { month: "short", year: "numeric" })}</p>
+                      </div>
+                      <span className="text-xs font-medium text-foreground">{p.montant.toLocaleString()} FCFA</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           {query.length < 2 && (
-            <div className="p-4 text-center text-muted-foreground text-sm">
-              <p>Tapez au moins 2 caractères pour rechercher</p>
-              <div className="flex justify-center gap-4 mt-3 text-xs">
-                <span>👤 Locataires</span><span>🏠 Appartements</span><span>📄 Baux</span>
-              </div>
+            <div className="py-2">
+              <p className="px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold bg-muted/30">Actions rapides</p>
+              <button onClick={() => navigate("/paiements/nouveau")} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left">
+                <span className="text-lg">💰</span><span className="text-sm text-foreground">Enregistrer un paiement</span>
+              </button>
+              <button onClick={() => navigate("/locataires/nouveau")} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left">
+                <span className="text-lg">👤</span><span className="text-sm text-foreground">Ajouter un locataire</span>
+              </button>
+              <button onClick={() => navigate("/baux/nouveau")} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left">
+                <span className="text-lg">📄</span><span className="text-sm text-foreground">Créer un bail</span>
+              </button>
+              <button onClick={() => navigate("/situation")} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left">
+                <span className="text-lg">📊</span><span className="text-sm text-foreground">Voir la situation</span>
+              </button>
+              <button onClick={() => navigate("/finances")} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left">
+                <span className="text-lg">📈</span><span className="text-sm text-foreground">Tableau financier</span>
+              </button>
+              <button onClick={() => navigate("/maintenance/nouveau")} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left">
+                <span className="text-lg">🔧</span><span className="text-sm text-foreground">Signaler une maintenance</span>
+              </button>
             </div>
           )}
         </div>
