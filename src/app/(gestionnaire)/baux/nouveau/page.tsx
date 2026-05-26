@@ -28,6 +28,7 @@ export default function NouveauBail() {
 
   const [periodicite, setPeriodicite] = useState("MENSUEL");
   const [dureeJours, setDureeJours] = useState(1);
+  const [dureeMois, setDureeMois] = useState(1);
   const [uniteduree, setUniteDuree] = useState<"jours" | "mois">("jours");
 
   useEffect(() => {
@@ -149,10 +150,12 @@ export default function NouveauBail() {
                       name="dureeMois"
                       type="number"
                       min="1"
-                      max={uniteduree === "jours" ? 30 : 12}
-                      value={uniteduree === "jours" ? dureeJours : undefined}
-                      defaultValue={uniteduree === "mois" ? 1 : undefined}
-                      onChange={(e) => uniteduree === "jours" && setDureeJours(parseInt(e.target.value) || 1)}
+                      value={uniteduree === "jours" ? dureeJours : dureeMois}
+                      onChange={(e) => {
+                        const v = parseInt(e.target.value) || 1;
+                        if (uniteduree === "jours") setDureeJours(v);
+                        else setDureeMois(v);
+                      }}
                       required
                       className="w-24"
                     />
@@ -168,7 +171,7 @@ export default function NouveauBail() {
                   <p className="text-xs text-muted-foreground">Appartement meublé — location courte durée possible</p>
                 </div>
               ) : (
-                <div className="space-y-2"><Label>Durée (mois)</Label><Input name="dureeMois" type="number" min="1" defaultValue="12" required /></div>
+                <div className="space-y-2"><Label>Durée (mois)</Label><Input name="dureeMois" type="number" min="1" value={dureeMois} onChange={(e) => setDureeMois(parseInt(e.target.value) || 1)} required /></div>
               )}
               <div className="space-y-2"><Label>Caution (FCFA)</Label>
                 <Input name="montantCaution" type="number" min="0" defaultValue="0" required />
