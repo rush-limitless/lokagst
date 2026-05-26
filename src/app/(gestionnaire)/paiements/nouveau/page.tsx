@@ -40,12 +40,24 @@ export default function NouveauPaiement() {
   const isJournalier = selectedBail?.periodicite === "JOURNALIER";
   const periodeLabel = isJournalier ? "jour(s)" : "mois";
 
+  const PERIODICITE_MOIS: Record<string, number> = { JOURNALIER: 1, MENSUEL: 1, TRIMESTRIEL: 3, SEMESTRIEL: 6, ANNUEL: 12, NON_APPLICABLE: 1 };
+
+  useEffect(() => {
+    if (selectedBail) {
+      const freq = PERIODICITE_MOIS[selectedBail.periodicite] || 1;
+      setNbMois(freq);
+      setMontantLoyer(selectedBail.montantLoyer * freq);
+      setMontantCharges(selectedBail.totalCharges * freq);
+    }
+  }, [selectedBail]);
+
   useEffect(() => {
     if (selectedBail) {
       setMontantLoyer(selectedBail.montantLoyer * nbMois);
       setMontantCharges(selectedBail.totalCharges * nbMois);
     }
-  }, [selectedBail, nbMois]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nbMois]);
 
   const totalCalcule = montantLoyer + montantCharges + montantCaution + montantAutres;
 

@@ -19,7 +19,9 @@ export async function getSituationGlobale() {
     let montantChargesDu = 0;
     const detailMois: { mois: string; loyerPaye: boolean; chargesPaye: boolean; montantPaye: number; echeance: boolean }[] = [];
 
-    const d = new Date(debut.getFullYear(), debut.getMonth(), 1);
+    // Limiter à 24 mois max pour les performances (affichage des 12 derniers de toute façon)
+    const debutBoucle = new Date(Math.max(debut.getTime(), new Date(now.getFullYear(), now.getMonth() - 23, 1).getTime()));
+    const d = new Date(debutBoucle.getFullYear(), debutBoucle.getMonth(), 1);
     while (d <= now) {
       const moisLabel = d.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
       const echeance = isMoisEcheance(d, debut, b.periodicite);
