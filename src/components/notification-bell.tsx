@@ -4,7 +4,7 @@ import { getNotifications } from "@/actions/notifications";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
+import { X, Bell } from "lucide-react";
 
 const URGENCE_COLORS = { haute: "border-l-red-500 bg-red-50/50 dark:bg-red-950/10", moyenne: "border-l-orange-400 bg-orange-50/50 dark:bg-orange-950/10", basse: "border-l-sky-400" };
 
@@ -36,8 +36,8 @@ export function NotificationBell() {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="relative w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-foreground">
-        🔔
+      <button onClick={() => setOpen(true)} className="relative w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+        <Bell className="size-4" />
         {count > 0 && (
           <span className={`absolute -top-0.5 -right-0.5 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold ${visible.some(n => n.urgence === "haute") ? "bg-red-500 animate-pulse" : "bg-orange-500"}`}>{count}</span>
         )}
