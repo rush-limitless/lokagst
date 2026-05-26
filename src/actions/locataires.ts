@@ -47,8 +47,14 @@ export async function creerLocataire(formData: FormData) {
     const montantLoyer = parseInt(data.montantLoyer as string) || appart.loyerBase;
     const dateDebut = parsed.data.dateEntree;
     const dureeMois = parseInt(data.dureeMois as string) || 12;
+    const dureeJours = parseInt(data.dureeJours as string) || 0;
     const dateFin = new Date(dateDebut);
-    dateFin.setMonth(dateFin.getMonth() + dureeMois);
+    if (dureeMois === 0 && dureeJours > 0) {
+      dateFin.setDate(dateFin.getDate() + dureeJours);
+    } else {
+      dateFin.setMonth(dateFin.getMonth() + Math.max(1, dureeMois));
+    }
+    const dureeMoisFinal = dureeMois === 0 ? 1 : dureeMois;
     const datePremierLoyer = dateDebut.getDate() > 15
       ? new Date(dateDebut.getFullYear(), dateDebut.getMonth() + 1, 1)
       : new Date(dateDebut.getFullYear(), dateDebut.getMonth(), 1);
@@ -68,7 +74,7 @@ export async function creerLocataire(formData: FormData) {
     await prisma.bail.create({
       data: {
         locataireId: locataire.id, appartementId: parsed.data.appartementId,
-        dateDebut, dureeMois, dateFin, datePremierLoyer,
+        dateDebut, dureeMois: dureeMoisFinal, dateFin, datePremierLoyer,
         montantLoyer,
         montantCaution: parseInt(data.montantCaution as string) || 0,
         chargesLocatives: charges, totalCharges, totalMensuel: montantLoyer + totalCharges,
