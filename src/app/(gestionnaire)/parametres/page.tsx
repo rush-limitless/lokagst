@@ -101,7 +101,17 @@ export default function ParametresPage() {
 
   return (
     <div className="space-y-6 animate-in">
-      <h1 className="text-xl font-bold text-foreground">Paramètres</h1>
+      <div>
+        <h1 className="text-xl font-bold text-foreground">Paramètres</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Gérez votre compte et les préférences de l&apos;application</p>
+      </div>
+
+      {/* Navigation rapide */}
+      <div className="flex gap-2 flex-wrap">
+        <a href="#securite" className="text-xs px-3 py-1.5 rounded-full border text-muted-foreground hover:bg-muted transition-colors">🔒 Sécurité</a>
+        <a href="#raccourcis" className="text-xs px-3 py-1.5 rounded-full border text-muted-foreground hover:bg-muted transition-colors">🔗 Raccourcis</a>
+        <a href="#danger" className="text-xs px-3 py-1.5 rounded-full border text-muted-foreground hover:bg-muted transition-colors">⚠️ Danger</a>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Link href="/audit" className="block">

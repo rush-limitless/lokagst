@@ -11,8 +11,22 @@ const LABELS: Record<string, string> = {
   paiements: "Paiements",
   emails: "Emails",
   maintenance: "Maintenance",
+  messagerie: "Messagerie",
   nouveau: "Nouveau",
   recu: "Reçu",
+  quittance: "Quittance",
+  situation: "Situation",
+  calendrier: "Calendrier",
+  finances: "Finances",
+  reporting: "Reporting",
+  parametres: "Paramètres",
+  immeubles: "Immeubles",
+  audit: "Audit",
+  documents: "Documents",
+  contrat: "Contrat",
+  edl: "État des lieux",
+  modifier: "Modifier",
+  depenses: "Dépenses",
 };
 
 export function Breadcrumb() {
@@ -26,7 +40,7 @@ export function Breadcrumb() {
       <Link href="/dashboard" className="hover:text-blue-600">Accueil</Link>
       {parts.map((part, i) => {
         const href = "/" + parts.slice(0, i + 1).join("/");
-        const label = LABELS[part] || part;
+        const label = LABELS[part] || (part.length > 20 ? "Détail" : part);
         const isLast = i === parts.length - 1;
         return (
           <span key={i} className="flex items-center gap-1">

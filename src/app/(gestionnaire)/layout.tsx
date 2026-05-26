@@ -8,6 +8,7 @@ import { LangToggle } from "@/components/lang-toggle";
 import { CommandPalette } from "@/components/command-palette";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { KeyboardShortcuts } from "@/components/keyboard-shortcuts";
+import { TopLoader } from "@/components/top-loader";
 import { prisma } from "@/lib/prisma";
 
 export default async function GestionnaireLayout({ children }: { children: React.ReactNode }) {
@@ -22,6 +23,7 @@ export default async function GestionnaireLayout({ children }: { children: React
 
   return (
     <div className="min-h-screen flex bg-background text-foreground">
+      <TopLoader />
       <Sidebar email={session.user.email || ""} badges={{ messages: messagesNonLus || undefined, tickets: ticketsOuverts || undefined, impayes: impayesCount || undefined }} />
       <main className="flex-1 min-w-0">
         <MobileNav />

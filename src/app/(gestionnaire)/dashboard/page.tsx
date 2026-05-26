@@ -12,11 +12,11 @@ import { DashboardTabs } from "./dashboard-tabs";
 
 import { Sparkline } from "@/components/sparkline";
 
-function StatCard({ icon, iconBg, label, value, sub, trend, trendUp, href, sparkData, sparkColor }: {
-  icon: React.ReactNode; iconBg: string; label: string; value: string; sub?: string; trend?: string; trendUp?: boolean; href?: string; sparkData?: number[]; sparkColor?: string;
+function StatCard({ icon, iconBg, label, value, sub, trend, trendUp, href, sparkData, sparkColor, tooltip }: {
+  icon: React.ReactNode; iconBg: string; label: string; value: string; sub?: string; trend?: string; trendUp?: boolean; href?: string; sparkData?: number[]; sparkColor?: string; tooltip?: string;
 }) {
   const card = (
-    <Card className="hover:shadow-md transition-all hover:-translate-y-0.5 group">
+    <Card className="hover:shadow-md transition-all hover:-translate-y-0.5 group" title={tooltip}>
       <CardContent className="pt-5 pb-4">
         <div className="flex items-start justify-between">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconBg}`}>{icon}</div>
@@ -82,6 +82,7 @@ export default async function DashboardPage() {
           value={`${pct}%`}
           sub={`${stats.appartements.occupes} occupés · ${stats.appartements.libres} libres`}
           href="/appartements"
+          tooltip="Pourcentage d'appartements occupés sur le total"
         />
         <StatCard
           icon={<TrendingUp className="size-5 text-emerald-600" />}
@@ -94,6 +95,7 @@ export default async function DashboardPage() {
           href="/finances"
           sparkData={evolution.map((e: any) => e.revenus)}
           sparkColor="#10b981"
+          tooltip="Total encaissé ce mois (loyers + charges). Le % = encaissé / attendu"
         />
         <StatCard
           icon={<AlertTriangle className="size-5 text-red-600" />}
@@ -104,6 +106,7 @@ export default async function DashboardPage() {
           href="/situation"
           sparkData={evolution.map((e: any) => e.attendus - e.revenus)}
           sparkColor="#ef4444"
+          tooltip="Différence entre le montant attendu et le montant effectivement payé"
         />
         <StatCard
           icon={<Key className="size-5 text-sky-600" />}
@@ -112,6 +115,7 @@ export default async function DashboardPage() {
           value={`${stats.appartements.libres}`}
           sub="disponibles à la location"
           href="/appartements?statut=LIBRE"
+          tooltip="Nombre d'appartements sans bail actif"
         />
       </div>
 
