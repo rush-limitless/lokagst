@@ -138,9 +138,9 @@ model Paiement {
   valide         Boolean        @default(true)
   bail           Bail           @relation(fields: [bailId], references: [id])
 
-  @@unique([bailId, moisConcerne])
   @@index([bailId])
   @@index([moisConcerne])
+  @@index([bailId, moisConcerne])
   @@map("paiements")
 }
 
