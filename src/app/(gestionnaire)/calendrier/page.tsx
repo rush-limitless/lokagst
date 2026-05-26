@@ -3,8 +3,8 @@ import { formatFCFA } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 
-export default async function CalendrierPage({ searchParams }: { searchParams: Promise<{ m?: string; y?: string }> }) {
-  const { m, y } = await searchParams;
+export default async function CalendrierPage({ searchParams }: { searchParams: Promise<{ m?: string; y?: string; vue?: string }> }) {
+  const { m, y, vue } = await searchParams;
   const now = new Date();
   const mois = m ? parseInt(m) : now.getMonth();
   const annee = y ? parseInt(y) : now.getFullYear();
@@ -16,20 +16,31 @@ export default async function CalendrierPage({ searchParams }: { searchParams: P
   const nextM = mois === 11 ? 0 : mois + 1;
   const nextY = mois === 11 ? annee + 1 : annee;
 
-  const payes = echeances.filter((e) => e.paye);
-  const partiels = echeances.filter((e) => e.partiel);
-  const impayes = echeances.filter((e) => !e.paye && !e.partiel);
-  const totalAttendu = echeances.reduce((s, e) => s + e.montant, 0);
-  const totalPaye = echeances.reduce((s, e) => s + e.montantPaye, 0);
+  // Vue semaine : filtrer les échéances dont le jourLimite est dans les 7 prochains jours
+  const isSemaine = vue === "semaine";
+  const jourAujourdhui = now.getDate();
+  const echeancesFiltrees = isSemaine
+    ? echeances.filter((e) => e.jourLimite >= jourAujourdhui && e.jourLimite <= jourAujourdhui + 7)
+    : echeances;
+
+  const payes = echeancesFiltrees.filter((e) => e.paye);
+  const partiels = echeancesFiltrees.filter((e) => e.partiel);
+  const impayes = echeancesFiltrees.filter((e) => !e.paye && !e.partiel);
+  const totalAttendu = echeancesFiltrees.reduce((s, e) => s + e.montant, 0);
+  const totalPaye = echeancesFiltrees.reduce((s, e) => s + e.montantPaye, 0);
 
   return (
     <div className="space-y-6 animate-in">
       <div className="flex items-center justify-between">
         <h1 className="text-xl md:text-2xl font-bold text-foreground">Calendrier des échéances</h1>
-        <div className="flex items-center gap-2">
-          <Link href={`/calendrier?m=${prevM}&y=${prevY}`} className="px-3 py-1.5 border rounded-lg text-sm hover:bg-muted">←</Link>
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1 border rounded-lg p-0.5">
+            <Link href={`/calendrier?m=${mois}&y=${annee}`} className={`px-3 py-1 rounded text-xs font-medium transition-colors ${!isSemaine ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Mois</Link>
+            <Link href={`/calendrier?m=${mois}&y=${annee}&vue=semaine`} className={`px-3 py-1 rounded text-xs font-medium transition-colors ${isSemaine ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Semaine</Link>
+          </div>
+          <Link href={`/calendrier?m=${prevM}&y=${prevY}${isSemaine ? "&vue=semaine" : ""}`} className="px-3 py-1.5 border rounded-lg text-sm hover:bg-muted">←</Link>
           <span className="text-sm font-medium capitalize min-w-[140px] text-center">{moisLabel}</span>
-          <Link href={`/calendrier?m=${nextM}&y=${nextY}`} className="px-3 py-1.5 border rounded-lg text-sm hover:bg-muted">→</Link>
+          <Link href={`/calendrier?m=${nextM}&y=${nextY}${isSemaine ? "&vue=semaine" : ""}`} className="px-3 py-1.5 border rounded-lg text-sm hover:bg-muted">→</Link>
         </div>
       </div>
 
