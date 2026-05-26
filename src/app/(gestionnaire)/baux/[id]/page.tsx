@@ -19,7 +19,6 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
 
   const charges = (bail.chargesLocatives as { type: string; montant: number }[]) || [];
   const isJournalier = bail.periodicite === "JOURNALIER";
-  const isJournalier = bail.periodicite === "JOURNALIER";
   const dureeLabel = isJournalier
     ? `${Math.round((new Date(bail.dateFin).getTime() - new Date(bail.dateDebut).getTime()) / 86400000)} jours`
     : `${bail.dureeMois} mois`;
