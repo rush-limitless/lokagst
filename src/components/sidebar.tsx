@@ -59,27 +59,28 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
   return (
     <aside className={cn("bg-card border-r flex-shrink-0 hidden md:flex flex-col transition-all duration-300 h-screen sticky top-0", collapsed ? "w-[60px]" : "w-[240px]")}>
       {/* Header */}
-      <div className={cn("h-14 border-b flex items-center px-3 shrink-0", collapsed ? "justify-center" : "justify-between")}>
+      <div className={cn("h-[57px] border-b flex items-center px-3 shrink-0", collapsed ? "justify-center" : "justify-between")}>
         {!collapsed && (
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#29ABE2] to-[#1B6B9E] flex items-center justify-center shadow-sm">
-              <img src="/logo.jpg" alt="IMMOSTAR SCI" className="w-6 h-6 rounded" />
-            </div>
+            <img src="/logo.jpg" alt="IMMOSTAR SCI" className="w-8 h-8 rounded-lg" />
             <div className="leading-tight">
               <p className="text-sm font-bold text-foreground tracking-tight">ImmoGest</p>
-              <p className="text-[9px] text-primary font-medium uppercase tracking-wider">IMMOSTAR SCI</p>
+              <p className="text-[9px] text-muted-foreground">IMMOSTAR SCI</p>
             </div>
           </Link>
         )}
-        {collapsed && (
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#29ABE2] to-[#1B6B9E] flex items-center justify-center shadow-sm">
-            <img src="/logo.jpg" alt="" className="w-6 h-6 rounded" />
-          </div>
+        {collapsed && <img src="/logo.jpg" alt="" className="w-8 h-8 rounded-lg" />}
+        {!collapsed && (
+          <button onClick={() => setCollapsed(true)} className="text-muted-foreground hover:text-foreground transition-colors">
+            <PanelLeftClose className="size-4" />
+          </button>
         )}
-        <button onClick={() => setCollapsed(!collapsed)} className="text-muted-foreground hover:text-foreground transition-colors">
-          {collapsed ? <PanelLeft className="size-4" /> : <PanelLeftClose className="size-4" />}
-        </button>
       </div>
+      {collapsed && (
+        <button onClick={() => setCollapsed(false)} className="text-muted-foreground hover:text-foreground transition-colors p-2 mx-auto mt-1">
+          <PanelLeft className="size-4" />
+        </button>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 py-2 overflow-y-auto">
