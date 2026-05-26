@@ -105,8 +105,49 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
         </CardContent>
       </Card>
 
-      {/* Table */}
-      <Card className="overflow-hidden">
+      {/* Mobile cards view */}
+      <div className="md:hidden space-y-3">
+        {filtered.map((p) => (
+          <Card key={p.id} className={`${!p.valide ? "border-orange-200 dark:border-orange-800" : ""}`}>
+            <CardContent className="pt-4 pb-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold">
+                    {p.bail.locataire.prenom[0]}{p.bail.locataire.nom[0]}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{p.bail.locataire.prenom} {p.bail.locataire.nom}</p>
+                    <p className="text-[10px] text-muted-foreground">{p.bail.appartement.numero} · {formatMois(p.moisConcerne)}</p>
+                  </div>
+                </div>
+                {!p.valide ? <Badge variant="outline" className="text-orange-600 border-orange-300 text-[10px]">En attente</Badge> : <Badge variant={p.statut === "PAYE" ? "outline" : "destructive"} className={p.statut === "PAYE" ? "text-emerald-600 border-emerald-300 text-[10px]" : "text-[10px]"}>{p.statut === "PAYE" ? "Payé" : "Partiel"}</Badge>}
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-bold text-foreground">{formatFCFA(p.montant)}</span>
+                <Badge variant="secondary" className="text-[10px]">
+                  {p.modePaiement === "MOBILE_MONEY" ? "🟠 Mobile" : p.modePaiement === "ESPECES" ? "💵 Espèces" : "🏦 Virement"}
+                </Badge>
+              </div>
+              {(p.montantLoyer > 0 || p.montantCharges > 0) && (
+                <div className="flex gap-3 mt-2 text-[10px] text-muted-foreground">
+                  {p.montantLoyer > 0 && <span>Loyer: {formatFCFA(p.montantLoyer)}</span>}
+                  {p.montantCharges > 0 && <span>Charges: {formatFCFA(p.montantCharges)}</span>}
+                  {p.montantCaution > 0 && <span>Caution: {formatFCFA(p.montantCaution)}</span>}
+                </div>
+              )}
+              <div className="flex items-center justify-end gap-1 mt-2">
+                <Link href={`/paiements/recu?id=${p.id}`}><Button variant="ghost" size="sm" className="h-7 text-[10px] gap-1"><Receipt className="size-3" /> Reçu</Button></Link>
+                {!p.valide && <ValiderPaiementButton id={p.id} />}
+                <SupprimerPaiementButton id={p.id} />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        {filtered.length === 0 && <div className="text-center py-8 text-muted-foreground text-sm">Aucun paiement trouvé</div>}
+      </div>
+
+      {/* Desktop Table */}
+      <Card className="overflow-hidden hidden md:block">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs text-muted-foreground">
