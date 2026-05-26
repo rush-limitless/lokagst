@@ -32,6 +32,7 @@ export default function NouveauLocataire() {
   const selectedAppart = apparts.find((a) => a.id === selectedAppartId);
   const isMeuble = selectedAppart && ["APPARTEMENT_MEUBLE", "STUDIO_MEUBLE", "CHAMBRE_MEUBLE"].includes(selectedAppart.type);
   const [dureeJours, setDureeJours] = useState(1);
+  const [dureeMois, setDureeMois] = useState(12);
   const filteredApparts = selectedImm ? apparts.filter((a) => a.immeubleId === selectedImm) : apparts;
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -145,7 +146,7 @@ export default function NouveauLocataire() {
                   <input type="hidden" name="dureeMois" value="0" />
                 </div>
               ) : (
-                <div className="space-y-2"><Label>Durée (mois)</Label><Input name="dureeMois" type="number" min="1" defaultValue="12" /></div>
+                <div className="space-y-2"><Label>Durée (mois)</Label><Input name="dureeMois" type="number" min="1" value={dureeMois} onChange={(e) => setDureeMois(parseInt(e.target.value) || 1)} /></div>
               )}
               <div className="space-y-2">
                 <Label>Périodicité</Label>
