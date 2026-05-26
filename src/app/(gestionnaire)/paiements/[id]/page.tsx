@@ -67,7 +67,7 @@ export default async function PaiementDetail({ params }: { params: Promise<{ id:
         <CardContent className="grid grid-cols-2 gap-4 text-sm">
           <div><span className="text-muted-foreground">Mode de paiement</span><p className="font-medium">{MODE_PAIEMENT_LABELS[p.modePaiement]}</p></div>
           <div><span className="text-muted-foreground">Validé</span><p>{p.valide ? "Oui" : "En attente"}</p></div>
-          {p.preuvePaiement && <div><span className="text-muted-foreground">Preuve</span><p><a href={p.preuvePaiement} target="_blank" className="text-primary hover:underline">📎 Voir la preuve</a></p></div>}
+          {p.preuvePaiement && <div><span className="text-muted-foreground">Preuve</span><p><a href={p.preuvePaiement} target="_blank" className="text-primary hover:underline">Voir la preuve</a></p></div>}
           {p.notes && <div className="col-span-2"><span className="text-muted-foreground">Notes</span><p>{p.notes}</p></div>}
         </CardContent>
       </Card>
@@ -75,7 +75,7 @@ export default async function PaiementDetail({ params }: { params: Promise<{ id:
       <div className="flex gap-2">
         <ModifierPaiementButton paiement={JSON.parse(JSON.stringify(p))} />
         <Link href={`/paiements/recu?id=${p.id}`}><Button variant="outline" size="sm">🧾 Reçu</Button></Link>
-        {p.statut === "PAYE" && <Link href={`/paiements/quittance?id=${p.id}`}><Button variant="outline" size="sm">📄 Quittance</Button></Link>}
+        {p.statut === "PAYE" && <Link href={`/paiements/quittance?id=${p.id}`}><Button variant="outline" size="sm">Quittance</Button></Link>}
         <Link href={`/baux/${p.bailId}`}><Button variant="outline" size="sm">📄 Voir le bail</Button></Link>
       </div>
     </div>

@@ -29,7 +29,7 @@ export function ModifierPaiementButton({ paiement: p }: { paiement: any }) {
     router.refresh();
   }
 
-  if (!open) return <Button variant="outline" size="sm" onClick={() => setOpen(true)}>✏️ Modifier</Button>;
+  if (!open) return <Button variant="outline" size="sm" onClick={() => setOpen(true)}>Modifier</Button>;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setOpen(false)}>

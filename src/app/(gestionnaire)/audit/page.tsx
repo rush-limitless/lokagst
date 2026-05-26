@@ -5,9 +5,9 @@ import Link from "next/link";
 import { AuditDetailRow } from "./audit-detail-row";
 
 const ACTION_ICONS: Record<string, string> = {
-  "Création": "🆕", "Modification": "✏️", "Suppression": "🗑️", "Signature": "✍️",
-  "Résiliation": "❌", "Renouvellement": "🔄", "Paiement": "💰", "Connexion": "🔐",
-  "Archivage": "📦",
+  "Création": "+", "Modification": "~", "Suppression": "-", "Signature": "S",
+  "Résiliation": "X", "Renouvellement": "R", "Paiement": "$", "Connexion": "L",
+  "Archivage": "A",
 };
 
 const ACTION_COLORS: Record<string, string> = {
@@ -31,7 +31,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
   const serializedLogs = logs.map((l) => ({
     ...l,
     creeLe: l.creeLe.toISOString(),
-    icon: ACTION_ICONS[l.action] || "📋",
+    icon: ACTION_ICONS[l.action] || "·",
     color: ACTION_COLORS[l.action] || "text-foreground",
   }));
 
@@ -51,7 +51,7 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
         <Link href="/audit" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!action && !entite ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Toutes</Link>
         {stats.actions.slice(0, 6).map((a) => (
           <Link key={a.action} href={`/audit?action=${a.action}`} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${action === a.action ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>
-            {ACTION_ICONS[a.action] || "📋"} {a.action} ({a._count})
+            {ACTION_ICONS[a.action] || "·"} {a.action} ({a._count})
           </Link>
         ))}
       </div>

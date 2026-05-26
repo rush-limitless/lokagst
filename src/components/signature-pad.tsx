@@ -76,7 +76,7 @@ export function SignaturePad({ onSave }: { onSave: (dataUrl: string) => void }) 
       </div>
       <div className="flex gap-2">
         <Button type="button" variant="outline" size="sm" onClick={clear}>Effacer</Button>
-        <Button type="button" size="sm" onClick={save}>✅ Valider la signature</Button>
+        <Button type="button" size="sm" onClick={save}>Valider la signature</Button>
       </div>
     </div>
   );

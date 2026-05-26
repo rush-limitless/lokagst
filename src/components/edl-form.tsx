@@ -145,7 +145,7 @@ export function EdlForm({ bailId, montantCaution }: { bailId: string; montantCau
       {/* Caution à rembourser — uniquement pour EDL de sortie */}
       {type === "SORTIE" && montantCaution && montantCaution > 0 && (
         <Card className="border-orange-200 dark:border-orange-800">
-          <CardHeader><CardTitle>💰 Caution à rembourser</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Caution à rembourser</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">Caution versée : <strong>{formatFCFA(montantCaution)}</strong></p>
             <div className="space-y-2">
@@ -162,14 +162,14 @@ export function EdlForm({ bailId, montantCaution }: { bailId: string; montantCau
       <Card>
         <CardHeader><CardTitle>Signature du locataire</CardTitle></CardHeader>
         <CardContent>
-          {sigLoc ? <p className="text-green-600 text-sm">✅ Signé</p> : <SignaturePad onSave={setSigLoc} />}
+          {sigLoc ? <p className="text-green-600 text-sm">Signé</p> : <SignaturePad onSave={setSigLoc} />}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader><CardTitle>Signature du gestionnaire</CardTitle></CardHeader>
         <CardContent>
-          {sigGest ? <p className="text-green-600 text-sm">✅ Signé</p> : <SignaturePad onSave={setSigGest} />}
+          {sigGest ? <p className="text-green-600 text-sm">Signé</p> : <SignaturePad onSave={setSigGest} />}
         </CardContent>
       </Card>
 

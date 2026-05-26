@@ -116,8 +116,8 @@ export default async function SituationPage({ searchParams }: { searchParams: Pr
                           </div>
                           {!s.aJour && (
                             <div className="flex gap-4 mt-2 text-xs">
-                              {s.moisLoyerImpayes > 0 && <span className="text-red-600">🏠 Loyer : {s.moisLoyerImpayes} mois — {formatFCFA(s.montantLoyerDu)}</span>}
-                              {s.moisChargesImpayes > 0 && <span className="text-orange-600">⚡ Charges : {s.moisChargesImpayes} mois — {formatFCFA(s.montantChargesDu)}</span>}
+                              {s.moisLoyerImpayes > 0 && <span className="text-red-600">Loyer : {s.moisLoyerImpayes} mois — {formatFCFA(s.montantLoyerDu)}</span>}
+                              {s.moisChargesImpayes > 0 && <span className="text-orange-600">Charges : {s.moisChargesImpayes} mois — {formatFCFA(s.montantChargesDu)}</span>}
                             </div>
                           )}
                           <div className="flex gap-0.5 mt-2">

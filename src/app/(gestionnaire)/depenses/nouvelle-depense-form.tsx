@@ -45,8 +45,8 @@ export function NouvelleDepenseForm() {
               <option value="ASSURANCE">🛡️ Assurance</option>
               <option value="TAXE_FONCIERE">🏛️ Taxe foncière</option>
               <option value="EAU_ELECTRICITE">💡 Eau/Électricité</option>
-              <option value="FRAIS_GESTION">📋 Frais de gestion</option>
-              <option value="AUTRE">📦 Autre</option>
+              <option value="FRAIS_GESTION">Frais de gestion</option>
+              <option value="AUTRE">Autre</option>
             </select>
           </div>
           <div className="space-y-2"><Label>Montant (FCFA)</Label><Input name="montant" type="number" min="1" required /></div>

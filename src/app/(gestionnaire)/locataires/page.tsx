@@ -94,7 +94,7 @@ export default async function LocatairesPage({ searchParams }: { searchParams: P
       </div>
 
       {locataires.length === 0 ? (
-        <EmptyState icon="👤" title={q ? "Aucun résultat" : "Aucun locataire"} description={q ? "Essayez avec un autre terme" : "Ajoutez votre premier locataire"} />
+        <EmptyState icon="" title={q ? "Aucun résultat" : "Aucun locataire"} description={q ? "Essayez avec un autre terme" : "Ajoutez votre premier locataire"} />
       ) : (
         <div className="space-y-6">
           {grouped.map(({ imm, etage, etageKey, locs }) => (

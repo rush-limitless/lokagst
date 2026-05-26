@@ -9,7 +9,7 @@ import { SupprimerDepenseButton } from "./supprimer-depense-button";
 const CAT_LABELS: Record<string, string> = {
   TRAVAUX: "🔨 Travaux", ENTRETIEN: "🧹 Entretien", ASSURANCE: "🛡️ Assurance",
   TAXE_FONCIERE: "🏛️ Taxe foncière", EAU_ELECTRICITE: "💡 Eau/Électricité",
-  FRAIS_GESTION: "📋 Frais de gestion", AUTRE: "📦 Autre",
+  FRAIS_GESTION: "Frais de gestion", AUTRE: "Autre",
 };
 
 export default async function DepensesPage({ searchParams }: { searchParams: Promise<{ annee?: string }> }) {

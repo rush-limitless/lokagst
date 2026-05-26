@@ -81,7 +81,7 @@ export default function NouveauLocataire() {
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2 border-gray-300">
-                {photoUrl ? <img src={photoUrl} alt="" className="w-full h-full object-cover" /> : <span className="text-muted-foreground text-xl">👤</span>}
+                {photoUrl ? <img src={photoUrl} alt="" className="w-full h-full object-cover" /> : <span className="text-muted-foreground text-xs">Photo</span>}
               </div>
               <div>
                 <input ref={fileRef} type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />

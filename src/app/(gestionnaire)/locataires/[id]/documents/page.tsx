@@ -63,7 +63,7 @@ export default async function DocumentsPage({ params }: { params: Promise<{ id: 
                   <Link href={doc.lien}><Button size="sm" variant="outline">Compléter</Button></Link>
                 )}
                 {doc.bailId && doc.type === "contrat" && (
-                  <Link href={`/baux/${doc.bailId}/contrat`}><Button size="sm" variant="outline">📄 PDF</Button></Link>
+                  <Link href={`/baux/${doc.bailId}/contrat`}><Button size="sm" variant="outline">PDF</Button></Link>
                 )}
                 {doc.type === "reglement" && doc.statut === "non_signe" && (
                   <UploadReglementForm locataireId={id} />

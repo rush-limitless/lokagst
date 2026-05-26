@@ -20,7 +20,7 @@ export function SupprimerLocataireButton({ locataireId, nom }: { locataireId: st
     router.push("/locataires");
   }
 
-  if (!open) return <Button variant="destructive" size="sm" onClick={() => setOpen(true)}>🗑️ Supprimer</Button>;
+  if (!open) return <Button variant="destructive" size="sm" onClick={() => setOpen(true)}>Supprimer</Button>;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setOpen(false)}>

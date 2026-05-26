@@ -42,10 +42,10 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
-          {loc.statut === "ACTIF" && bailActif && <Link href={`/paiements/nouveau?bailId=${bailActif.id}`}><Button size="sm" className="gap-1.5">💰 Paiement</Button></Link>}
+          {loc.statut === "ACTIF" && bailActif && <Link href={`/paiements/nouveau?bailId=${bailActif.id}`}><Button size="sm" className="gap-1.5">Paiement</Button></Link>}
           {loc.statut === "ACTIF" && !loc.utilisateur && <CreerCompteButton locataireId={loc.id} email={loc.email} />}
           {loc.utilisateur && <GererCompteButton utilisateurId={loc.utilisateur.id} email={loc.utilisateur.email} />}
-          <Link href={`/locataires/${loc.id}/documents`}><Button variant="outline" size="sm">📁 Documents</Button></Link>
+          <Link href={`/locataires/${loc.id}/documents`}><Button variant="outline" size="sm">Documents</Button></Link>
           {loc.statut === "ACTIF" && <ArchiverButton locataireId={loc.id} />}
           <SupprimerLocataireButton locataireId={loc.id} nom={`${loc.prenom} ${loc.nom}`} />
         </div>
@@ -56,7 +56,7 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
         const moisRetard = situation.loyer.moisImpayes;
         const score = moisRetard === 0 ? "excellent" : moisRetard <= 1 ? "attention" : moisRetard <= 3 ? "risque" : "critique";
         const gradients = { excellent: "from-emerald-500 to-teal-600", attention: "from-yellow-500 to-amber-600", risque: "from-orange-500 to-red-500", critique: "from-red-600 to-rose-700" };
-        const scoreLabels = { excellent: "✅ À jour", attention: "⚠️ 1 mois de retard", risque: `🔶 ${moisRetard} mois`, critique: `🔴 ${moisRetard} mois` };
+        const scoreLabels = { excellent: "À jour", attention: "1 mois de retard", risque: `${moisRetard} mois`, critique: `${moisRetard} mois` };
         return (
           <div className={`bg-gradient-to-r ${gradients[score]} rounded-xl p-5 text-white relative overflow-hidden`}>
             <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -72,7 +72,7 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
               <div className="flex flex-col items-end gap-2">
                 <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">{scoreLabels[score]}</span>
                 <div className="flex gap-2 text-[10px] text-white/60">
-                  <span>📄 {loc.baux.length} bail(s)</span>
+                  <span>{loc.baux.length} bail(s)</span>
                   <span>💳 {loc.baux.reduce((s, b) => s + b.paiements.length, 0)} paiement(s)</span>
                 </div>
               </div>

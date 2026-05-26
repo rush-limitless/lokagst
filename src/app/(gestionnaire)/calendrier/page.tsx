@@ -53,7 +53,7 @@ export default async function CalendrierPage({ searchParams }: { searchParams: P
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-emerald-600">✅ Payés ({payes.length})</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-emerald-600">Payés ({payes.length})</CardTitle></CardHeader>
           <CardContent className="max-h-64 overflow-y-auto space-y-2">
             {payes.map((e) => (
               <Link key={e.id} href={`/baux/${e.id}`} className="flex justify-between items-center p-2 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/10 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors">
@@ -66,7 +66,7 @@ export default async function CalendrierPage({ searchParams }: { searchParams: P
         </Card>
 
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-orange-600">⏳ Partiels ({partiels.length})</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-orange-600">Partiels ({partiels.length})</CardTitle></CardHeader>
           <CardContent className="max-h-64 overflow-y-auto space-y-2">
             {partiels.map((e) => (
               <Link key={e.id} href={`/baux/${e.id}`} className="flex justify-between items-center p-2 rounded-lg bg-orange-50/50 dark:bg-orange-950/10 hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-colors">
@@ -79,7 +79,7 @@ export default async function CalendrierPage({ searchParams }: { searchParams: P
         </Card>
 
         <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-red-600">❌ Impayés ({impayes.length})</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-red-600">Impayés ({impayes.length})</CardTitle></CardHeader>
           <CardContent className="max-h-64 overflow-y-auto space-y-2">
             {impayes.map((e) => (
               <Link key={e.id} href={`/baux/${e.id}`} className="flex justify-between items-center p-2 rounded-lg bg-red-50/50 dark:bg-red-950/10 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
@@ -87,7 +87,7 @@ export default async function CalendrierPage({ searchParams }: { searchParams: P
                 <span className="text-xs font-bold text-red-600">{formatFCFA(e.montant)}</span>
               </Link>
             ))}
-            {impayes.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">Tous payés ✅</p>}
+            {impayes.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">Tous payés</p>}
           </CardContent>
         </Card>
       </div>

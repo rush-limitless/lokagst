@@ -39,13 +39,13 @@ export function CreerCompteButton({ locataireId, email }: { locataireId: string;
     setSending(false);
   }
 
-  if (step === "idle") return <Button variant="outline" size="sm" onClick={() => setStep("form")}>🔑 Créer un compte</Button>;
+  if (step === "idle") return <Button variant="outline" size="sm" onClick={() => setStep("form")}>Créer un compte</Button>;
 
   if (step === "result" && result) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setStep("idle")}>
         <div className="bg-card rounded-xl p-6 max-w-sm w-full shadow-xl border space-y-4" onClick={(e) => e.stopPropagation()}>
-          <h3 className="text-lg font-bold text-foreground">✅ Compte créé</h3>
+          <h3 className="text-lg font-bold text-foreground">Compte créé</h3>
           <div className="space-y-3 bg-muted/50 rounded-lg p-4">
             <div>
               <p className="text-xs text-muted-foreground">Adresse email</p>

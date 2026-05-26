@@ -45,7 +45,7 @@ export default async function AppartementsPage({ searchParams }: { searchParams:
       <p className="text-sm text-muted-foreground">{appartements.length} appartement(s)</p>
 
       {appartements.length === 0 ? (
-        <EmptyState icon="🏠" title="Aucun appartement" description="Ajoutez votre premier appartement pour commencer" />
+        <EmptyState icon="" title="Aucun appartement" description="Ajoutez votre premier appartement pour commencer" />
       ) : (
         (() => {
           const IMM_COLORS: Record<string, { border: string; bg: string }> = {};

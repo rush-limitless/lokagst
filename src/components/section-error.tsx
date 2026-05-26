@@ -9,7 +9,7 @@ export function SectionError({ error, reset, section }: { error: Error; reset: (
       <h2 className="text-lg font-bold text-foreground mb-2">Erreur — {section}</h2>
       <p className="text-sm text-muted-foreground mb-6 max-w-md">{error.message || "Une erreur inattendue est survenue lors du chargement de cette page."}</p>
       <div className="flex gap-3">
-        <Button onClick={reset}>🔄 Réessayer</Button>
+        <Button onClick={reset}>Réessayer</Button>
         <Button variant="outline" onClick={() => window.location.href = "/dashboard"}>Retour au dashboard</Button>
       </div>
     </div>

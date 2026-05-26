@@ -36,7 +36,7 @@ export function UploadReglementForm({ locataireId }: { locataireId: string }) {
     <>
       <input ref={fileRef} type="file" accept=".pdf,image/*" onChange={handleUpload} className="hidden" />
       <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={uploading}>
-        {uploading ? "Upload..." : "📎 Uploader PDF"}
+        {uploading ? "Upload..." : "Uploader PDF"}
       </Button>
     </>
   );

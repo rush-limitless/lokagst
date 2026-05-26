@@ -52,18 +52,18 @@ export function FileUpload({ onUploaded, accept = "image/*,.pdf", label = "Joind
         ) : preview ? (
           <div className="space-y-2">
             <img src={preview} alt="" className="max-h-24 mx-auto rounded" />
-            <p className="text-xs text-emerald-600">✅ {fileName}</p>
+            <p className="text-xs text-emerald-600">{fileName}</p>
             <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={(e) => { e.stopPropagation(); setPreview(null); setFileName(null); fileRef.current!.value = ""; }}>Changer</Button>
           </div>
         ) : fileName ? (
           <div className="space-y-1">
-            <p className="text-2xl">📄</p>
-            <p className="text-xs text-emerald-600">✅ {fileName}</p>
+            <p className="text-muted-foreground text-sm">Fichier uploadé</p>
+            <p className="text-xs text-emerald-600">{fileName}</p>
             <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={(e) => { e.stopPropagation(); setFileName(null); fileRef.current!.value = ""; }}>Changer</Button>
           </div>
         ) : (
           <div className="space-y-1 py-2">
-            <p className="text-2xl">📎</p>
+            <p className="text-muted-foreground text-sm">Cliquez pour choisir</p>
             <p className="text-sm text-muted-foreground">{label}</p>
             <p className="text-[10px] text-muted-foreground">Glisser-déposer ou cliquer · JPG, PNG, PDF · Max 5 Mo</p>
           </div>
