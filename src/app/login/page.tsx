@@ -38,7 +38,7 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold">ImmoGest</h1>
           <p className="text-sky-200 text-sm mt-2">IMMOSTAR SCI</p>
           <p className="text-sky-100/60 text-sm mt-6 leading-relaxed max-w-xs mx-auto">
-            Gérez vos immeubles, locataires et paiements en toute simplicité.
+            {lang === "fr" ? "Gérez vos immeubles, locataires et paiements en toute simplicité." : "Manage your buildings, tenants and payments with ease."}
           </p>
         </div>
       </div>
@@ -59,7 +59,7 @@ export default function LoginPage() {
 
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t.connexion}</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Accédez à votre espace de gestion</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{lang === "fr" ? "Accédez à votre espace de gestion" : "Access your management space"}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -117,7 +117,7 @@ export default function LoginPage() {
             </p>
           </form>
 
-          <p className="text-center text-xs text-gray-400 mt-8">IMMOSTAR SCI — Gestion locative</p>
+          <p className="text-center text-xs text-gray-400 mt-8">IMMOSTAR SCI — {lang === "fr" ? "Gestion locative" : "Property management"}</p>
         </div>
       </div>
     </div>
