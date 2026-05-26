@@ -7,6 +7,7 @@ import { NotificationBell } from "@/components/notification-bell";
 import { LangToggle } from "@/components/lang-toggle";
 import { CommandPalette } from "@/components/command-palette";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { KeyboardShortcuts } from "@/components/keyboard-shortcuts";
 import { prisma } from "@/lib/prisma";
 
 export default async function GestionnaireLayout({ children }: { children: React.ReactNode }) {
@@ -37,6 +38,7 @@ export default async function GestionnaireLayout({ children }: { children: React
           <Breadcrumb />
           {children}
         </div>
+        <KeyboardShortcuts />
       </main>
     </div>
   );
