@@ -11,11 +11,12 @@ import {
   Building2, TrendingUp, AlertTriangle, Key,
   Plus, FileText, Users, ArrowUpRight, ArrowDownRight, Clock,
 } from "lucide-react";
+import { DashboardTabs } from "./dashboard-tabs";
 
 function StatCard({ icon, iconBg, label, value, sub, trend, trendUp, href }: {
   icon: React.ReactNode; iconBg: string; label: string; value: string; sub?: string; trend?: string; trendUp?: boolean; href?: string;
 }) {
-  return (
+  const card = (
     <Card className="hover:shadow-md transition-all hover:-translate-y-0.5 group">
       <CardContent className="pt-5 pb-4">
         <div className="flex items-start justify-between">
@@ -28,18 +29,14 @@ function StatCard({ icon, iconBg, label, value, sub, trend, trendUp, href }: {
           )}
         </div>
         <div className="mt-3">
-          <p className="text-2xl font-bold text-foreground count-up">{value}</p>
+          <p className="text-2xl font-bold text-foreground">{value}</p>
           <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
         </div>
         {sub && <p className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed">{sub}</p>}
-        {href && (
-          <Link href={href} className="text-[11px] text-primary font-medium mt-2 inline-flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-            Voir détail <ArrowUpRight className="size-3" />
-          </Link>
-        )}
       </CardContent>
     </Card>
   );
+  return href ? <Link href={href}>{card}</Link> : card;
 }
 
 export default async function DashboardPage() {
@@ -53,7 +50,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6 animate-in">
-      {/* Welcome banner */}
+      {/* Welcome banner glassmorphism */}
       <div className="mesh-bg bg-gradient-to-br from-[#0d3b5e] to-[#1B6B9E] rounded-2xl p-6 text-white">
         <div className="relative z-10">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -112,118 +109,12 @@ export default async function DashboardPage() {
         />
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="lg:col-span-2 overflow-hidden">
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Évolution des revenus</CardTitle></CardHeader>
-          <CardContent><RevenusChart data={evolution} /></CardContent>
-        </Card>
-        <Card className="overflow-hidden">
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Occupation</CardTitle></CardHeader>
-          <CardContent><OccupationPie occupes={stats.appartements.occupes} libres={stats.appartements.libres} /></CardContent>
-        </Card>
-      </div>
-
-      {/* À encaisser cette semaine */}
-      {stats.alertes.aEncaisserSemaine.length > 0 && (
-        <Card className="border-sky-200 dark:border-sky-800">
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">💳 À encaisser cette semaine</CardTitle>
-              <Badge variant="outline" className="text-sky-600 border-sky-300">{stats.alertes.aEncaisserSemaine.length}</Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              {stats.alertes.aEncaisserSemaine.map((l) => (
-                <Link key={l.bailId} href={`/paiements/nouveau?bailId=${l.bailId}`} className="flex justify-between items-center p-2.5 bg-sky-50 dark:bg-sky-950/20 rounded-lg text-sm hover:bg-sky-100 dark:hover:bg-sky-950/30 transition-colors">
-                  <div>
-                    <p className="font-medium text-foreground text-xs">{l.nom}</p>
-                    <p className="text-[10px] text-muted-foreground">{l.appartement} · limite le {l.jourLimite}</p>
-                  </div>
-                  <Badge variant="outline" className="text-sky-700 border-sky-300 text-[10px]">{formatFCFA(l.montantAttendu)}</Badge>
-                </Link>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Alerts + Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 stagger-in">
-        <Card className={stats.alertes.bauxExpirants.length > 0 ? "border-orange-200 dark:border-orange-800" : ""}>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium">Baux expirant bientôt</CardTitle>
-              {stats.alertes.bauxExpirants.length > 0 && <Badge variant="outline" className="text-orange-600 border-orange-300">{stats.alertes.bauxExpirants.length}</Badge>}
-            </div>
-          </CardHeader>
-          <CardContent className="max-h-52 overflow-y-auto">
-            {stats.alertes.bauxExpirants.length === 0 ? (
-              <div className="text-center py-6"><div className="text-3xl mb-2">✅</div><p className="text-muted-foreground text-sm">Aucun dans les 30 prochains jours</p></div>
-            ) : (
-              <div className="space-y-2">
-                {stats.alertes.bauxExpirants.map((b) => (
-                  <Link key={b.bailId} href={`/baux/${b.bailId}`} className="flex justify-between items-center p-2.5 bg-orange-50 dark:bg-orange-950/20 rounded-lg text-sm hover:bg-orange-100 dark:hover:bg-orange-950/30 transition-colors">
-                    <div>
-                      <span className="font-medium text-foreground">{b.locataire}</span>
-                      <span className="text-muted-foreground ml-1.5 text-xs">({b.appartement})</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-orange-600">
-                      <Clock className="size-3" />
-                      <span className="text-xs font-medium">{b.joursRestants}j</span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className={stats.alertes.impayesLocataires.length > 0 ? "border-red-200 dark:border-red-800" : ""}>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium">Impayés ce mois</CardTitle>
-              {stats.alertes.impayesLocataires.length > 0 && <Badge variant="destructive">{stats.alertes.impayesLocataires.length}</Badge>}
-            </div>
-          </CardHeader>
-          <CardContent className="max-h-52 overflow-y-auto">
-            {stats.alertes.impayesLocataires.length === 0 ? (
-              <div className="text-center py-6"><div className="text-3xl mb-2">✅</div><p className="text-muted-foreground text-sm">Tous à jour</p></div>
-            ) : (
-              <div className="space-y-2">
-                {stats.alertes.impayesLocataires.map((l) => (
-                  <Link key={l.locataireId} href={`/locataires/${l.locataireId}`} className="flex justify-between items-center p-2.5 bg-red-50 dark:bg-red-950/20 rounded-lg text-sm hover:bg-red-100 dark:hover:bg-red-950/30 transition-colors">
-                    <span className="font-medium text-foreground">{l.nom}</span>
-                    <Badge variant="destructive">{formatFCFA(l.montantDu)}</Badge>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Activité récente</CardTitle></CardHeader>
-          <CardContent className="max-h-52 overflow-y-auto">
-            {activites.length === 0 ? (
-              <div className="text-center py-6"><div className="text-3xl mb-2">📭</div><p className="text-muted-foreground text-sm">Aucune activité</p></div>
-            ) : (
-              <div className="space-y-1.5">
-                {activites.map((a, i) => (
-                  <div key={i} className="flex gap-2 text-sm p-1.5 rounded hover:bg-muted/50 transition-colors">
-                    <span>{a.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="truncate text-xs text-foreground">{a.message}</p>
-                      <p className="text-[10px] text-muted-foreground">{formatDate(a.date)}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      {/* Onglets : Vue d'ensemble / Alertes / Activités */}
+      <DashboardTabs
+        evolution={evolution}
+        stats={stats}
+        activites={activites}
+      />
     </div>
   );
 }
