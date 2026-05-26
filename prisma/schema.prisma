@@ -15,8 +15,6 @@ model Utilisateur {
   statut             StatutUtilisateur @default(ACTIF)
   tentativesEchouees Int               @default(0)
   bloqueJusqua       DateTime?
-  resetToken         String?
-  resetExpire        DateTime?
   locataireId        String?           @unique
   creeLe             DateTime          @default(now())
   misAJourLe         DateTime          @updatedAt
