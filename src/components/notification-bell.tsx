@@ -3,8 +3,10 @@
 import { getNotifications } from "@/actions/notifications";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
 
-const URGENCE_COLORS = { haute: "border-l-red-500", moyenne: "border-l-orange-400", basse: "border-l-sky-400" };
+const URGENCE_COLORS = { haute: "border-l-red-500 bg-red-50/50 dark:bg-red-950/10", moyenne: "border-l-orange-400 bg-orange-50/50 dark:bg-orange-950/10", basse: "border-l-sky-400" };
 
 export function NotificationBell() {
   const [notifs, setNotifs] = useState<{ notifications: { type: string; icon: string; message: string; link: string; urgence: string }[]; count: number }>({ notifications: [], count: 0 });
@@ -33,39 +35,57 @@ export function NotificationBell() {
   }
 
   return (
-    <div className="relative">
-      <button onClick={() => setOpen(!open)} className="relative w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-foreground">
+    <>
+      <button onClick={() => setOpen(true)} className="relative w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-foreground">
         🔔
         {count > 0 && (
           <span className={`absolute -top-0.5 -right-0.5 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold ${visible.some(n => n.urgence === "haute") ? "bg-red-500 animate-pulse" : "bg-orange-500"}`}>{count}</span>
         )}
       </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-10 z-50 w-96 bg-card border rounded-xl shadow-xl max-h-[500px] overflow-hidden flex flex-col">
-            <div className="p-3 border-b font-medium text-sm text-foreground flex justify-between items-center">
-              <span>Notifications ({count})</span>
-              {count > 0 && <button onClick={dismissAll} className="text-[10px] text-primary hover:underline">Tout marquer comme vu</button>}
-            </div>
-            <div className="overflow-y-auto flex-1">
-              {visible.length === 0 ? (
-                <div className="p-6 text-center"><div className="text-3xl mb-2">✅</div><p className="text-sm text-muted-foreground">Aucune notification</p></div>
-              ) : (
-                visible.map((n, i) => (
-                  <button key={i} onClick={() => handleClick(n)} className={`w-full flex gap-3 p-3 border-b last:border-0 hover:bg-muted/50 transition-colors border-l-4 text-left ${URGENCE_COLORS[n.urgence as keyof typeof URGENCE_COLORS] || ""}`}>
-                    <span className="text-lg">{n.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground leading-tight">{n.message}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5 capitalize">{n.urgence}</p>
-                    </div>
-                  </button>
-                ))
-              )}
-            </div>
+
+      {/* Overlay */}
+      <div className={cn("fixed inset-0 bg-black/40 z-50 transition-opacity", open ? "opacity-100" : "opacity-0 pointer-events-none")} onClick={() => setOpen(false)} />
+
+      {/* Sheet panel */}
+      <div className={cn("fixed top-0 right-0 h-full w-full sm:w-[400px] bg-card border-l shadow-2xl z-50 flex flex-col transition-transform duration-300", open ? "translate-x-0" : "translate-x-full")}>
+        {/* Header */}
+        <div className="p-4 border-b flex items-center justify-between shrink-0">
+          <div>
+            <h2 className="text-base font-semibold text-foreground">Notifications</h2>
+            <p className="text-xs text-muted-foreground">{count} notification(s) active(s)</p>
           </div>
-        </>
-      )}
-    </div>
+          <div className="flex items-center gap-2">
+            {count > 0 && <button onClick={dismissAll} className="text-[10px] text-primary hover:underline">Tout vu</button>}
+            <button onClick={() => setOpen(false)} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"><X className="size-4" /></button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          {visible.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center p-6">
+              <div className="text-4xl mb-3">✅</div>
+              <p className="text-sm font-medium text-foreground">Tout est en ordre</p>
+              <p className="text-xs text-muted-foreground mt-1">Aucune notification en attente</p>
+            </div>
+          ) : (
+            <div className="divide-y">
+              {visible.map((n, i) => (
+                <button key={i} onClick={() => handleClick(n)} className={cn("w-full flex gap-3 p-4 hover:bg-muted/50 transition-colors border-l-4 text-left", URGENCE_COLORS[n.urgence as keyof typeof URGENCE_COLORS] || "")}>
+                  <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-lg shrink-0">{n.icon}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-foreground leading-snug">{n.message}</p>
+                    <p className="text-[10px] text-muted-foreground mt-1 capitalize flex items-center gap-1">
+                      <span className={`w-1.5 h-1.5 rounded-full ${n.urgence === "haute" ? "bg-red-500" : n.urgence === "moyenne" ? "bg-orange-400" : "bg-sky-400"}`} />
+                      {n.urgence}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
