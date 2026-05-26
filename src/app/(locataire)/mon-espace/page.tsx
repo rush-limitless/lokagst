@@ -37,7 +37,7 @@ export default async function MonEspace() {
           <CardContent className="pt-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-red-700 dark:text-red-400">⚠️ Vous avez des impay&eacute;s</p>
+                <p className="font-medium text-red-700 dark:text-red-400">Vous avez des impay&eacute;s</p>
                 <p className="text-sm text-red-600/80 mt-1">{situation.moisImpayes} mois de retard · Paiement attendu avant le {situation.jourLimite} du mois</p>
                 {situation.penalitesTotal > 0 && <p className="text-xs text-red-500 mt-1">P&eacute;nalit&eacute;s accumul&eacute;es : {formatFCFA(situation.penalitesTotal)}</p>}
               </div>
@@ -53,7 +53,7 @@ export default async function MonEspace() {
       {situation && situation.totalDu === 0 && (
         <Card className="border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/20">
           <CardContent className="pt-5 text-center">
-            <p className="text-emerald-700 dark:text-emerald-400 font-medium">✅ Vous &ecirc;tes &agrave; jour de vos paiements</p>
+            <p className="text-emerald-700 dark:text-emerald-400 font-medium">Vous &ecirc;tes &agrave; jour de vos paiements</p>
           </CardContent>
         </Card>
       )}
@@ -82,7 +82,7 @@ export default async function MonEspace() {
       {penalites.length > 0 && (
         <Card>
           <CardContent className="pt-5">
-            <h3 className="font-semibold text-foreground mb-3">⚠️ P&eacute;nalit&eacute;s en cours</h3>
+            <h3 className="font-semibold text-foreground mb-3">P&eacute;nalit&eacute;s en cours</h3>
             <div className="space-y-2">
               {penalites.map((p) => (
                 <div key={p.id} className="flex justify-between items-center p-3 bg-red-50 dark:bg-red-950/20 rounded-lg text-sm">
@@ -104,7 +104,7 @@ export default async function MonEspace() {
               <Link href="/mon-espace/paiements" className="text-xs text-primary hover:underline">Voir tout →</Link>
             </div>
             {bail.paiements.length === 0 ? (
-              <div className="text-center py-8"><div className="text-4xl mb-3">📭</div><p className="text-muted-foreground text-sm">Aucun paiement enregistr&eacute;</p></div>
+              <div className="text-center py-8"><p className="text-muted-foreground text-sm">Aucun paiement enregistr&eacute;</p></div>
             ) : (
               <div className="space-y-2">
                 {bail.paiements.map((p) => (

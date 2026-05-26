@@ -39,7 +39,7 @@ export default function LoginPage() {
           <div className="flex justify-center gap-8 mt-10 text-sky-300/60 text-xs">
             <div><div className="text-2xl font-bold text-white">100%</div>Automatisé</div>
             <div><div className="text-2xl font-bold text-white">24/7</div>Accessible</div>
-            <div><div className="text-2xl font-bold text-white">🔒</div>Sécurisé</div>
+            <div><div className="text-2xl font-bold text-white">2</div>Immeubles</div>
           </div>
         </div>
       </div>

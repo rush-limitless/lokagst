@@ -9,6 +9,7 @@ import { CommandPalette } from "@/components/command-palette";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { KeyboardShortcuts } from "@/components/keyboard-shortcuts";
 import { TopLoader } from "@/components/top-loader";
+import { SessionTimeout } from "@/components/session-timeout";
 import { prisma } from "@/lib/prisma";
 
 export default async function GestionnaireLayout({ children }: { children: React.ReactNode }) {
@@ -41,6 +42,7 @@ export default async function GestionnaireLayout({ children }: { children: React
           {children}
         </div>
         <KeyboardShortcuts />
+        <SessionTimeout />
       </main>
     </div>
   );
