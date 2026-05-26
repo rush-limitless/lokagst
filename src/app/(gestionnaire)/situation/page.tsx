@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ImprimerDettesButton } from "./imprimer-dettes";
 import { RappelGroupeButton } from "./rappel-groupe-button";
 import { ExportSituationButton } from "./export-situation-button";
+import { CelebrationBanner } from "./celebration-banner";
 import { Building2 } from "lucide-react";
 
 export default async function SituationPage({ searchParams }: { searchParams: Promise<{ filtre?: string; immeuble?: string }> }) {
@@ -57,6 +58,8 @@ export default async function SituationPage({ searchParams }: { searchParams: Pr
       </div>
 
       <div className="text-right text-sm font-bold text-red-600">Total global dû : {formatFCFA(totalGlobalDu)}</div>
+
+      <CelebrationBanner totalImpayes={totalImpayes} />
 
       <div className="space-y-6">
         {Array.from(new Set(filtered.map((s) => s.immeuble))).map((imm) => {

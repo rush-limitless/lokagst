@@ -232,7 +232,59 @@ export function ProfilTabs({ locataire: loc, situation }: { locataire: Locataire
       id: "paiements", label: `Paiements (${loc.baux.reduce((s, b) => s + b.paiements.length, 0)})`, icon: "💰",
       content: <PaiementsTab locataire={loc} />,
     },
+    {
+      id: "historique", label: "Historique", icon: "📜",
+      content: <TimelineTab locataire={loc} />,
+    },
   ];
 
   return <Tabs tabs={tabs} defaultTab="situation" />;
+}
+
+function TimelineTab({ locataire: loc }: { locataire: Locataire }) {
+  // Construire la timeline à partir des baux et paiements
+  const events: { date: Date; icon: string; title: string; sub?: string; color: string }[] = [];
+
+  // Entrée
+  events.push({ date: new Date(loc.dateEntree), icon: "🏠", title: "Entrée dans les lieux", color: "bg-emerald-500" });
+
+  // Baux
+  loc.baux.forEach((b) => {
+    events.push({ date: new Date(b.dateDebut), icon: "📄", title: `Bail signé — ${b.appartement.numero}`, sub: `${formatFCFA(b.montantLoyer)}/mois · ${PERIODICITE_LABELS[b.periodicite] || b.periodicite}`, color: "bg-sky-500" });
+    if (b.statut === "TERMINE" || b.statut === "RESILIE") {
+      events.push({ date: new Date(b.dateFin), icon: b.statut === "RESILIE" ? "❌" : "✅", title: `Bail ${STATUT_BAIL_LABELS[b.statut]?.toLowerCase()}`, color: b.statut === "RESILIE" ? "bg-red-500" : "bg-muted-foreground" });
+    }
+  });
+
+  // Derniers paiements (max 10)
+  const allPaiements = loc.baux.flatMap((b) => b.paiements).sort((a, b) => new Date(b.datePaiement).getTime() - new Date(a.datePaiement).getTime()).slice(0, 10);
+  allPaiements.forEach((p) => {
+    events.push({ date: new Date(p.datePaiement), icon: "💰", title: `Paiement — ${formatFCFA(p.montant)}`, sub: formatDate(p.moisConcerne), color: "bg-emerald-400" });
+  });
+
+  // Sortie
+  if (loc.dateSortie) {
+    events.push({ date: new Date(loc.dateSortie), icon: "🚪", title: "Sortie", color: "bg-orange-500" });
+  }
+
+  // Trier par date décroissante
+  events.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+  return (
+    <div className="relative pl-6">
+      <div className="absolute left-2.5 top-0 bottom-0 w-px bg-border" />
+      <div className="space-y-4">
+        {events.map((e, i) => (
+          <div key={i} className="relative flex gap-3">
+            <div className={`absolute left-[-14px] w-5 h-5 rounded-full ${e.color} flex items-center justify-center text-[10px] ring-2 ring-background`}>{e.icon}</div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-foreground">{e.title}</p>
+              {e.sub && <p className="text-xs text-muted-foreground">{e.sub}</p>}
+              <p className="text-[10px] text-muted-foreground mt-0.5">{formatDate(e.date)}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
