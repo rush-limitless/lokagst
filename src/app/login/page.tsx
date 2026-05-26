@@ -97,6 +97,12 @@ export default function LoginPage() {
             >
               {loading ? t.connexionEnCours : t.seConnecter}
             </button>
+
+            <p className="text-center">
+              <button type="button" onClick={() => alert("Contactez l'administrateur pour réinitialiser votre mot de passe.")} className="text-xs text-sky-200/60 hover:text-sky-200 transition-colors">
+                {lang === "fr" ? "Mot de passe oublié ?" : "Forgot password?"}
+              </button>
+            </p>
           </form>
         </div>
 
