@@ -4,11 +4,12 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -71,13 +72,16 @@ export default function LoginPage() {
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-sky-200/50" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t.placeholderPassword}
                   required
-                  className="w-full h-11 pl-10 pr-4 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#29ABE2]/50 focus:border-[#29ABE2]/50 transition-all"
+                  className="w-full h-11 pl-10 pr-10 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#29ABE2]/50 focus:border-[#29ABE2]/50 transition-all"
                 />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-sky-200/50 hover:text-sky-200/80 transition-colors">
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
               </div>
             </div>
 
