@@ -92,38 +92,55 @@ export default async function FinancesPage({ searchParams }: { searchParams: Pro
         </Card>
       </div>
 
-      {/* Résultat net */}
-      <Card className={`hover:shadow-md transition-all ${t.resultatNet >= 0 ? "border-emerald-200 dark:border-emerald-800" : "border-red-200 dark:border-red-800"}`}>
-        <CardContent className="pt-5 pb-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${t.resultatNet >= 0 ? "bg-emerald-100 dark:bg-emerald-900/40" : "bg-red-100 dark:bg-red-900/40"}`}>
-              {t.resultatNet >= 0 ? <TrendingUp className="size-5 text-emerald-600" /> : <TrendingDown className="size-5 text-red-600" />}
+      {/* Résultat net + Income Sources */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card className={`lg:col-span-2 ${t.resultatNet >= 0 ? "border-emerald-200 dark:border-emerald-800" : "border-red-200 dark:border-red-800"}`}>
+          <CardContent className="pt-5 pb-4">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Résultat net {year}</p>
+                <p className={`text-3xl font-bold mt-1 ${t.resultatNet >= 0 ? "text-emerald-600" : "text-red-600"}`}>{formatFCFA(t.resultatNet)}</p>
+              </div>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${t.resultatNet >= 0 ? "bg-emerald-100 dark:bg-emerald-900/40" : "bg-red-100 dark:bg-red-900/40"}`}>
+                {t.resultatNet >= 0 ? <TrendingUp className="size-6 text-emerald-600" /> : <TrendingDown className="size-6 text-red-600" />}
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium text-foreground">Résultat net {year}</p>
-              <p className="text-xs text-muted-foreground">Revenus − Dépenses</p>
+            <div className="grid grid-cols-3 gap-4 pt-4 border-t">
+              <div><p className="text-[10px] text-muted-foreground uppercase tracking-wider">Encaissé</p><p className="text-sm font-bold text-emerald-600 mt-1">{formatFCFA(t.totalEncaisse)}</p></div>
+              <div><p className="text-[10px] text-muted-foreground uppercase tracking-wider">Cautions</p><p className="text-sm font-bold text-violet-600 mt-1">−{formatFCFA(t.totalCautions)}</p></div>
+              <div><p className="text-[10px] text-muted-foreground uppercase tracking-wider">Dépenses</p><p className="text-sm font-bold text-red-600 mt-1">−{formatFCFA(t.totalDepenses)}</p></div>
             </div>
-          </div>
-          <p className={`text-2xl font-bold ${t.resultatNet >= 0 ? "text-emerald-600" : "text-red-600"}`}>{formatFCFA(t.resultatNet)}</p>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Détail revenus */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-          { label: "Loyers", value: t.totalLoyers, expected: t.totalLoyersAttendus, color: "emerald" },
-          { label: "Charges", value: t.totalCharges, expected: t.totalChargesAttendues, color: "amber" },
-          { label: "Cautions", value: t.totalCautions, color: "violet" },
-          { label: "Autres", value: t.totalAutres, color: "sky" },
-        ].map((item) => (
-          <Card key={item.label}>
-            <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-[11px] text-muted-foreground">{item.label}</p>
-              <p className="text-lg font-bold text-foreground mt-1">{formatFCFA(item.value)}</p>
-              {item.expected !== undefined && <p className="text-[10px] text-muted-foreground">/ {formatFCFA(item.expected)}</p>}
-            </CardContent>
-          </Card>
-        ))}
+        {/* Income Sources */}
+        <Card>
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Sources de revenus</CardTitle></CardHeader>
+          <CardContent>
+            <p className="text-xs text-muted-foreground mb-3">Total : <span className="font-semibold text-foreground">{formatFCFA(t.totalEncaisse)}</span></p>
+            <div className="space-y-3">
+              {[
+                { label: "Loyers", value: t.totalLoyers, color: "bg-emerald-500" },
+                { label: "Charges", value: t.totalCharges, color: "bg-amber-500" },
+                { label: "Cautions", value: t.totalCautions, color: "bg-violet-500" },
+                { label: "Autres", value: t.totalAutres, color: "bg-sky-500" },
+              ].filter((s) => s.value > 0).map((source) => {
+                const pct = t.totalEncaisse > 0 ? Math.round((source.value / t.totalEncaisse) * 100) : 0;
+                return (
+                  <div key={source.label}>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-muted-foreground">{source.label}</span>
+                      <span className="font-medium text-foreground">{formatFCFA(source.value)}</span>
+                    </div>
+                    <div className="bg-muted rounded-full h-2 overflow-hidden">
+                      <div className={`h-full rounded-full ${source.color}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Charts */}
