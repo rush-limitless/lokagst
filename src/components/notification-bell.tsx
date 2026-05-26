@@ -13,8 +13,9 @@ export function NotificationBell() {
   const router = useRouter();
 
   useEffect(() => {
-    getNotifications().then(setNotifs);
-    const interval = setInterval(() => getNotifications().then(setNotifs), 60000);
+    const load = () => getNotifications().then((r) => r && setNotifs(r)).catch(() => {});
+    load();
+    const interval = setInterval(load, 60000);
     return () => clearInterval(interval);
   }, []);
 

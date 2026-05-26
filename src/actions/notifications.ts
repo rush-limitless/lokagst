@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 
 export async function getNotifications() {
+  try {
   const now = new Date();
   const jourDuMois = now.getDate();
   const moisCourant = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -89,4 +90,7 @@ export async function getNotifications() {
   notifications.sort((a, b) => order[a.urgence] - order[b.urgence]);
 
   return { notifications, count: notifications.length };
+  } catch {
+    return { notifications: [], count: 0 };
+  }
 }
