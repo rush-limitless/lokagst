@@ -53,11 +53,6 @@ export async function GET(req: NextRequest) {
       .reduce((s, p) => s + p.montant, 0);
     const attenduPeriode = bail.totalMensuel * freq;
     const estPaye = totalPayePeriode >= attenduPeriode;
-    // Pour compatibilité avec le reste du code
-    const paiementMois = bail.paiements.find((p) => {
-      const mc = new Date(p.moisConcerne);
-      return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear();
-    });
 
     // 1. Rappel d'échéance (3 jours avant jour limite)
     if (jour === bail.jourLimitePaiement - 3 && !estPaye) {
