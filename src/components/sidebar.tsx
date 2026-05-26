@@ -8,7 +8,7 @@ import { useState } from "react";
 import {
   LayoutDashboard, Building2, Home, Users, FileText, ClipboardList,
   Wallet, TrendingUp, Calendar, Wrench, MessageSquare, Settings,
-  ChevronDown, ChevronRight, Search, PanelLeftClose, PanelLeft,
+  ChevronDown, ChevronRight, Search, PanelLeftClose, PanelLeft, Plus,
 } from "lucide-react";
 
 type NavItem = { href: string; label: string; icon: React.ReactNode; badge?: number };
@@ -143,28 +143,41 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
 export function MobileNav() {
   const pathname = usePathname();
   const items = [
-    { href: "/dashboard", icon: <LayoutDashboard className="size-4" /> },
-    { href: "/appartements", icon: <Home className="size-4" /> },
-    { href: "/locataires", icon: <Users className="size-4" /> },
-    { href: "/baux", icon: <FileText className="size-4" /> },
-    { href: "/paiements", icon: <Wallet className="size-4" /> },
-    { href: "/maintenance", icon: <Wrench className="size-4" /> },
-    { href: "/messagerie", icon: <MessageSquare className="size-4" /> },
+    { href: "/dashboard", icon: <LayoutDashboard className="size-5" />, label: "Accueil" },
+    { href: "/locataires", icon: <Users className="size-5" />, label: "Locataires" },
+    { href: "/paiements/nouveau", icon: <Plus className="size-5" />, label: "Payer", primary: true },
+    { href: "/paiements", icon: <Wallet className="size-5" />, label: "Paiements" },
+    { href: "/situation", icon: <ClipboardList className="size-5" />, label: "Situation" },
   ];
 
   return (
-    <header className="bg-card border-b px-4 py-3 md:hidden">
-      <div className="flex items-center gap-2 mb-2">
-        <img src="/logo.jpg" alt="" className="w-7 h-7 rounded-lg" />
-        <h1 className="text-base font-bold text-foreground">ImmoGest</h1>
-      </div>
-      <nav className="flex gap-1 overflow-x-auto pb-1">
-        {items.map((item) => (
-          <Link key={item.href} href={item.href} className={cn("p-2 rounded-lg transition-colors", pathname.startsWith(item.href) ? "bg-primary/10 text-primary" : "text-muted-foreground")}>
-            {item.icon}
-          </Link>
-        ))}
+    <>
+      {/* Top header mobile */}
+      <header className="bg-card border-b px-4 py-3 md:hidden flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <img src="/logo.jpg" alt="" className="w-7 h-7 rounded-lg" />
+          <h1 className="text-base font-bold text-foreground">ImmoGest</h1>
+        </div>
+      </header>
+
+      {/* Bottom navigation fixe */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t md:hidden safe-area-bottom">
+        <div className="flex items-center justify-around py-2">
+          {items.map((item) => {
+            const active = item.href === "/paiements/nouveau" ? false : pathname.startsWith(item.href);
+            return (
+              <Link key={item.href} href={item.href} className={cn("flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors", item.primary ? "" : active ? "text-primary" : "text-muted-foreground")}>
+                {item.primary ? (
+                  <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg -mt-4">{item.icon}</div>
+                ) : (
+                  item.icon
+                )}
+                <span className="text-[10px] font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
-    </header>
+    </>
   );
 }
