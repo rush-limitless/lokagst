@@ -17,7 +17,15 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
   if (!bail) notFound();
   const edls = await getEtatsDesLieux(id);
 
-  const charges = (bail.chargesLocatives as { type: string; montant: number }[]) || [];
+  const isJournalier = bail.periodicite === "JOURNALIER";
+  const dureeLabel = isJournalier
+    ? `${Math.round((new Date(bail.dateFin).getTime() - new Date(bail.dateDebut).getTime()) / 86400000)} jours`
+    : `${bail.dureeMois} mois`;
+  const tempsLabel = isJournalier
+    ? `${Math.max(0, Math.floor((Date.now() - new Date(bail.dateDebut).getTime()) / 86400000))} jours`
+    : `${Math.max(0, Math.floor((Date.now() - new Date(bail.dateDebut).getTime()) / (30.5 * 86400000)))} mois`;
+  const loyerLabel = isJournalier ? "Loyer journalier" : "Loyer";
+  const totalLabel = isJournalier ? "Total journalier" : "Total mensuel";
   const statusColor: Record<string, string> = { ACTIF: "text-green-600", SUSPENDU: "text-orange-600", RESILIE: "text-red-600", TERMINE: "text-red-600", EXPIRE: "text-red-600" };
 
   return (
@@ -48,11 +56,11 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
         <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div><span className="text-muted-foreground">Début du bail</span><p className="font-medium">{formatDate(bail.dateDebut)}</p></div>
           <div><span className="text-muted-foreground">Fin du bail</span><p className="font-medium">{formatDate(bail.dateFin)}</p></div>
-          <div><span className="text-muted-foreground">Durée totale</span><p className="font-medium">{bail.dureeMois} mois</p></div>
-          <div><span className="text-muted-foreground">Temps dans l&apos;appartement</span><p className="font-medium">{Math.max(0, Math.floor((Date.now() - new Date(bail.dateDebut).getTime()) / (30.5 * 86400000)))} mois</p></div>
-          <div><span className="text-muted-foreground">Loyer</span><p className="font-medium">{formatFCFA(bail.montantLoyer)}</p></div>
+          <div><span className="text-muted-foreground">Durée totale</span><p className="font-medium">{dureeLabel}</p></div>
+          <div><span className="text-muted-foreground">Temps dans l&apos;appartement</span><p className="font-medium">{tempsLabel}</p></div>
+          <div><span className="text-muted-foreground">{loyerLabel}</span><p className="font-medium">{formatFCFA(bail.montantLoyer)}</p></div>
           <div><span className="text-muted-foreground">Charges</span><p className="font-medium">{formatFCFA(bail.totalCharges)}</p></div>
-          <div><span className="text-muted-foreground">Total mensuel</span><p className="font-medium text-lg">{formatFCFA(bail.totalMensuel)}</p></div>
+          <div><span className="text-muted-foreground">{totalLabel}</span><p className="font-medium text-lg">{formatFCFA(bail.totalMensuel)}</p></div>
           <div><span className="text-muted-foreground">Caution</span><p className="font-medium">{formatFCFA(bail.montantCaution)}</p></div>
         </CardContent>
       </Card>
@@ -75,7 +83,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
       <Card>
         <CardHeader><CardTitle>Modalités de paiement</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-          <div><span className="text-muted-foreground">Jour limite</span><p className="font-medium">Le {bail.jourLimitePaiement} du mois</p></div>
+          {!isJournalier && <div><span className="text-muted-foreground">Jour limite</span><p className="font-medium">Le {bail.jourLimitePaiement} du mois</p></div>}
           <div><span className="text-muted-foreground">Délai de grâce</span><p className="font-medium">{bail.delaiGrace} jours</p></div>
           <div><span className="text-muted-foreground">Pénalité</span><p className="font-medium">{bail.penaliteMontant}{bail.penaliteType === "POURCENTAGE" ? "% du loyer" : " FCFA"}{bail.penaliteRecurrente ? " /semaine" : ""}</p></div>
         </CardContent>
