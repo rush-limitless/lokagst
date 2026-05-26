@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendEmail, genererEmailRappel } from "@/lib/email";
 import { envoyerFacturesMensuelles } from "@/actions/factures";
+import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function GET(req: NextRequest) {
   // Sécurité : vérifier le secret
@@ -25,7 +27,6 @@ export async function GET(req: NextRequest) {
     if (admin) {
       const moisPrec = new Date(now.getFullYear(), now.getMonth() - 1, 1);
       const label = moisPrec.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-      const { isMoisEcheance, PERIODICITE_MOIS } = await import("@/lib/utils");
       const bauxA = await prisma.bail.findMany({ where: { statut: "ACTIF" }, include: { paiements: true } });
       const totalRegle = bauxA.reduce((s, b) => s + b.paiements.filter(p => new Date(p.moisConcerne).getMonth() === moisPrec.getMonth() && new Date(p.moisConcerne).getFullYear() === moisPrec.getFullYear()).reduce((a, p) => a + p.montant, 0), 0);
       const totalAttendu = bauxA.filter(b => isMoisEcheance(moisPrec, b.dateDebut, b.periodicite)).reduce((s, b) => s + b.totalMensuel * (PERIODICITE_MOIS[b.periodicite] || 1), 0);
@@ -42,8 +43,6 @@ export async function GET(req: NextRequest) {
 
   for (const bail of bauxActifs) {
     if (!bail.locataire.email) continue;
-
-    const { isMoisEcheance, PERIODICITE_MOIS } = await import("@/lib/utils");
     // Ne traiter que si ce mois est un mois d'échéance pour ce bail
     if (!isMoisEcheance(moisCourant, bail.dateDebut, bail.periodicite)) continue;
 
@@ -177,6 +176,7 @@ export async function GET(req: NextRequest) {
             dateDebut: bail.dateFin, dureeMois: duree, dateFin, montantLoyer: nouveauLoyer,
             montantCaution: bail.montantCaution, chargesLocatives: bail.chargesLocatives as any,
             totalCharges: bail.totalCharges, totalMensuel: nouveauLoyer + bail.totalCharges,
+            impotsTaxes: bail.impotsTaxes as any, totalImpotsTaxes: bail.totalImpotsTaxes,
             jourLimitePaiement: bail.jourLimitePaiement, delaiGrace: bail.delaiGrace,
             penaliteType: bail.penaliteType, penaliteMontant: bail.penaliteMontant,
             penaliteRecurrente: bail.penaliteRecurrente, renouvellementAuto: bail.renouvellementAuto,

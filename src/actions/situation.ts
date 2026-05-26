@@ -5,7 +5,7 @@ import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getSituationLocataire(locataireId: string) {
   const bail = await prisma.bail.findFirst({
-    where: { locataireId, statut: "ACTIF" },
+    where: { locataireId, statut: { in: ["ACTIF", "SUSPENDU"] } },
     include: { appartement: true, paiements: { orderBy: { moisConcerne: "desc" } }, penalites: { where: { payee: false } } },
   });
 

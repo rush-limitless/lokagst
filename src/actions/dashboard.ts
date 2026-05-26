@@ -141,7 +141,11 @@ export async function getRevenusEvolution(mois: number = 6) {
     const moisLabel = mDebut.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 
     const revenus = paiements
-      .filter((p) => p.moisConcerne >= mDebut && p.moisConcerne < mFin)
+      .filter((p) => {
+        const mc = new Date(p.moisConcerne);
+        const mp = new Date(mc.getFullYear(), mc.getMonth(), 1);
+        return mp >= mDebut && mp < mFin;
+      })
       .reduce((s, p) => s + p.montant, 0);
 
     const attendus = baux
