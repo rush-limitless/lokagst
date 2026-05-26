@@ -10,13 +10,16 @@ export async function getBilanImpayes() {
   });
 
   return bauxActifs.map((b) => {
+    // Sommer tous les paiements des 12 derniers mois
     let moisImpayes = 0;
     let montantDu = 0;
     for (let i = 0; i < 12; i++) {
       const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
       if (m < new Date(b.dateDebut)) break;
-      const p = b.paiements.find((pay) => new Date(pay.moisConcerne).getMonth() === m.getMonth() && new Date(pay.moisConcerne).getFullYear() === m.getFullYear());
-      if (!p || p.statut !== "PAYE") { moisImpayes++; montantDu += b.totalMensuel - (p?.montant || 0); }
+      const montantPaye = b.paiements
+        .filter((pay) => new Date(pay.moisConcerne).getMonth() === m.getMonth() && new Date(pay.moisConcerne).getFullYear() === m.getFullYear())
+        .reduce((s, p) => s + p.montant, 0);
+      if (montantPaye < b.totalMensuel) { moisImpayes++; montantDu += b.totalMensuel - montantPaye; }
     }
     const penalites = b.penalites.reduce((s, p) => s + p.montant, 0);
     return {

@@ -39,16 +39,11 @@ export async function getReportingComplet() {
     // Mois échus depuis le PREMIER bail (pas juste le bail actif)
     const allBauxForLoc = allBaux.filter((ab) => ab.locataireId === b.locataireId && ab.appartementId === b.appartementId);
     const premierDebut = allBauxForLoc.reduce((min, ab) => ab.dateDebut < min ? ab.dateDebut : min, b.dateDebut);
+    // Attendu = loyer+charges mensuel × nombre de mois écoulés depuis le début
+    // (indépendant de la périodicité — on calcule ce qui aurait dû être payé mois par mois)
     const debut = new Date(premierDebut);
-    // Compter les échéances réelles depuis le premier bail selon la périodicité
-    let attendu = 0;
-    const dCpt = new Date(debut.getFullYear(), debut.getMonth(), 1);
-    while (dCpt <= now) {
-      if (isMoisEcheance(dCpt, debut, b.periodicite)) {
-        attendu += loyerCharges * (PERIODICITE_MOIS[b.periodicite] || 1);
-      }
-      dCpt.setMonth(dCpt.getMonth() + 1);
-    }
+    const moisEcoules = (now.getFullYear() - debut.getFullYear()) * 12 + (now.getMonth() - debut.getMonth()) + 1;
+    const attendu = loyerCharges * moisEcoules;
     // Réglé = ALL paiements across all baux for this locataire+appartement
     const allKey = `${b.locataireId}_${b.appartementId}`;
     const regle = allPaiementsMap.get(allKey) || 0;
