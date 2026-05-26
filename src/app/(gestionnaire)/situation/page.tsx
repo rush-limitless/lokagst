@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/status-badge";
 import Link from "next/link";
 import { ImprimerDettesButton } from "./imprimer-dettes";
 import { RappelGroupeButton } from "./rappel-groupe-button";
+import { ExportSituationButton } from "./export-situation-button";
 import { Building2 } from "lucide-react";
 
 export default async function SituationPage({ searchParams }: { searchParams: Promise<{ filtre?: string; immeuble?: string }> }) {
@@ -49,6 +50,7 @@ export default async function SituationPage({ searchParams }: { searchParams: Pr
           <Link key={imm} href={`/situation?${filtre ? `filtre=${filtre}&` : ""}immeuble=${encodeURIComponent(imm)}`} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${immeuble === imm ? "bg-sky-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>🏢 {imm}</Link>
         ))}
         <div className="ml-auto flex gap-2">
+          <ExportSituationButton data={filtered.map((s) => ({ locataire: s.locataire, appartement: s.appartement, totalMensuel: s.totalMensuel, totalDu: s.totalDu, aJour: s.aJour }))} />
           <RappelGroupeButton nbImpayes={totalImpayes} />
           <ImprimerDettesButton />
         </div>
