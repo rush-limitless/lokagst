@@ -8,7 +8,7 @@ import { useState } from "react";
 import {
   LayoutDashboard, Building2, Home, Users, FileText, ClipboardList,
   Wallet, TrendingUp, Calendar, Wrench, MessageSquare, Settings,
-  ChevronDown, ChevronRight, Search, PanelLeftClose, PanelLeft, Plus,
+  ChevronDown, ChevronRight, PanelLeftClose, PanelLeft, Plus,
 } from "lucide-react";
 
 type NavItem = { href: string; label: string; icon: React.ReactNode; badge?: number };
@@ -57,34 +57,29 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
   const initials = email.split("@")[0].slice(0, 2).toUpperCase();
 
   return (
-    <aside className={cn("bg-card border-r flex-shrink-0 hidden md:flex flex-col transition-all duration-300", collapsed ? "w-[60px]" : "w-[240px]")}>
+    <aside className={cn("bg-card border-r flex-shrink-0 hidden md:flex flex-col transition-all duration-300 h-screen sticky top-0", collapsed ? "w-[60px]" : "w-[240px]")}>
       {/* Header */}
-      <div className={cn("h-14 border-b flex items-center px-3", collapsed ? "justify-center" : "justify-between")}>
+      <div className={cn("h-14 border-b flex items-center px-3 shrink-0", collapsed ? "justify-center" : "justify-between")}>
         {!collapsed && (
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <img src="/logo.jpg" alt="IMMOSTAR SCI" className="w-8 h-8 rounded-lg" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#29ABE2] to-[#1B6B9E] flex items-center justify-center shadow-sm">
+              <img src="/logo.jpg" alt="IMMOSTAR SCI" className="w-6 h-6 rounded" />
+            </div>
             <div className="leading-tight">
-              <p className="text-sm font-semibold text-foreground">ImmoGest</p>
-              <p className="text-[10px] text-muted-foreground">IMMOSTAR SCI</p>
+              <p className="text-sm font-bold text-foreground tracking-tight">ImmoGest</p>
+              <p className="text-[9px] text-primary font-medium uppercase tracking-wider">IMMOSTAR SCI</p>
             </div>
           </Link>
         )}
-        {collapsed && <img src="/logo.jpg" alt="" className="w-8 h-8 rounded-lg" />}
+        {collapsed && (
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#29ABE2] to-[#1B6B9E] flex items-center justify-center shadow-sm">
+            <img src="/logo.jpg" alt="" className="w-6 h-6 rounded" />
+          </div>
+        )}
         <button onClick={() => setCollapsed(!collapsed)} className="text-muted-foreground hover:text-foreground transition-colors">
           {collapsed ? <PanelLeft className="size-4" /> : <PanelLeftClose className="size-4" />}
         </button>
       </div>
-
-      {/* Search */}
-      {!collapsed && (
-        <div className="px-3 py-2">
-          <div className="flex items-center gap-2 h-8 px-2.5 rounded-lg bg-muted/50 text-muted-foreground text-xs">
-            <Search className="size-3.5 shrink-0" />
-            <span>Rechercher...</span>
-            <kbd className="ml-auto text-[10px] bg-background border rounded px-1 py-0.5">⌘K</kbd>
-          </div>
-        </div>
-      )}
 
       {/* Navigation */}
       <nav className="flex-1 py-2 overflow-y-auto">
