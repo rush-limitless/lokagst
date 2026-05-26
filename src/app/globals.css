@@ -176,6 +176,26 @@
 .stagger-in > *:nth-child(5) { animation-delay: 200ms; }
 .stagger-in > *:nth-child(6) { animation-delay: 250ms; }
 
+/* Dark mode glow effects */
+.dark .hover\:shadow-md:hover {
+  box-shadow: 0 4px 20px rgba(41, 171, 226, 0.08), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.dark .hover\:shadow-lg:hover {
+  box-shadow: 0 8px 30px rgba(41, 171, 226, 0.12), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.dark .border-emerald-200:not(:hover) {
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.06);
+}
+.dark .border-red-200:not(:hover) {
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.06);
+}
+.dark .border-orange-200:not(:hover) {
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.06);
+}
+.dark .border-sky-200:not(:hover) {
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.06);
+}
+
 /* Sticky table headers */
 thead { position: sticky; top: 0; z-index: 10; }
 
