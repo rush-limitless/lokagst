@@ -76,6 +76,15 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
         )}
       </div>
 
+      {/* Quick tabs */}
+      <div className="flex gap-1 border-b pb-px">
+        <Link href="/paiements" className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${!valide && !mois ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>Tous</Link>
+        <Link href={`/paiements?mois=${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`} className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${mois === `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}` ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>Ce mois</Link>
+        <Link href="/paiements?valide=non" className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${valide === "non" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+          En attente {enAttente > 0 && <span className="ml-1 bg-orange-500 text-white text-[9px] rounded-full w-4 h-4 inline-flex items-center justify-center font-bold animate-pulse-badge">{enAttente}</span>}
+        </Link>
+      </div>
+
       {/* Filters */}
       <Card>
         <CardContent className="pt-4 pb-3">
