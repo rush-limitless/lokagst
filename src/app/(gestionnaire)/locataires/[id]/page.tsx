@@ -55,20 +55,28 @@ export default async function LocataireDetail({ params }: { params: Promise<{ id
       {situation && (() => {
         const moisRetard = situation.loyer.moisImpayes;
         const score = moisRetard === 0 ? "excellent" : moisRetard <= 1 ? "attention" : moisRetard <= 3 ? "risque" : "critique";
-        const scoreConfig = {
-          excellent: { label: "✅ À jour", cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400" },
-          attention:  { label: "⚠️ 1 mois de retard", cls: "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400" },
-          risque:     { label: `🔶 ${moisRetard} mois de retard`, cls: "bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400" },
-          critique:   { label: `🔴 ${moisRetard} mois de retard`, cls: "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400" },
-        }[score];
+        const gradients = { excellent: "from-emerald-500 to-teal-600", attention: "from-yellow-500 to-amber-600", risque: "from-orange-500 to-red-500", critique: "from-red-600 to-rose-700" };
+        const scoreLabels = { excellent: "✅ À jour", attention: "⚠️ 1 mois de retard", risque: `🔶 ${moisRetard} mois`, critique: `🔴 ${moisRetard} mois` };
         return (
-          <div className="flex gap-3 p-3 bg-muted/30 rounded-lg text-sm flex-wrap items-center">
-            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${scoreConfig.cls}`}>{scoreConfig.label}</span>
-            <span>🏠 Loyer : <strong>{formatFCFA(situation.bail?.montantLoyer || 0)}</strong></span>
-            <span>⚡ Charges : <strong>{formatFCFA(situation.bail?.totalCharges || 0)}</strong></span>
-            <span className={situation.totalDu > 0 ? "text-red-600" : "text-emerald-600"}>💰 Dû : <strong>{formatFCFA(situation.totalDu)}</strong></span>
-            <span>📄 {loc.baux.length} bail(s)</span>
-            <span>💳 {loc.baux.reduce((s, b) => s + b.paiements.length, 0)} paiement(s)</span>
+          <div className={`bg-gradient-to-r ${gradients[score]} rounded-xl p-5 text-white relative overflow-hidden`}>
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div>
+                <p className="text-white/70 text-xs">{situation.totalDu > 0 ? "Solde dû" : "Avance"}</p>
+                <p className="text-3xl font-bold mt-1">{formatFCFA(Math.abs(situation.totalDu))}</p>
+                <div className="flex gap-3 mt-2 text-xs text-white/80">
+                  <span>Loyer: {formatFCFA(situation.bail?.montantLoyer || 0)}</span>
+                  <span>Charges: {formatFCFA(situation.bail?.totalCharges || 0)}</span>
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">{scoreLabels[score]}</span>
+                <div className="flex gap-2 text-[10px] text-white/60">
+                  <span>📄 {loc.baux.length} bail(s)</span>
+                  <span>💳 {loc.baux.reduce((s, b) => s + b.paiements.length, 0)} paiement(s)</span>
+                </div>
+              </div>
+            </div>
           </div>
         );
       })()}

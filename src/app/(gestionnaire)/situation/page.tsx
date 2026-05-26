@@ -42,6 +42,37 @@ export default async function SituationPage({ searchParams }: { searchParams: Pr
         <Card><CardContent className="pt-5 text-center"><div className="text-xl font-bold text-orange-600">{formatFCFA(totalChargesDu)}</div><p className="text-xs text-muted-foreground">Charges impayées</p></CardContent></Card>
       </div>
 
+      {/* Impayés par immeuble */}
+      {totalImpayes > 0 && (() => {
+        const immeublesList = Array.from(new Set(situations.map((s) => s.immeuble)));
+        return (
+          <Card>
+            <CardContent className="pt-4 pb-3">
+              <p className="text-sm font-medium text-foreground mb-3">Impayés par immeuble</p>
+              <div className="space-y-3">
+                {immeublesList.map((imm) => {
+                  const immSituations = situations.filter((s) => s.immeuble === imm);
+                  const immDu = immSituations.reduce((s, r) => s + r.totalDu, 0);
+                  const pct = totalGlobalDu > 0 ? Math.round((immDu / totalGlobalDu) * 100) : 0;
+                  if (immDu === 0) return null;
+                  return (
+                    <div key={imm}>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-muted-foreground">🏢 {imm}</span>
+                        <span className="font-medium text-red-600">{formatFCFA(immDu)}</span>
+                      </div>
+                      <div className="bg-muted rounded-full h-2 overflow-hidden">
+                        <div className="h-full bg-red-500 rounded-full" style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
+
       <div className="flex gap-2 flex-wrap items-center">
         <Link href="/situation" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!filtre && !immeuble ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Tous ({situations.length})</Link>
         <Link href={`/situation?filtre=ajour${immeuble ? `&immeuble=${encodeURIComponent(immeuble)}` : ""}`} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${filtre === "ajour" ? "bg-emerald-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>✅ À jour ({situations.filter(s => s.aJour && (!immeuble || s.immeuble === immeuble)).length})</Link>
