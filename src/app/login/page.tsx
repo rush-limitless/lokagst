@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
@@ -10,15 +10,27 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { t, lang, setLang } = useI18n();
 
+  // Charger l'email sauvegardé
+  useEffect(() => {
+    const saved = localStorage.getItem("immogest-email");
+    if (saved) { setEmail(saved); setRemember(true); }
+  }, []);
+
+  const now = new Date();
+  const greeting = now.getHours() < 12 ? (lang === "fr" ? "Bonjour" : "Good morning") : now.getHours() < 18 ? (lang === "fr" ? "Bon après-midi" : "Good afternoon") : (lang === "fr" ? "Bonsoir" : "Good evening");
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
+    if (remember) localStorage.setItem("immogest-email", email);
+    else localStorage.removeItem("immogest-email");
     const res = await signIn("credentials", { email, password, redirect: false });
     setLoading(false);
     if (res?.error) setError(t.erreurLogin);
@@ -34,7 +46,7 @@ export default function LoginPage() {
         <div className="absolute -top-32 -right-32 w-[400px] h-[400px] rounded-full bg-white/5" />
 
         <div className="relative z-10 text-white text-center px-12">
-          <img src="/logo.jpg" alt="IMMOSTAR SCI" className="w-24 h-24 mx-auto rounded-2xl shadow-2xl mb-8" />
+          <img src="/logo.jpg" alt="IMMOSTAR SCI" className="w-24 h-24 mx-auto rounded-2xl shadow-2xl mb-8 animate-float" />
           <h1 className="text-3xl font-bold">ImmoGest</h1>
           <p className="text-sky-200 text-sm mt-2">IMMOSTAR SCI</p>
           <p className="text-sky-100/60 text-sm mt-6 leading-relaxed max-w-xs mx-auto">
@@ -50,7 +62,7 @@ export default function LoginPage() {
           <Globe className="size-4" />
         </button>
 
-        <div className="w-full max-w-sm">
+        <div className="w-full max-w-sm animate-slide-up">
           {/* Logo mobile */}
           <div className="lg:hidden text-center mb-8">
             <img src="/logo.jpg" alt="IMMOSTAR SCI" className="w-16 h-16 mx-auto rounded-xl shadow-lg mb-3" />
@@ -58,7 +70,8 @@ export default function LoginPage() {
           </div>
 
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t.connexion}</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{greeting}</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{t.connexion}</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{lang === "fr" ? "Accédez à votre espace de gestion" : "Access your management space"}</p>
           </div>
 
@@ -102,6 +115,17 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {/* Remember + Forgot */}
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-[#29ABE2] focus:ring-[#29ABE2]/30" />
+                <span className="text-xs text-gray-500 dark:text-gray-400">{lang === "fr" ? "Se souvenir de moi" : "Remember me"}</span>
+              </label>
+              <button type="button" onClick={() => alert(lang === "fr" ? "Contactez l'administrateur pour réinitialiser votre mot de passe." : "Contact the administrator to reset your password.")} className="text-xs text-[#29ABE2] hover:underline">
+                {lang === "fr" ? "Mot de passe oublié ?" : "Forgot password?"}
+              </button>
+            </div>
+
             <button
               type="submit"
               disabled={loading}
@@ -109,12 +133,6 @@ export default function LoginPage() {
             >
               {loading ? t.connexionEnCours : t.seConnecter}
             </button>
-
-            <p className="text-center">
-              <button type="button" onClick={() => alert(lang === "fr" ? "Contactez l'administrateur pour réinitialiser votre mot de passe." : "Contact the administrator to reset your password.")} className="text-xs text-gray-400 hover:text-[#29ABE2] transition-colors">
-                {lang === "fr" ? "Mot de passe oublié ?" : "Forgot password?"}
-              </button>
-            </p>
           </form>
 
           <p className="text-center text-xs text-gray-400 mt-8">IMMOSTAR SCI — {lang === "fr" ? "Gestion locative" : "Property management"}</p>
