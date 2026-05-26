@@ -8,13 +8,19 @@ import { ImprimerDettesButton } from "./imprimer-dettes";
 import { RappelGroupeButton } from "./rappel-groupe-button";
 import { Building2 } from "lucide-react";
 
-export default async function SituationPage({ searchParams }: { searchParams: Promise<{ filtre?: string }> }) {
-  const { filtre } = await searchParams;
+export default async function SituationPage({ searchParams }: { searchParams: Promise<{ filtre?: string; immeuble?: string }> }) {
+  const { filtre, immeuble } = await searchParams;
   const situations = await getSituationGlobale();
 
-  const filtered = filtre === "ajour" ? situations.filter((s) => s.aJour)
-    : filtre === "impayes" ? situations.filter((s) => !s.aJour)
-    : situations;
+  const filtered = situations
+    .filter((s) => !immeuble || s.immeuble === immeuble)
+    .filter((s) =>
+      filtre === "ajour" ? s.aJour :
+      filtre === "impayes" ? !s.aJour :
+      true
+    );
+
+  const immeubles = Array.from(new Set(situations.map((s) => s.immeuble)));
 
   const totalImpayes = situations.filter((s) => !s.aJour).length;
   const totalAJour = situations.filter((s) => s.aJour).length;
@@ -35,9 +41,13 @@ export default async function SituationPage({ searchParams }: { searchParams: Pr
       </div>
 
       <div className="flex gap-2 flex-wrap items-center">
-        <Link href="/situation" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!filtre ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Tous ({situations.length})</Link>
-        <Link href="/situation?filtre=ajour" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${filtre === "ajour" ? "bg-emerald-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>✅ À jour ({totalAJour})</Link>
-        <Link href="/situation?filtre=impayes" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${filtre === "impayes" ? "bg-red-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>❌ Impayés ({totalImpayes})</Link>
+        <Link href="/situation" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!filtre && !immeuble ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Tous ({situations.length})</Link>
+        <Link href={`/situation?filtre=ajour${immeuble ? `&immeuble=${encodeURIComponent(immeuble)}` : ""}`} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${filtre === "ajour" ? "bg-emerald-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>✅ À jour ({situations.filter(s => s.aJour && (!immeuble || s.immeuble === immeuble)).length})</Link>
+        <Link href={`/situation?filtre=impayes${immeuble ? `&immeuble=${encodeURIComponent(immeuble)}` : ""}`} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${filtre === "impayes" ? "bg-red-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>❌ Impayés ({situations.filter(s => !s.aJour && (!immeuble || s.immeuble === immeuble)).length})</Link>
+        <span className="text-muted-foreground text-xs">|</span>
+        {immeubles.map((imm) => (
+          <Link key={imm} href={`/situation?${filtre ? `filtre=${filtre}&` : ""}immeuble=${encodeURIComponent(imm)}`} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${immeuble === imm ? "bg-sky-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>🏢 {imm}</Link>
+        ))}
         <div className="ml-auto flex gap-2">
           <RappelGroupeButton nbImpayes={totalImpayes} />
           <ImprimerDettesButton />

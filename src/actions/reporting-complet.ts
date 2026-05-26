@@ -113,8 +113,11 @@ export async function getReportingComplet() {
     const regle = b.paiements.reduce((s, p) => s + p.montant, 0);
     const joursHab = Math.ceil((new Date(b.dateFin).getTime() - new Date(b.dateDebut).getTime()) / 86400000);
     const moisHab = joursHab / 30.5;
-    const moisHabArrondi = Math.ceil(moisHab);
-    const attendu = (b.montantLoyer + b.totalCharges) * moisHabArrondi;
+    const debut = new Date(b.dateDebut);
+    const fin = new Date(b.dateFin);
+    // Attendu = totalMensuel × nombre de mois d'occupation
+    const moisOccupation = (fin.getFullYear() - debut.getFullYear()) * 12 + (fin.getMonth() - debut.getMonth());
+    const attendu = b.totalMensuel * Math.max(1, moisOccupation);
 
     return {
       logement: b.appartement.numero,
