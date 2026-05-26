@@ -25,73 +25,58 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex bg-white dark:bg-gray-950">
-      {/* Left — Branding */}
-      <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden items-center justify-center">
-        {/* Grande forme arrondie */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0d3b5e] via-[#1B6B9E] to-[#29ABE2]" />
-        <div className="absolute -bottom-20 -left-20 w-[500px] h-[500px] rounded-full bg-white/5" />
-        <div className="absolute -top-32 -right-32 w-[400px] h-[400px] rounded-full bg-white/5" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-white/5" />
+    <div className="min-h-screen relative flex items-center justify-center p-4">
+      {/* Background gradient (simule une photo d'immeuble) */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0a2d47] via-[#0d3b5e] to-[#1B6B9E]" />
+      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='100' fill='none'/%3E%3Crect x='10' y='20' width='20' height='30' rx='2' fill='%23ffffff' opacity='0.1'/%3E%3Crect x='40' y='10' width='20' height='40' rx='2' fill='%23ffffff' opacity='0.08'/%3E%3Crect x='70' y='25' width='20' height='25' rx='2' fill='%23ffffff' opacity='0.06'/%3E%3Crect x='10' y='60' width='20' height='30' rx='2' fill='%23ffffff' opacity='0.07'/%3E%3Crect x='40' y='60' width='20' height='30' rx='2' fill='%23ffffff' opacity='0.09'/%3E%3Crect x='70' y='60' width='20' height='30' rx='2' fill='%23ffffff' opacity='0.05'/%3E%3C/svg%3E\")" }} />
+      <div className="absolute inset-0 bg-black/30" />
 
-        {/* Contenu */}
-        <div className="relative z-10 text-white text-center px-12">
-          <img src="/logo.jpg" alt="IMMOSTAR SCI" className="w-24 h-24 mx-auto rounded-2xl shadow-2xl mb-8" />
-          <h1 className="text-3xl font-bold">ImmoGest</h1>
-          <p className="text-sky-200 text-sm mt-2">IMMOSTAR SCI</p>
-          <p className="text-sky-100/60 text-sm mt-6 leading-relaxed max-w-xs mx-auto">
-            Gérez vos immeubles, locataires et paiements en toute simplicité.
-          </p>
+      {/* Card glassmorphism */}
+      <div className="relative z-10 w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-6">
+          <img src="/logo.jpg" alt="IMMOSTAR SCI" className="w-20 h-20 mx-auto rounded-2xl shadow-2xl border-2 border-white/20" />
+          <h1 className="text-2xl font-bold text-white mt-4">ImmoGest</h1>
+          <p className="text-sky-200/70 text-sm">IMMOSTAR SCI</p>
         </div>
-      </div>
 
-      {/* Right — Formulaire */}
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="w-full max-w-sm">
-          {/* Logo mobile */}
-          <div className="lg:hidden text-center mb-8">
-            <img src="/logo.jpg" alt="IMMOSTAR SCI" className="w-16 h-16 mx-auto rounded-xl shadow-lg mb-3" />
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">ImmoGest</h2>
-          </div>
+        {/* Form card */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
+          <h2 className="text-lg font-semibold text-white text-center mb-6">Connexion</h2>
 
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Connexion</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Accédez à votre espace de gestion</p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm border border-red-200 dark:border-red-900">
+              <div className="bg-red-500/20 text-red-200 p-3 rounded-lg text-sm border border-red-400/30">
                 {error}
               </div>
             )}
 
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">{t.email}</label>
+              <label className="text-xs font-medium text-sky-100/80 mb-1.5 block">{t.email}</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-sky-200/50" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t.placeholderEmail}
                   required
-                  className="w-full h-11 pl-10 pr-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#29ABE2]/30 focus:border-[#29ABE2] transition-all"
+                  className="w-full h-11 pl-10 pr-4 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#29ABE2]/50 focus:border-[#29ABE2]/50 transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">{t.motDePasse}</label>
+              <label className="text-xs font-medium text-sky-100/80 mb-1.5 block">{t.motDePasse}</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-sky-200/50" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t.placeholderPassword}
                   required
-                  className="w-full h-11 pl-10 pr-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#29ABE2]/30 focus:border-[#29ABE2] transition-all"
+                  className="w-full h-11 pl-10 pr-4 rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#29ABE2]/50 focus:border-[#29ABE2]/50 transition-all"
                 />
               </div>
             </div>
@@ -99,14 +84,14 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-11 rounded-lg bg-gradient-to-r from-[#1B6B9E] to-[#29ABE2] text-white font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="w-full h-11 rounded-lg bg-[#29ABE2] text-white font-medium hover:bg-[#1B9BD1] transition-colors disabled:opacity-50 mt-2"
             >
               {loading ? t.connexionEnCours : t.seConnecter}
             </button>
           </form>
-
-          <p className="text-center text-xs text-gray-400 mt-8">IMMOSTAR SCI — Gestion locative</p>
         </div>
+
+        <p className="text-center text-xs text-sky-200/40 mt-6">Plateforme de gestion locative</p>
       </div>
     </div>
   );
