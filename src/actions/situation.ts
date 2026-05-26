@@ -34,14 +34,24 @@ export async function getSituationLocataire(locataireId: string) {
   const difference = totalAttendu - totalRegle;
 
   // Count unpaid months for display
+  // Pour les baux non-mensuels : sommer tous les paiements de la période d'échéance
   let moisImpayes = 0;
   let montantLoyerDu = 0;
   let montantChargesDu = 0;
   const d2 = new Date(debut.getFullYear(), debut.getMonth(), 1);
   while (d2 <= now) {
     if (isMoisEcheance(d2, debut, bail.periodicite)) {
-      const paiement = bail.paiements.find((p) => p.moisConcerne.getMonth() === d2.getMonth() && p.moisConcerne.getFullYear() === d2.getFullYear());
-      const montantPaye = paiement ? (paiement.montant - (paiement.montantCaution || 0)) : 0;
+      // Sommer tous les paiements de cette période d'échéance (d2 → d2+freq mois)
+      const periodeDebut = new Date(d2);
+      const periodeFin = new Date(d2.getFullYear(), d2.getMonth() + freq, 1);
+      const montantPaye = bail.paiements
+        .filter((p) => {
+          const mc = new Date(p.moisConcerne);
+          const moisP = new Date(mc.getFullYear(), mc.getMonth(), 1);
+          return moisP >= periodeDebut && moisP < periodeFin;
+        })
+        .reduce((s, p) => s + p.montant - (p.montantCaution || 0), 0);
+
       if (montantPaye < loyerParEcheance) {
         moisImpayes++;
         montantLoyerDu += loyerParEcheance - Math.min(montantPaye, loyerParEcheance);

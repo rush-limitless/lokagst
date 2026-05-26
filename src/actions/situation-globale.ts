@@ -23,16 +23,25 @@ export async function getSituationGlobale() {
     while (d <= now) {
       const moisLabel = d.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
       const echeance = isMoisEcheance(d, debut, b.periodicite);
-      // Comparer par mois/année (pas par date exacte) pour trouver le paiement du mois
-      const paiement = b.paiements.find((p) => {
-        const mc = new Date(p.moisConcerne);
-        return mc.getMonth() === d.getMonth() && mc.getFullYear() === d.getFullYear();
-      });
-      // Exclure la caution du montant payé pour le calcul loyer/charges
-      const montantPaye = paiement ? (paiement.montant - (paiement.montantCaution || 0)) : 0;
+      const freq = PERIODICITE_MOIS[b.periodicite] || 1;
+
+      // Sommer tous les paiements de la période d'échéance (d → d+freq mois)
+      const periodeDebut = new Date(d);
+      const periodeFin = new Date(d.getFullYear(), d.getMonth() + freq, 1);
+      const montantPaye = echeance
+        ? b.paiements
+            .filter((p) => {
+              const mc = new Date(p.moisConcerne);
+              const moisP = new Date(mc.getFullYear(), mc.getMonth(), 1);
+              return moisP >= periodeDebut && moisP < periodeFin;
+            })
+            .reduce((s, p) => s + p.montant - (p.montantCaution || 0), 0)
+        : (b.paiements.find((p) => {
+            const mc = new Date(p.moisConcerne);
+            return mc.getMonth() === d.getMonth() && mc.getFullYear() === d.getFullYear();
+          })?.montant || 0);
 
       if (echeance) {
-        const freq = PERIODICITE_MOIS[b.periodicite] || 1;
         const loyerAttendu = b.montantLoyer * freq;
         const chargesAttendues = b.totalCharges * freq;
         const totalAttendu = loyerAttendu + chargesAttendues;
@@ -50,7 +59,11 @@ export async function getSituationGlobale() {
         detailMois.push({ mois: moisLabel, loyerPaye, chargesPaye, montantPaye, echeance: true });
       } else {
         // Mois non-échéance : pas d'attendu, considéré comme "à jour"
-        detailMois.push({ mois: moisLabel, loyerPaye: true, chargesPaye: true, montantPaye, echeance: false });
+        const montantPayeMois = b.paiements.find((p) => {
+          const mc = new Date(p.moisConcerne);
+          return mc.getMonth() === d.getMonth() && mc.getFullYear() === d.getFullYear();
+        })?.montant || 0;
+        detailMois.push({ mois: moisLabel, loyerPaye: true, chargesPaye: true, montantPaye: montantPayeMois, echeance: false });
       }
       d.setMonth(d.getMonth() + 1);
     }
