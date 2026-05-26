@@ -63,22 +63,15 @@ export async function getMaSituation() {
   const locataireId = await getLocataireId();
   if (!locataireId) return null;
 
-  const bail = await prisma.bail.findFirst({
-    where: { locataireId, statut: { in: ["ACTIF", "SUSPENDU"] } },
-    include: { paiements: true, penalites: { where: { payee: false } } },
-  });
-  if (!bail) return null;
+  const { getSituationLocataire } = await import("./situation");
+  const situation = await getSituationLocataire(locataireId);
+  if (!situation) return null;
 
-  const now = new Date();
-  let moisImpayes = 0, montantDu = 0;
-  for (let i = 0; i < 12; i++) {
-    const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    if (m < bail.dateDebut) break;
-    const p = bail.paiements.find((pay) => pay.moisConcerne.getTime() === m.getTime() && pay.statut === "PAYE");
-    if (!p) { moisImpayes++; montantDu += bail.totalMensuel; }
-  }
-  const penalitesTotal = bail.penalites.reduce((s, p) => s + p.montant, 0);
-  const prochainePenalite = moisImpayes > 0 ? new Date(now.getFullYear(), now.getMonth(), bail.jourLimitePaiement + bail.delaiGrace) : null;
+  const bail = situation.bail;
+  const moisImpayes = situation.loyer.moisImpayes;
+  const montantDu = situation.loyer.montantDu + situation.charges.montantDu;
+  const penalitesTotal = situation.penalites.montant;
+  const prochainePenalite = moisImpayes > 0 ? new Date(new Date().getFullYear(), new Date().getMonth(), bail.jourLimitePaiement + bail.delaiGrace) : null;
 
-  return { moisImpayes, montantDu, penalitesTotal, totalDu: montantDu + penalitesTotal, prochainePenalite, jourLimite: bail.jourLimitePaiement, statut: bail.statut };
+  return { moisImpayes, montantDu, penalitesTotal, totalDu: situation.totalDu, prochainePenalite, jourLimite: bail.jourLimitePaiement, statut: bail.statut };
 }

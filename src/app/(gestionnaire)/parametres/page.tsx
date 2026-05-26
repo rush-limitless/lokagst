@@ -126,11 +126,12 @@ export default function ParametresPage() {
 
       <GestionnaireManager />
 
-      <Card className="max-w-lg border-orange-200 dark:border-orange-800">
-        <CardHeader><CardTitle className="text-sm">🔧 Maintenance base de données</CardTitle></CardHeader>
+      <Card className="max-w-lg border-red-300 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20">
+        <CardHeader><CardTitle className="text-sm text-red-700 dark:text-red-400">⚠️ Zone Danger</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-xs text-muted-foreground">Recaler le jour de &quot;mois concerné&quot; de tous les paiements sur la date d&apos;entrée du bail (à utiliser si des paiements anciens ont une date incorrecte).</p>
-          <Button variant="outline" size="sm" onClick={async () => {
+          <p className="text-xs text-muted-foreground">Recaler le jour de &quot;mois concerné&quot; de tous les paiements sur la date d&apos;entrée du bail. <strong>Action irréversible</strong> — à utiliser uniquement si des paiements anciens ont une date incorrecte.</p>
+          <Button variant="destructive" size="sm" onClick={async () => {
+            if (!confirm("⚠️ Cette action va modifier les dates de TOUS les paiements. Êtes-vous sûr ?")) return;
             const r = await fetch("/api/fix-mois-concerne", { method: "POST" });
             const d = await r.json();
             toast.success(`${d.corriges} paiement(s) corrigé(s)`);

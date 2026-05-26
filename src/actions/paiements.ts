@@ -35,148 +35,138 @@ export async function enregistrerPaiement(formData: FormData) {
     const parsed = paiementSchema.safeParse(data);
     if (!parsed.success) return { error: parsed.error.issues[0].message };
 
-    const bail = await prisma.bail.findUnique({ where: { id: parsed.data.bailId } });
-    if (!bail) return { error: "Bail introuvable" };
-
-    // Calculer le montant total côté serveur (ignorer la valeur client)
     const montantServeur = (parsed.data.montantLoyer || 0) + (parsed.data.montantCharges || 0) + (parsed.data.montantCaution || 0) + (parsed.data.montantAutres || 0);
     if (montantServeur <= 0) return { error: "Montant invalide" };
 
-    const nbMois = parsed.data.nbMois || 1;
-    // Utiliser le jour réel d'entrée du locataire (jour du dateDebut du bail)
-    const jourEntree = bail.dateDebut.getDate();
-    const moisConcerneInput = new Date(parsed.data.moisConcerne);
-    const moisDepart = new Date(moisConcerneInput.getFullYear(), moisConcerneInput.getMonth(), jourEntree);
+    const result = await prisma.$transaction(async (tx) => {
+      const bail = await tx.bail.findUnique({ where: { id: parsed.data.bailId } });
+      if (!bail) return { error: "Bail introuvable" };
 
-    // Vérifier qu'aucun paiement complet n'existe déjà pour ces mois
-    for (let i = 0; i < nbMois; i++) {
-      const mois = new Date(moisDepart.getFullYear(), moisDepart.getMonth() + i, jourEntree);
-      const moisDebut = new Date(mois.getFullYear(), mois.getMonth(), 1);
-      const moisFin = new Date(mois.getFullYear(), mois.getMonth() + 1, 0);
-      const existing = await prisma.paiement.findFirst({
-        where: { bailId: parsed.data.bailId, moisConcerne: { gte: moisDebut, lte: moisFin }, statut: "PAYE" },
-      });
-      if (existing) {
-        const moisLabel = mois.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-        return { error: `Le mois de ${moisLabel} est déjà entièrement payé` };
+      const nbMois = parsed.data.nbMois || 1;
+      const jourEntree = bail.dateDebut.getDate();
+      const moisConcerneInput = new Date(parsed.data.moisConcerne);
+      const moisDepart = new Date(moisConcerneInput.getFullYear(), moisConcerneInput.getMonth(), jourEntree);
+
+      // Vérifier doublons dans la transaction
+      for (let i = 0; i < nbMois; i++) {
+        const mois = new Date(moisDepart.getFullYear(), moisDepart.getMonth() + i, jourEntree);
+        const moisDebut = new Date(mois.getFullYear(), mois.getMonth(), 1);
+        const moisFin = new Date(mois.getFullYear(), mois.getMonth() + 1, 0);
+        const existing = await tx.paiement.findFirst({
+          where: { bailId: parsed.data.bailId, moisConcerne: { gte: moisDebut, lte: moisFin }, statut: "PAYE" },
+        });
+        if (existing) {
+          const moisLabel = mois.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+          return { error: `Le mois de ${moisLabel} est déjà entièrement payé` };
+        }
       }
-    }
 
-    // Smart ventilation: distribute month by month, filling each completely
-    // Pour JOURNALIER: totalMensuel = loyer/jour + charges/jour, chaque "mois" = 1 jour
-    let remainingLoyer = parsed.data.montantLoyer;
-    let remainingCharges = parsed.data.montantCharges;
-    const updates: { id: string; addLoyer: number; addCharges: number }[] = [];
-    const creates: { moisConcerne: Date; loyer: number; charges: number }[] = [];
+      let remainingLoyer = parsed.data.montantLoyer;
+      let remainingCharges = parsed.data.montantCharges;
+      const updatedIds: string[] = [];
 
-    // 1. Complete existing incomplete months first
-    const existingPartial = await prisma.paiement.findMany({
-      where: { bailId: parsed.data.bailId, statut: "PARTIELLEMENT_PAYE" },
-      orderBy: { moisConcerne: "asc" },
-    });
-    for (const ep of existingPartial) {
-      if (remainingLoyer <= 0 && remainingCharges <= 0) break;
-      const addLoyer = Math.min(remainingLoyer, Math.max(0, bail.montantLoyer - ep.montantLoyer));
-      const addCharges = Math.min(remainingCharges, Math.max(0, bail.totalCharges - ep.montantCharges));
-      if (addLoyer > 0 || addCharges > 0) {
-        updates.push({ id: ep.id, addLoyer, addCharges });
-        remainingLoyer -= addLoyer;
-        remainingCharges -= addCharges;
-      }
-    }
-
-    // 2. Distribute remaining into new months, one at a time
-    for (let i = 0; i < nbMois && (remainingLoyer > 0 || remainingCharges > 0); i++) {
-      const mois = new Date(moisDepart.getFullYear(), moisDepart.getMonth() + i, jourEntree);
-      const loyerCeMois = Math.min(remainingLoyer, bail.montantLoyer);
-      const chargesCeMois = Math.min(remainingCharges, bail.totalCharges);
-      if (loyerCeMois > 0 || chargesCeMois > 0) {
-        creates.push({ moisConcerne: mois, loyer: loyerCeMois, charges: chargesCeMois });
-        remainingLoyer -= loyerCeMois;
-        remainingCharges -= chargesCeMois;
-      }
-    }
-
-    // Apply updates to incomplete months
-    for (const u of updates) {
-      const ep = existingPartial.find((p) => p.id === u.id)!;
-      const newLoyer = ep.montantLoyer + u.addLoyer;
-      const newCharges = ep.montantCharges + u.addCharges;
-      const newMontant = ep.montant + u.addLoyer + u.addCharges;
-      const resteDu = Math.max(0, bail.totalMensuel - (newLoyer + newCharges));
-      await prisma.paiement.update({
-        where: { id: u.id },
-        data: { montantLoyer: newLoyer, montantCharges: newCharges, montant: newMontant, resteDu, statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE" },
+      // 1. Compléter les mois partiels existants
+      const existingPartial = await tx.paiement.findMany({
+        where: { bailId: parsed.data.bailId, statut: "PARTIELLEMENT_PAYE" },
+        orderBy: { moisConcerne: "asc" },
       });
-    }
+      for (const ep of existingPartial) {
+        if (remainingLoyer <= 0 && remainingCharges <= 0) break;
+        const addLoyer = Math.min(remainingLoyer, Math.max(0, bail.montantLoyer - ep.montantLoyer));
+        const addCharges = Math.min(remainingCharges, Math.max(0, bail.totalCharges - ep.montantCharges));
+        if (addLoyer > 0 || addCharges > 0) {
+          const newLoyer = ep.montantLoyer + addLoyer;
+          const newCharges = ep.montantCharges + addCharges;
+          const newMontant = ep.montant + addLoyer + addCharges;
+          const resteDu = Math.max(0, bail.totalMensuel - (newLoyer + newCharges));
+          await tx.paiement.update({
+            where: { id: ep.id },
+            data: { montantLoyer: newLoyer, montantCharges: newCharges, montant: newMontant, resteDu, statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE" },
+          });
+          updatedIds.push(ep.id);
+          remainingLoyer -= addLoyer;
+          remainingCharges -= addCharges;
+        }
+      }
 
-    // Create new month entries
-    // Pour JOURNALIER: créer un seul paiement couvrant nbMois jours
-    const paiements: any[] = [];
-    const isJournalier = bail.periodicite === "JOURNALIER";
-    if (isJournalier && creates.length > 0) {
-      // Regrouper tous les jours en un seul paiement
-      const totalLoyer = creates.reduce((s, c) => s + c.loyer, 0);
-      const totalChargesP = creates.reduce((s, c) => s + c.charges, 0);
-      const montant = totalLoyer + totalChargesP + (parsed.data.montantCaution || 0) + (parsed.data.montantAutres || 0);
-      const attendu = bail.totalMensuel * nbMois;
-      const resteDu = Math.max(0, attendu - (totalLoyer + totalChargesP));
-      const paiement = await prisma.paiement.create({
-        data: {
-          bailId: parsed.data.bailId, montant,
-          montantLoyer: totalLoyer, montantCharges: totalChargesP,
-          montantCaution: parsed.data.montantCaution || 0,
-          montantAutres: parsed.data.montantAutres || 0,
-          notesAutres: parsed.data.notesAutres || null,
-          moisConcerne: creates[0].moisConcerne, modePaiement: parsed.data.modePaiement,
-          resteDu, statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE",
-          preuvePaiement: parsed.data.preuvePaiement || null,
-          notes: parsed.data.notes || `Paiement ${nbMois} jour(s)`,
-        },
-      });
-      paiements.push(paiement);
-    } else if (creates.length > 0) {
-      const created = await prisma.$transaction(
-        creates.map((c, i) => {
-          const montant = c.loyer + c.charges + (i === 0 ? (parsed.data.montantCaution || 0) + (parsed.data.montantAutres || 0) : 0);
-          const resteDu = Math.max(0, bail.totalMensuel - (c.loyer + c.charges));
-          return prisma.paiement.create({
+      // 2. Créer les nouveaux mois
+      const paiements: any[] = [];
+      const isJournalier = bail.periodicite === "JOURNALIER";
+
+      if (isJournalier) {
+        const totalLoyer = Math.min(remainingLoyer, bail.montantLoyer * nbMois);
+        const totalChargesP = Math.min(remainingCharges, bail.totalCharges * nbMois);
+        if (totalLoyer > 0 || totalChargesP > 0) {
+          const montant = totalLoyer + totalChargesP + (parsed.data.montantCaution || 0) + (parsed.data.montantAutres || 0);
+          const attendu = bail.totalMensuel * nbMois;
+          const resteDu = Math.max(0, attendu - (totalLoyer + totalChargesP));
+          const p = await tx.paiement.create({
             data: {
-              bailId: parsed.data.bailId, montant,
-              montantLoyer: c.loyer, montantCharges: c.charges,
+              bailId: bail.id, montant, montantLoyer: totalLoyer, montantCharges: totalChargesP,
+              montantCaution: parsed.data.montantCaution || 0, montantAutres: parsed.data.montantAutres || 0,
+              notesAutres: parsed.data.notesAutres || null, moisConcerne: moisDepart,
+              modePaiement: parsed.data.modePaiement, resteDu,
+              statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE",
+              preuvePaiement: parsed.data.preuvePaiement || null,
+              notes: parsed.data.notes || `Paiement ${nbMois} jour(s)`,
+            },
+          });
+          paiements.push(p);
+        }
+      } else {
+        for (let i = 0; i < nbMois && (remainingLoyer > 0 || remainingCharges > 0); i++) {
+          const moisConcerne = new Date(moisDepart.getFullYear(), moisDepart.getMonth() + i, jourEntree);
+          const loyerCeMois = Math.min(remainingLoyer, bail.montantLoyer);
+          const chargesCeMois = Math.min(remainingCharges, bail.totalCharges);
+          if (loyerCeMois <= 0 && chargesCeMois <= 0) break;
+          const montant = loyerCeMois + chargesCeMois + (i === 0 ? (parsed.data.montantCaution || 0) + (parsed.data.montantAutres || 0) : 0);
+          const resteDu = Math.max(0, bail.totalMensuel - (loyerCeMois + chargesCeMois));
+          const p = await tx.paiement.create({
+            data: {
+              bailId: bail.id, montant, montantLoyer: loyerCeMois, montantCharges: chargesCeMois,
               montantCaution: i === 0 ? (parsed.data.montantCaution || 0) : 0,
               montantAutres: i === 0 ? (parsed.data.montantAutres || 0) : 0,
               notesAutres: i === 0 ? (parsed.data.notesAutres || null) : null,
-              moisConcerne: c.moisConcerne, modePaiement: parsed.data.modePaiement,
-              resteDu, statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE",
+              moisConcerne, modePaiement: parsed.data.modePaiement, resteDu,
+              statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE",
               preuvePaiement: parsed.data.preuvePaiement || null,
-              notes: i === 0 ? (parsed.data.notes || null) : `Ventilation mois ${i + 1}/${creates.length}`,
+              notes: i === 0 ? (parsed.data.notes || null) : `Ventilation mois ${i + 1}/${nbMois}`,
             },
           });
-        })
-      );
-      paiements.push(...created);
-    }
-
-    if (parsed.data.montantCaution && parsed.data.montantCaution > 0) {
-      await prisma.bail.update({ where: { id: parsed.data.bailId }, data: { cautionPayee: true } });
-    }
-
-    // Appliquer pénalité si demandé
-    if (data.appliquerPenalite === "on") {
-      const montantPenalite = bail.penaliteType === "POURCENTAGE"
-        ? Math.round(bail.montantLoyer * bail.penaliteMontant / 100)
-        : bail.penaliteMontant;
-      if (montantPenalite > 0) {
-        await prisma.penalite.create({
-          data: { bailId: bail.id, moisConcerne: moisDepart, montant: montantPenalite, motif: `Pénalité de retard (${bail.penaliteMontant}${bail.penaliteType === "POURCENTAGE" ? "%" : " FCFA"})` },
-        });
+          paiements.push(p);
+          remainingLoyer -= loyerCeMois;
+          remainingCharges -= chargesCeMois;
+        }
       }
-    }
 
-    const firstId = paiements.length > 0 ? paiements[0].id : updates.length > 0 ? updates[0].id : "unknown";
-    if (paiements.length > 0) envoyerRecuPaiement(paiements[0].id).catch(() => {});
-    logAction("Paiement", "Paiement", firstId, `${nbMois} mois — ${parsed.data.montant} FCFA — Bail ${parsed.data.bailId.slice(0, 8)}${updates.length > 0 ? ` (${updates.length} mois complétés)` : ""}`);
+      // Caution
+      if (parsed.data.montantCaution && parsed.data.montantCaution > 0) {
+        const totalCautionPayee = (await tx.paiement.aggregate({ where: { bailId: bail.id }, _sum: { montantCaution: true } }))._sum.montantCaution || 0;
+        if (totalCautionPayee >= bail.montantCaution) {
+          await tx.bail.update({ where: { id: bail.id }, data: { cautionPayee: true } });
+        }
+      }
+
+      // Pénalité
+      if (data.appliquerPenalite === "on") {
+        const montantPenalite = bail.penaliteType === "POURCENTAGE"
+          ? Math.round(bail.montantLoyer * bail.penaliteMontant / 100)
+          : bail.penaliteMontant;
+        if (montantPenalite > 0) {
+          await tx.penalite.create({
+            data: { bailId: bail.id, moisConcerne: moisDepart, montant: montantPenalite, motif: `Pénalité de retard (${bail.penaliteMontant}${bail.penaliteType === "POURCENTAGE" ? "%" : " FCFA"})` },
+          });
+        }
+      }
+
+      return { success: true, paiements, updatedIds };
+    });
+
+    if ("error" in result) return { error: result.error };
+
+    const firstId = result.paiements.length > 0 ? result.paiements[0].id : result.updatedIds[0] || "unknown";
+    if (result.paiements.length > 0) envoyerRecuPaiement(result.paiements[0].id).catch(() => {});
+    logAction("Paiement", "Paiement", firstId, `${parsed.data.nbMois || 1} mois — ${montantServeur} FCFA — Bail ${parsed.data.bailId.slice(0, 8)}`);
     revalidatePath("/paiements");
     return { success: true };
   });

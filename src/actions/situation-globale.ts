@@ -79,6 +79,7 @@ export async function getSituationGlobale() {
       : null;
 
     return {
+      bailId: b.id,
       locataireId: b.locataire.id,
       locataire: `${b.locataire.prenom} ${b.locataire.nom}`,
       photo: b.locataire.photo,

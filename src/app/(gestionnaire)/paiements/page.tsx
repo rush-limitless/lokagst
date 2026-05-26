@@ -10,8 +10,8 @@ import { SupprimerPaiementButton } from "./supprimer-paiement-button";
 import { ValiderPaiementButton } from "./valider-paiement-button";
 import { Plus, Calendar, Wallet, Clock, Filter, X, Receipt, FileCheck, Paperclip } from "lucide-react";
 
-export default async function PaiementsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string; appart?: string; mois?: string }> }) {
-  const { q, page, appart, mois } = await searchParams;
+export default async function PaiementsPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string; appart?: string; mois?: string; valide?: string }> }) {
+  const { q, page, appart, mois, valide } = await searchParams;
   const currentPage = parseInt(page || "1");
 
   // Filtre côté serveur
@@ -22,6 +22,8 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
     const [y, m] = mois.split("-").map(Number);
     where.moisConcerne = { gte: new Date(y, m - 1, 1), lt: new Date(y, m, 1) };
   }
+  if (valide === "oui") where.valide = true;
+  else if (valide === "non") where.valide = false;
 
   const { paiements: allPaiements, total, pages } = await getPaiements({ page: currentPage, limit: 50, where });
   const filtered = allPaiements;
@@ -29,7 +31,7 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
   const now = new Date();
   const totalMois = filtered.filter((p) => new Date(p.moisConcerne).getMonth() === now.getMonth() && new Date(p.moisConcerne).getFullYear() === now.getFullYear()).reduce((s, p) => s + p.montant, 0);
   const enAttente = filtered.filter((p) => !p.valide).length;
-  const hasFilters = q || appart || mois;
+  const hasFilters = q || appart || mois || valide;
 
   return (
     <div className="space-y-6 animate-in">
@@ -92,6 +94,11 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
             <input name="q" defaultValue={q || ""} placeholder="Locataire..." className="h-8 px-2.5 text-xs border rounded-lg bg-background w-36 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
             <input name="appart" defaultValue={appart || ""} placeholder="Appartement..." className="h-8 px-2.5 text-xs border rounded-lg bg-background w-32 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
             <input name="mois" type="month" defaultValue={mois || ""} className="h-8 px-2.5 text-xs border rounded-lg bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
+            <select name="valide" defaultValue={valide || ""} className="h-8 px-2.5 text-xs border rounded-lg bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+              <option value="">Tous</option>
+              <option value="oui">✅ Validés</option>
+              <option value="non">⏳ En attente</option>
+            </select>
             <Button type="submit" size="sm" variant="outline" className="h-8 text-xs gap-1"><Filter className="size-3" /> Filtrer</Button>
             {hasFilters && <Link href="/paiements"><Button type="button" size="sm" variant="ghost" className="h-8 text-xs gap-1"><X className="size-3" /> Reset</Button></Link>}
           </form>
@@ -162,9 +169,9 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
       {/* Pagination */}
       {pages > 1 && (
         <div className="flex justify-center gap-2">
-          {currentPage > 1 && <Link href={`/paiements?page=${currentPage - 1}${q ? `&q=${q}` : ""}${appart ? `&appart=${appart}` : ""}${mois ? `&mois=${mois}` : ""}`}><Button variant="outline" size="sm">← Précédent</Button></Link>}
+          {currentPage > 1 && <Link href={`/paiements?page=${currentPage - 1}${q ? `&q=${q}` : ""}${appart ? `&appart=${appart}` : ""}${mois ? `&mois=${mois}` : ""}${valide ? `&valide=${valide}` : ""}`}><Button variant="outline" size="sm">← Précédent</Button></Link>}
           <span className="flex items-center text-sm text-muted-foreground px-3">Page {currentPage} / {pages} ({total})</span>
-          {currentPage < pages && <Link href={`/paiements?page=${currentPage + 1}${q ? `&q=${q}` : ""}${appart ? `&appart=${appart}` : ""}${mois ? `&mois=${mois}` : ""}`}><Button variant="outline" size="sm">Suivant →</Button></Link>}
+          {currentPage < pages && <Link href={`/paiements?page=${currentPage + 1}${q ? `&q=${q}` : ""}${appart ? `&appart=${appart}` : ""}${mois ? `&mois=${mois}` : ""}${valide ? `&valide=${valide}` : ""}`}><Button variant="outline" size="sm">Suivant →</Button></Link>}
         </div>
       )}
     </div>

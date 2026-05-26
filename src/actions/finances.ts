@@ -77,7 +77,7 @@ export async function getFinancesStats(annee?: number) {
 
   return {
     annee: year,
-    totaux: { totalEncaisse, totalAttendu, totalLoyers, totalCharges, totalCautions, totalAutres, totalLoyersAttendus, totalChargesAttendues, totalDepenses, resultatNet: totalEncaisse - totalDepenses, tauxRecouvrement: totalAttendu > 0 ? Math.round((totalEncaisse / totalAttendu) * 100) : 100 },
+    totaux: { totalEncaisse, totalAttendu, totalLoyers, totalCharges, totalCautions, totalAutres, totalLoyersAttendus, totalChargesAttendues, totalDepenses, resultatNet: totalEncaisse - totalCautions - totalDepenses, tauxRecouvrement: totalAttendu > 0 ? Math.round(((totalEncaisse - totalCautions) / totalAttendu) * 100) : 100 },
     parMois,
     impayesParLocataire,
     parMode,

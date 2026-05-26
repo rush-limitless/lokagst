@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { sendEmail, genererEmailRappel, genererEmailRecu } from "@/lib/email";
 import { revalidatePath } from "next/cache";
+import { isMoisEcheance } from "@/lib/utils";
 
 export async function envoyerRappelPaiement(locataireId: string, bailId: string) {
   const bail = await prisma.bail.findUnique({
@@ -58,11 +59,15 @@ export async function envoyerRappelsMassifs() {
     include: { locataire: true, appartement: true, paiements: true },
   });
 
-  const moisCourant = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const now = new Date();
+  const moisCourant = new Date(now.getFullYear(), now.getMonth(), 1);
   let envoyes = 0;
 
   for (const bail of bauxActifs) {
     if (!bail.locataire.email) continue;
+    // Ne pas envoyer de rappel si ce n'est pas un mois d'échéance pour ce bail
+    if (!isMoisEcheance(moisCourant, bail.dateDebut, bail.periodicite)) continue;
+
     const dejaPaye = bail.paiements.some((p) => p.moisConcerne.getTime() === moisCourant.getTime());
     if (dejaPaye) continue;
 

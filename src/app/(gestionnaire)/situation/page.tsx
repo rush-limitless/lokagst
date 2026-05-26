@@ -106,7 +106,12 @@ export default async function SituationPage({ searchParams }: { searchParams: Pr
                           {s.aJour ? (
                             <span className="text-emerald-600 font-bold text-sm">0 FCFA</span>
                           ) : (
-                            <span className="text-red-600 font-bold text-sm">{formatFCFA(s.totalDu)}</span>
+                            <>
+                              <span className="text-red-600 font-bold text-sm">{formatFCFA(s.totalDu)}</span>
+                              <Link href={`/paiements/nouveau?bailId=${s.bailId}`} onClick={(e) => e.stopPropagation()} className="block mt-1">
+                                <span className="text-[10px] bg-primary text-primary-foreground px-2 py-0.5 rounded-full hover:opacity-80">💰 Payer</span>
+                              </Link>
+                            </>
                           )}
                           <p className="text-[10px] text-muted-foreground">{formatFCFA(s.totalMensuel)}/mois</p>
                           <p className="text-[10px] text-muted-foreground mt-0.5">
