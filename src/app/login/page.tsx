@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Globe } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { t } = useI18n();
+  const { t, lang, setLang } = useI18n();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,6 +31,11 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a2d47] via-[#0d3b5e] to-[#1B6B9E]" />
       <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100' height='100' fill='none'/%3E%3Crect x='10' y='20' width='20' height='30' rx='2' fill='%23ffffff' opacity='0.1'/%3E%3Crect x='40' y='10' width='20' height='40' rx='2' fill='%23ffffff' opacity='0.08'/%3E%3Crect x='70' y='25' width='20' height='25' rx='2' fill='%23ffffff' opacity='0.06'/%3E%3Crect x='10' y='60' width='20' height='30' rx='2' fill='%23ffffff' opacity='0.07'/%3E%3Crect x='40' y='60' width='20' height='30' rx='2' fill='%23ffffff' opacity='0.09'/%3E%3Crect x='70' y='60' width='20' height='30' rx='2' fill='%23ffffff' opacity='0.05'/%3E%3C/svg%3E\")" }} />
       <div className="absolute inset-0 bg-black/30" />
+
+      {/* Lang toggle */}
+      <button onClick={() => setLang(lang === "fr" ? "en" : "fr")} className="absolute top-4 right-4 z-20 w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all" title={lang === "fr" ? "English" : "Français"}>
+        <Globe className="size-4" />
+      </button>
 
       {/* Card glassmorphism */}
       <div className="relative z-10 w-full max-w-md">
