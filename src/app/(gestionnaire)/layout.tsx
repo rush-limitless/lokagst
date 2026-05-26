@@ -13,11 +13,15 @@ export default async function GestionnaireLayout({ children }: { children: React
   const session = await auth();
   if (!session || !["GESTIONNAIRE", "SUPER_ADMIN"].includes(session.user.role as string)) redirect("/login");
 
-  const messagesNonLus = await prisma.message.count({ where: { expediteur: "LOCATAIRE", lu: false } }).catch(() => 0);
+  const [messagesNonLus, ticketsOuverts, impayesCount] = await Promise.all([
+    prisma.message.count({ where: { expediteur: "LOCATAIRE", lu: false } }).catch(() => 0),
+    prisma.maintenance.count({ where: { statut: { in: ["SIGNALE", "EN_COURS"] } } }).catch(() => 0),
+    prisma.paiement.count({ where: { valide: false } }).catch(() => 0),
+  ]);
 
   return (
     <div className="min-h-screen flex bg-background text-foreground">
-      <Sidebar email={session.user.email || ""} badges={{ messages: messagesNonLus || undefined }} />
+      <Sidebar email={session.user.email || ""} badges={{ messages: messagesNonLus || undefined, tickets: ticketsOuverts || undefined, impayes: impayesCount || undefined }} />
       <main className="flex-1 min-w-0">
         <MobileNav />
         <div className="border-b bg-card px-4 py-3 md:px-6 flex items-center justify-between gap-3">

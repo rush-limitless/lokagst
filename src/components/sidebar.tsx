@@ -14,7 +14,7 @@ import {
 type NavItem = { href: string; label: string; icon: React.ReactNode; badge?: number };
 type NavSection = { title: string; items: NavItem[]; defaultOpen?: boolean };
 
-export function Sidebar({ email, badges }: { email: string; badges?: { messages?: number; tickets?: number } }) {
+export function Sidebar({ email, badges }: { email: string; badges?: { messages?: number; tickets?: number; impayes?: number } }) {
   const pathname = usePathname();
   const { t } = useI18n();
   const [collapsed, setCollapsed] = useState(false);
@@ -33,7 +33,7 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
     ]},
     { title: "Finance", defaultOpen: true, items: [
       { href: "/finances", label: "Finances", icon: <TrendingUp className="size-4" /> },
-      { href: "/paiements", label: t.paiements, icon: <Wallet className="size-4" /> },
+      { href: "/paiements", label: t.paiements, icon: <Wallet className="size-4" />, badge: badges?.impayes },
       { href: "/calendrier", label: "Calendrier", icon: <Calendar className="size-4" /> },
     ]},
     { title: "Communication", defaultOpen: true, items: [
