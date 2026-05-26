@@ -43,11 +43,23 @@ export async function GET(req: NextRequest) {
   for (const bail of bauxActifs) {
     if (!bail.locataire.email) continue;
 
+    const { isMoisEcheance, PERIODICITE_MOIS } = await import("@/lib/utils");
+    // Ne traiter que si ce mois est un mois d'échéance pour ce bail
+    if (!isMoisEcheance(moisCourant, bail.dateDebut, bail.periodicite)) continue;
+
+    const freq = PERIODICITE_MOIS[bail.periodicite] || 1;
+    const periodeDebut = new Date(moisCourant);
+    const periodeFin = new Date(moisCourant.getFullYear(), moisCourant.getMonth() + freq, 1);
+    const totalPayePeriode = bail.paiements
+      .filter((p) => { const mc = new Date(p.moisConcerne); const mp = new Date(mc.getFullYear(), mc.getMonth(), 1); return mp >= periodeDebut && mp < periodeFin; })
+      .reduce((s, p) => s + p.montant, 0);
+    const attenduPeriode = bail.totalMensuel * freq;
+    const estPaye = totalPayePeriode >= attenduPeriode;
+    // Pour compatibilité avec le reste du code
     const paiementMois = bail.paiements.find((p) => {
       const mc = new Date(p.moisConcerne);
       return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear();
     });
-    const estPaye = paiementMois && paiementMois.statut === "PAYE";
 
     // 1. Rappel d'échéance (3 jours avant jour limite)
     if (jour === bail.jourLimitePaiement - 3 && !paiementMois) {

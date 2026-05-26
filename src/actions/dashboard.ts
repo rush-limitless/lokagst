@@ -44,25 +44,23 @@ export async function getDashboardStats() {
       if (!isMoisEcheance(moisCourant, b.dateDebut, b.periodicite)) return false;
       const freq = PERIODICITE_MOIS[b.periodicite] || 1;
       const attendu = b.totalMensuel * (freq > 0 ? freq : 1);
-      // Trouver le paiement du mois courant
-      const paiementMois = b.paiements.filter((p) => {
-        const mc = new Date(p.moisConcerne);
-        return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear();
-      });
-      const totalPaye = paiementMois.reduce((s, p) => s + p.montant, 0);
+      // Sommer tous les paiements de la période d'échéance
+      const periodeDebut = new Date(moisCourant);
+      const periodeFin = new Date(moisCourant.getFullYear(), moisCourant.getMonth() + freq, 1);
+      const totalPaye = b.paiements
+        .filter((p) => { const mc = new Date(p.moisConcerne); const mp = new Date(mc.getFullYear(), mc.getMonth(), 1); return mp >= periodeDebut && mp < periodeFin; })
+        .reduce((s, p) => s + p.montant, 0);
       return totalPaye < attendu;
     })
     .map((b) => {
       const freq = PERIODICITE_MOIS[b.periodicite] || 1;
       const loyerAttendu = b.montantLoyer * (freq > 0 ? freq : 1);
       const chargesAttendues = b.totalCharges * (freq > 0 ? freq : 1);
-      // Calculer ce qui a été payé ce mois
-      const paiementMois = b.paiements.filter((p) => {
-        const mc = new Date(p.moisConcerne);
-        return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear();
-      });
-      const loyerPaye = paiementMois.reduce((s, p) => s + p.montantLoyer, 0);
-      const chargesPaye = paiementMois.reduce((s, p) => s + p.montantCharges, 0);
+      const periodeDebut = new Date(moisCourant);
+      const periodeFin = new Date(moisCourant.getFullYear(), moisCourant.getMonth() + freq, 1);
+      const paiementsPeriode = b.paiements.filter((p) => { const mc = new Date(p.moisConcerne); const mp = new Date(mc.getFullYear(), mc.getMonth(), 1); return mp >= periodeDebut && mp < periodeFin; });
+      const loyerPaye = paiementsPeriode.reduce((s, p) => s + p.montantLoyer, 0);
+      const chargesPaye = paiementsPeriode.reduce((s, p) => s + p.montantCharges, 0);
       return {
         locataireId: b.locataireId,
         nom: `${b.locataire.prenom} ${b.locataire.nom}`,
@@ -91,25 +89,22 @@ export async function getDashboardStats() {
       if (jourLimite < now || jourLimite > finSemaine) return false;
       const freq = PERIODICITE_MOIS[b.periodicite] || 1;
       const attendu = b.totalMensuel * freq;
+      const periodeDebut = new Date(moisCourant);
+      const periodeFin = new Date(moisCourant.getFullYear(), moisCourant.getMonth() + freq, 1);
       const paye = b.paiements
-        .filter((p) => { const mc = new Date(p.moisConcerne); return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear(); })
+        .filter((p) => { const mc = new Date(p.moisConcerne); const mp = new Date(mc.getFullYear(), mc.getMonth(), 1); return mp >= periodeDebut && mp < periodeFin; })
         .reduce((s, p) => s + p.montant, 0);
       return paye < attendu;
     })
     .map((b) => {
       const freq = PERIODICITE_MOIS[b.periodicite] || 1;
       const attendu = b.totalMensuel * freq;
+      const periodeDebut = new Date(moisCourant);
+      const periodeFin = new Date(moisCourant.getFullYear(), moisCourant.getMonth() + freq, 1);
       const paye = b.paiements
-        .filter((p) => { const mc = new Date(p.moisConcerne); return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear(); })
+        .filter((p) => { const mc = new Date(p.moisConcerne); const mp = new Date(mc.getFullYear(), mc.getMonth(), 1); return mp >= periodeDebut && mp < periodeFin; })
         .reduce((s, p) => s + p.montant, 0);
-      return {
-        bailId: b.id,
-        locataireId: b.locataireId,
-        nom: `${b.locataire.prenom} ${b.locataire.nom}`,
-        appartement: b.appartement.numero,
-        montantAttendu: attendu - paye,
-        jourLimite: b.jourLimitePaiement,
-      };
+      return { bailId: b.id, locataireId: b.locataireId, nom: `${b.locataire.prenom} ${b.locataire.nom}`, appartement: b.appartement.numero, montantAttendu: attendu - paye, jourLimite: b.jourLimitePaiement };
     })
     .sort((a, b) => a.jourLimite - b.jourLimite);
 
@@ -150,8 +145,8 @@ export async function getRevenusEvolution(mois: number = 6) {
       .reduce((s, p) => s + p.montant, 0);
 
     const attendus = baux
-      .filter((b) => b.dateDebut <= mFin && b.dateFin >= mDebut && isMoisEcheance(mDebut, b.dateDebut, b.periodicite))
-      .reduce((s, b) => s + b.totalMensuel * (PERIODICITE_MOIS[b.periodicite] || 1), 0);
+      .filter((b) => b.dateDebut <= mFin && b.dateFin >= mDebut)
+      .reduce((s, b) => s + b.totalMensuel, 0);
 
     result.push({ mois: moisLabel, revenus, attendus });
   }
