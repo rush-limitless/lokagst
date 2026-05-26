@@ -15,17 +15,31 @@ function hashCode(str: string) {
   return Math.abs(hash);
 }
 
-export function UserAvatar({ nom, prenom, photo, size = "md" }: { nom: string; prenom: string; photo?: string | null; size?: "sm" | "md" | "lg" }) {
+export function UserAvatar({ nom, prenom, photo, size = "md", status }: { nom: string; prenom: string; photo?: string | null; size?: "sm" | "md" | "lg"; status?: "ok" | "warning" | "danger" }) {
   const sizes = { sm: "w-8 h-8 text-xs", md: "w-10 h-10 text-sm", lg: "w-16 h-16 text-xl" };
+  const dotSizes = { sm: "w-2.5 h-2.5", md: "w-3 h-3", lg: "w-4 h-4" };
+  const dotColors = { ok: "bg-emerald-500", warning: "bg-orange-500", danger: "bg-red-500" };
   const gradient = GRADIENTS[hashCode(nom + prenom) % GRADIENTS.length];
 
+  const dot = status ? (
+    <span className={`absolute -bottom-0.5 -right-0.5 ${dotSizes[size]} ${dotColors[status]} rounded-full ring-2 ring-white dark:ring-gray-800`} />
+  ) : null;
+
   if (photo) {
-    return <img src={photo} alt={`${prenom} ${nom}`} className={`${sizes[size]} rounded-full object-cover ring-2 ring-white dark:ring-gray-800`} />;
+    return (
+      <div className="relative shrink-0">
+        <img src={photo} alt={`${prenom} ${nom}`} className={`${sizes[size]} rounded-full object-cover ring-2 ring-white dark:ring-gray-800`} />
+        {dot}
+      </div>
+    );
   }
 
   return (
-    <div className={`${sizes[size]} rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold ring-2 ring-white dark:ring-gray-800 shadow-sm`}>
-      {prenom[0]}{nom[0]}
+    <div className="relative shrink-0">
+      <div className={`${sizes[size]} rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold ring-2 ring-white dark:ring-gray-800 shadow-sm`}>
+        {prenom[0]}{nom[0]}
+      </div>
+      {dot}
     </div>
   );
 }
