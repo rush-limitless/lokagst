@@ -70,8 +70,7 @@ export default function LoginPage() {
           </div>
 
           <div className="text-center mb-8">
-            <p className="text-sm text-gray-500 dark:text-gray-400">{greeting}</p>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{t.connexion}</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t.connexion}</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{lang === "fr" ? "Accédez à votre espace de gestion" : "Access your management space"}</p>
           </div>
 
