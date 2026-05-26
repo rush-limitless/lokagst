@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n";
 import { Mail, Lock, Eye, EyeOff, Globe } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -22,8 +23,6 @@ export default function LoginPage() {
     if (saved) { setEmail(saved); setRemember(true); }
   }, []);
 
-  const now = new Date();
-  const greeting = now.getHours() < 12 ? (lang === "fr" ? "Bonjour" : "Good morning") : now.getHours() < 18 ? (lang === "fr" ? "Bon après-midi" : "Good afternoon") : (lang === "fr" ? "Bonsoir" : "Good evening");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -120,9 +119,9 @@ export default function LoginPage() {
                 <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-[#29ABE2] focus:ring-[#29ABE2]/30" />
                 <span className="text-xs text-gray-500 dark:text-gray-400">{lang === "fr" ? "Se souvenir de moi" : "Remember me"}</span>
               </label>
-              <button type="button" onClick={() => alert(lang === "fr" ? "Contactez l'administrateur pour réinitialiser votre mot de passe." : "Contact the administrator to reset your password.")} className="text-xs text-[#29ABE2] hover:underline">
+              <Link href="/login/reset" className="text-xs text-[#29ABE2] hover:underline">
                 {lang === "fr" ? "Mot de passe oublié ?" : "Forgot password?"}
-              </button>
+              </Link>
             </div>
 
             <button
