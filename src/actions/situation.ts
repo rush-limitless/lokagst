@@ -12,41 +12,63 @@ export async function getSituationLocataire(locataireId: string) {
   if (!bail) return null;
 
   const now = new Date();
-  const freq = PERIODICITE_MOIS[bail.periodicite] || 1;
   const debut = new Date(bail.dateDebut);
+  const freq = PERIODICITE_MOIS[bail.periodicite] || 1;
+  const loyerParEcheance = bail.montantLoyer * freq;
+  const chargesParEcheance = bail.totalCharges * freq;
 
-  // Tous les baux du locataire pour agréger les paiements
-  const tousBaux = await prisma.bail.findMany({
-    where: { locataireId },
-    include: { paiements: true },
-    orderBy: { dateDebut: "asc" },
-  });
-
-  // Total attendu sur le bail actif uniquement (depuis son début jusqu'à maintenant)
   let totalAttendu = 0;
   const d = new Date(debut.getFullYear(), debut.getMonth(), 1);
   while (d <= now) {
     if (isMoisEcheance(d, debut, bail.periodicite)) {
-      totalAttendu += (bail.montantLoyer + bail.totalCharges) * freq;
+      totalAttendu += loyerParEcheance + chargesParEcheance;
     }
     d.setMonth(d.getMonth() + 1);
   }
 
-  // Total réglé = TOUS les paiements de TOUS les baux (hors caution)
-  const totalRegle = tousBaux
-    .flatMap((b) => b.paiements)
-    .reduce((s, p) => s + p.montant - (p.montantCaution || 0), 0);
+  const totalRegle = bail.paiements.reduce((s, p) => s + p.montant, 0);
+  const difference = totalAttendu - totalRegle;
+
+  let moisImpayes = 0;
+  let montantLoyerDu = 0;
+  let montantChargesDu = 0;
+  const d2 = new Date(debut.getFullYear(), debut.getMonth(), 1);
+  while (d2 <= now) {
+    if (isMoisEcheance(d2, debut, bail.periodicite)) {
+      const periodeDebut = new Date(d2);
+      const periodeFin = new Date(d2.getFullYear(), d2.getMonth() + freq, 1);
+      const montantPaye = bail.paiements
+        .filter((p) => {
+          const mc = new Date(p.moisConcerne);
+          const moisP = new Date(mc.getFullYear(), mc.getMonth(), 1);
+          return moisP >= periodeDebut && moisP < periodeFin;
+        })
+        .reduce((s, p) => s + p.montant - (p.montantCaution || 0), 0);
+
+      if (montantPaye < loyerParEcheance) {
+        moisImpayes += freq; // en mois réels
+        montantLoyerDu += loyerParEcheance - Math.min(montantPaye, loyerParEcheance);
+      }
+      if (montantPaye < loyerParEcheance + chargesParEcheance && bail.totalCharges > 0) {
+        const payePourCharges = montantPaye > loyerParEcheance ? montantPaye - loyerParEcheance : 0;
+        montantChargesDu += chargesParEcheance - Math.min(payePourCharges, chargesParEcheance);
+      }
+    }
+    d2.setMonth(d2.getMonth() + 1);
+  }
 
   const penalitesImpayees = bail.penalites.reduce((s, p) => s + p.montant, 0);
-  const difference = totalAttendu - totalRegle;
-  const totalDu = Math.max(0, difference) + penalitesImpayees + (bail.cautionPayee ? 0 : bail.montantCaution);
 
-  // moisImpayes : nombre de mois de dette / totalMensuel du bail actif
-  const detteLoyer = Math.max(0, difference);
-  const moisImpayes = bail.totalMensuel > 0 ? Math.round(detteLoyer / bail.totalMensuel) : 0;
-  const ratioLoyer = bail.totalMensuel > 0 ? bail.montantLoyer / bail.totalMensuel : 1;
-  const montantLoyerDu = Math.round(detteLoyer * ratioLoyer);
-  const montantChargesDu = detteLoyer - montantLoyerDu;
+  const paiementsAvance = bail.paiements.filter((p) => {
+    const mc = new Date(p.moisConcerne);
+    return mc.getFullYear() > now.getFullYear() ||
+      (mc.getFullYear() === now.getFullYear() && mc.getMonth() > now.getMonth());
+  });
+  const montantAvance = paiementsAvance.reduce((s, p) => s + p.montant, 0);
+
+  const totalDu = difference > 0
+    ? montantLoyerDu + montantChargesDu + penalitesImpayees + (bail.cautionPayee ? 0 : bail.montantCaution)
+    : -montantAvance;
 
   return {
     bail,
