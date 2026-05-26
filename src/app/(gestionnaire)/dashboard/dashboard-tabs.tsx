@@ -25,6 +25,51 @@ export function DashboardTabs({ evolution, stats, activites }: { evolution: any;
 
       {tab === "overview" && (
         <div className="space-y-4">
+          {/* Property Overview + Pipeline */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Property Overview */}
+            <Card>
+              <CardContent className="pt-5 pb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-medium text-foreground">Occupation des logements</p>
+                  <span className="text-xs text-muted-foreground">{stats.appartements.total} total</span>
+                </div>
+                <div className="flex rounded-full h-3 overflow-hidden bg-muted">
+                  <div className="bg-sky-500 transition-all" style={{ width: `${(stats.appartements.occupes / stats.appartements.total) * 100}%` }} title={`${stats.appartements.occupes} occupés`} />
+                  <div className="bg-emerald-400 transition-all" style={{ width: `${(stats.appartements.libres / stats.appartements.total) * 100}%` }} title={`${stats.appartements.libres} libres`} />
+                </div>
+                <div className="flex justify-between mt-2 text-xs">
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-sky-500" />{stats.appartements.occupes} occupés</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />{stats.appartements.libres} libres</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pipeline locataires */}
+            <Card>
+              <CardContent className="pt-5 pb-4">
+                <p className="text-sm font-medium text-foreground mb-3">Pipeline locataires</p>
+                {(() => {
+                  const aJour = stats.alertes.impayesLocataires ? stats.appartements.occupes - stats.alertes.impayesLocataires.length : stats.appartements.occupes;
+                  const enRetard = stats.alertes.impayesLocataires?.length || 0;
+                  const total = stats.appartements.occupes || 1;
+                  return (
+                    <>
+                      <div className="flex rounded-full h-3 overflow-hidden bg-muted">
+                        <div className="bg-emerald-500 transition-all" style={{ width: `${(aJour / total) * 100}%` }} />
+                        <div className="bg-red-500 transition-all" style={{ width: `${(enRetard / total) * 100}%` }} />
+                      </div>
+                      <div className="flex justify-between mt-2 text-xs">
+                        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />{aJour} à jour</span>
+                        <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-500" />{enRetard} en retard</span>
+                      </div>
+                    </>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <Card className="lg:col-span-2">
@@ -44,22 +89,33 @@ export function DashboardTabs({ evolution, stats, activites }: { evolution: any;
 
           {/* À encaisser */}
           {stats.alertes.aEncaisserSemaine.length > 0 && (
-            <Card className="border-sky-200 dark:border-sky-800">
+            <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium">💳 À encaisser cette semaine</CardTitle>
-                  <Badge variant="outline" className="text-sky-600 border-sky-300">{stats.alertes.aEncaisserSemaine.length}</Badge>
+                  <CardTitle className="text-sm font-medium">📋 Rappels</CardTitle>
+                  <Badge variant="outline" className="text-[10px]">{stats.alertes.aEncaisserSemaine.length + stats.alertes.bauxExpirants.length}</Badge>
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              <CardContent className="max-h-64 overflow-y-auto">
+                <div className="space-y-2">
                   {stats.alertes.aEncaisserSemaine.map((l: any) => (
-                    <Link key={l.bailId} href={`/paiements/nouveau?bailId=${l.bailId}`} className="flex justify-between items-center p-2.5 bg-sky-50 dark:bg-sky-950/20 rounded-lg text-sm hover:bg-sky-100 dark:hover:bg-sky-950/30 transition-colors">
-                      <div>
-                        <p className="font-medium text-foreground text-xs">{l.nom}</p>
-                        <p className="text-[10px] text-muted-foreground">{l.appartement} · limite le {l.jourLimite}</p>
+                    <Link key={l.bailId} href={`/paiements/nouveau?bailId=${l.bailId}`} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors border-l-4 border-l-sky-500">
+                      <div className="text-center shrink-0 w-10"><p className="text-[10px] text-muted-foreground uppercase">Jour</p><p className="text-sm font-bold text-foreground">{l.jourLimite}</p></div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{l.nom}</p>
+                        <p className="text-[10px] text-muted-foreground">{l.appartement} · {formatFCFA(l.montantAttendu)}</p>
                       </div>
-                      <Badge variant="outline" className="text-sky-700 border-sky-300 text-[10px]">{formatFCFA(l.montantAttendu)}</Badge>
+                      <Badge variant="outline" className="text-sky-600 border-sky-300 text-[9px] shrink-0">À encaisser</Badge>
+                    </Link>
+                  ))}
+                  {stats.alertes.bauxExpirants.map((b: any) => (
+                    <Link key={b.bailId} href={`/baux/${b.bailId}`} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors border-l-4 border-l-orange-400">
+                      <div className="text-center shrink-0 w-10"><p className="text-[10px] text-muted-foreground uppercase">Dans</p><p className="text-sm font-bold text-foreground">{b.joursRestants}j</p></div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{b.locataire}</p>
+                        <p className="text-[10px] text-muted-foreground">{b.appartement} · Bail expire</p>
+                      </div>
+                      <Badge variant="outline" className="text-orange-600 border-orange-300 text-[9px] shrink-0">Expiration</Badge>
                     </Link>
                   ))}
                 </div>
