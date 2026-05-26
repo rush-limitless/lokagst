@@ -79,28 +79,43 @@ export default async function AppartementsPage({ searchParams }: { searchParams:
                       <h2 className="text-sm font-semibold text-foreground">{grpImm?.nom || "Sans immeuble"}</h2>
                       <span className="text-xs text-muted-foreground">({apps.length})</span>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 stagger-in">
-                      {apps.map((a) => (
-                        <Link key={a.id} href={`/appartements/${a.id}`} className="group">
-                          <div className={`bg-card border rounded-xl p-4 hover:shadow-lg transition-all hover:-translate-y-1 relative overflow-hidden ${a.statut === "LIBRE" ? "border-emerald-200 dark:border-emerald-900" : colors.border}`}>
-                            <div className={`absolute top-0 right-0 w-16 h-16 rounded-bl-[40px] ${a.statut === "LIBRE" ? "bg-emerald-50 dark:bg-emerald-950/30" : colors.bg}`} />
-                            <div className="relative">
-                              <div className="text-2xl font-bold text-foreground">{a.numero}</div>
-                              <p className="text-xs text-muted-foreground mt-1">{ETAGE_LABELS[a.etage]}</p>
-                              <p className="text-xs text-muted-foreground">{TYPE_LABELS[a.type] || a.type}</p>
-                              <p className="text-sm font-semibold text-foreground mt-3">{formatFCFA(a.loyerBase)}</p>
-                              {a.baux[0]?.totalCharges > 0 && <p className="text-xs text-muted-foreground">Charges : {formatFCFA(a.baux[0].totalCharges)}</p>}
-                              <div className="mt-2">
-                                <StatusBadge status={a.statut === "LIBRE" ? "libre" : "occupe"} label={a.statut === "LIBRE" ? "Libre" : "Occupé"} />
+                    {/* Grouper par étage */}
+                    {(() => {
+                      const etageOrder = ["CINQUIEME", "QUATRIEME", "TROISIEME", "DEUXIEME", "PREMIER", "RDC"];
+                      const parEtage = etageOrder
+                        .map((e) => ({ etage: e, apparts: apps.filter((a) => a.etage === e) }))
+                        .filter((g) => g.apparts.length > 0);
+                      return (
+                        <div className="space-y-4">
+                          {parEtage.map(({ etage, apparts: etageApps }) => (
+                            <div key={etage}>
+                              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 pl-1">{ETAGE_LABELS[etage]}</p>
+                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                                {etageApps.map((a) => (
+                                  <Link key={a.id} href={`/appartements/${a.id}`} className="group">
+                                    <div className={`bg-card border rounded-xl p-4 hover:shadow-lg transition-all hover:-translate-y-1 relative overflow-hidden ${a.statut === "LIBRE" ? "border-emerald-200 dark:border-emerald-900" : colors.border}`}>
+                                      <div className={`absolute top-0 right-0 w-16 h-16 rounded-bl-[40px] ${a.statut === "LIBRE" ? "bg-emerald-50 dark:bg-emerald-950/30" : colors.bg}`} />
+                                      <div className="relative">
+                                        <div className="text-2xl font-bold text-foreground">{a.numero}</div>
+                                        <p className="text-xs text-muted-foreground">{TYPE_LABELS[a.type] || a.type}</p>
+                                        <p className="text-sm font-semibold text-foreground mt-3">{formatFCFA(a.loyerBase)}</p>
+                                        {a.baux[0]?.totalCharges > 0 && <p className="text-xs text-muted-foreground">Charges : {formatFCFA(a.baux[0].totalCharges)}</p>}
+                                        <div className="mt-2">
+                                          <StatusBadge status={a.statut === "LIBRE" ? "libre" : "occupe"} label={a.statut === "LIBRE" ? "Libre" : "Occupé"} />
+                                        </div>
+                                        {a.locataireActuel && (
+                                          <p className="text-[10px] text-muted-foreground mt-2 truncate">{a.locataireActuel.prenom} {a.locataireActuel.nom}</p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </Link>
+                                ))}
                               </div>
-                              {a.locataireActuel && (
-                                <p className="text-[10px] text-muted-foreground mt-2 truncate">{a.locataireActuel.prenom} {a.locataireActuel.nom}</p>
-                              )}
                             </div>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })}
