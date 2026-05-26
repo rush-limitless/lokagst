@@ -1,7 +1,6 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getReportingComplet() {
   const now = new Date();
