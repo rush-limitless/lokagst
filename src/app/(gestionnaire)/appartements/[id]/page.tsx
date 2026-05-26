@@ -45,7 +45,7 @@ export default async function AppartementDetail({ params }: { params: Promise<{ 
           </div>
           <div className="flex items-center gap-3">
             <Badge className={`text-sm px-3 py-1 ${appart.statut === "LIBRE" ? "bg-emerald-400/20 text-emerald-100 border-emerald-300/30" : "bg-white/20 text-white border-white/30"}`}>
-              {appart.statut === "LIBRE" ? "🟢 Libre" : "🔵 Occupé"}
+              {appart.statut === "LIBRE" ? "Libre" : "Occupé"}
             </Badge>
             <SupprimerAppartButton id={appart.id} hasActiveBail={!!bailActif} />
           </div>

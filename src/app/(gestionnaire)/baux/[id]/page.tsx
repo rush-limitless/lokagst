@@ -93,7 +93,7 @@ export default async function BailDetail({ params }: { params: Promise<{ id: str
       <Card>
         <CardHeader><CardTitle>Renouvellement et résiliation</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-          <div><span className="text-muted-foreground">Renouvellement auto</span><p className="font-medium">{bail.renouvellementAuto ? "✅ Oui (sauf dénonciation 2 mois avant)" : "❌ Non"}</p></div>
+          <div><span className="text-muted-foreground">Renouvellement auto</span><p className="font-medium">{bail.renouvellementAuto ? "Oui (sauf dénonciation 2 mois avant)" : "Non"}</p></div>
           {bail.renouvellementAuto && <>
             <div><span className="text-muted-foreground">Durée renouvellement</span><p className="font-medium">{bail.dureeRenouvellement || bail.dureeMois} mois</p></div>
             <div><span className="text-muted-foreground">Augmentation</span><p className="font-medium">{bail.augmentationLoyer || 0}%</p></div>

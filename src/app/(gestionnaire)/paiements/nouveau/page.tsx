@@ -98,7 +98,7 @@ export default function NouveauPaiement() {
                 <p>Loyer{isJournalier ? "/jour" : ""} : <strong>{selectedBail.montantLoyer.toLocaleString()} FCFA</strong></p>
                 <p>Charges{isJournalier ? "/jour" : ""} : <strong>{selectedBail.totalCharges.toLocaleString()} FCFA</strong></p>
                 <p>Total {isJournalier ? "journalier" : "mensuel"} : <strong>{selectedBail.totalMensuel.toLocaleString()} FCFA</strong></p>
-                <p>Caution : <strong>{selectedBail.montantCaution.toLocaleString()} FCFA</strong> {selectedBail.cautionPayee ? "✅ Payée" : "❌ Non payée"}</p>
+                <p>Caution : <strong>{selectedBail.montantCaution.toLocaleString()} FCFA</strong> {selectedBail.cautionPayee ? "Payée" : "Non payée"}</p>
                 <p>Périodicité : <strong>{selectedBail.periodicite}</strong></p>
               </div>
             )}

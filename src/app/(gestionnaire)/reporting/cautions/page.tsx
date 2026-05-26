@@ -26,7 +26,7 @@ export default async function CautionsPage() {
                 <div><span className="font-medium text-foreground">{r.locataire}</span><span className="text-muted-foreground text-sm ml-2">({r.logement})</span></div>
                 <div className="flex items-center gap-3">
                   <span className="font-bold text-foreground">{formatFCFA(r.caution)}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.payee ? "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400" : "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400"}`}>{r.payee ? "✅ Payée" : "❌ Non payée"}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.payee ? "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400" : "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400"}`}>{r.payee ? "Payée" : "Non payée"}</span>
                 </div>
               </div>
             ))}

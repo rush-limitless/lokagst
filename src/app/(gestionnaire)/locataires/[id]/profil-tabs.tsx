@@ -11,6 +11,7 @@ import { useState } from "react";
 import { supprimerPaiement } from "@/actions/paiements";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 type Bail = {
   id: string; dateDebut: Date; dateFin: Date; montantLoyer: number; montantCaution: number;
@@ -168,9 +169,9 @@ export function ProfilTabs({ locataire: loc, situation }: { locataire: Locataire
       content: situation ? (
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card><CardContent className="pt-6 text-center"><div className="text-3xl mb-1">{situation.caution.payee ? "✅" : "❌"}</div><p className="font-medium">Caution</p><p className="text-sm text-muted-foreground">{formatFCFA(situation.caution.montant)}</p></CardContent></Card>
-            <Card><CardContent className="pt-6 text-center"><div className="text-3xl mb-1">{situation.loyer.aJour ? "✅" : "❌"}</div><p className="font-medium">Loyer</p>{situation.loyer.aJour ? <p className="text-sm text-emerald-600">À jour</p> : <p className="text-sm text-red-600">{situation.loyer.moisImpayes} mois — {formatFCFA(situation.loyer.montantDu)}</p>}</CardContent></Card>
-            <Card><CardContent className="pt-6 text-center"><div className="text-3xl mb-1">{situation.charges.aJour ? "✅" : "❌"}</div><p className="font-medium">Charges</p>{situation.charges.aJour ? <p className="text-sm text-emerald-600">À jour</p> : <p className="text-sm text-red-600">{formatFCFA(situation.charges.montantDu)}</p>}</CardContent></Card>
+            <Card><CardContent className="pt-6 text-center"><div className="flex justify-center mb-1">{situation.caution.payee ? <CheckCircle2 className="size-8 text-emerald-500" /> : <XCircle className="size-8 text-red-500" />}</div><p className="font-medium">Caution</p><p className="text-sm text-muted-foreground">{formatFCFA(situation.caution.montant)}</p></CardContent></Card>
+            <Card><CardContent className="pt-6 text-center"><div className="flex justify-center mb-1">{situation.loyer.aJour ? <CheckCircle2 className="size-8 text-emerald-500" /> : <XCircle className="size-8 text-red-500" />}</div><p className="font-medium">Loyer</p>{situation.loyer.aJour ? <p className="text-sm text-emerald-600">À jour</p> : <p className="text-sm text-red-600">{situation.loyer.moisImpayes} mois — {formatFCFA(situation.loyer.montantDu)}</p>}</CardContent></Card>
+            <Card><CardContent className="pt-6 text-center"><div className="flex justify-center mb-1">{situation.charges.aJour ? <CheckCircle2 className="size-8 text-emerald-500" /> : <XCircle className="size-8 text-red-500" />}</div><p className="font-medium">Charges</p>{situation.charges.aJour ? <p className="text-sm text-emerald-600">À jour</p> : <p className="text-sm text-red-600">{formatFCFA(situation.charges.montantDu)}</p>}</CardContent></Card>
             <Card><CardContent className="pt-6 text-center"><div className={`text-2xl font-bold ${situation.totalDu > 0 ? "text-red-600" : "text-emerald-600"}`}>{situation.totalDu > 0 ? formatFCFA(situation.totalDu) : `+${formatFCFA(Math.abs(situation.totalDu))}`}</div><p className="font-medium">{situation.totalDu > 0 ? "Total dû" : "Avance"}</p>{situation.penalites.montant > 0 && <p className="text-xs text-red-500">dont {formatFCFA(situation.penalites.montant)} pénalités</p>}</CardContent></Card>
           </div>
           {allPenalites.length > 0 && (

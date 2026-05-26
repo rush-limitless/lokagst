@@ -124,7 +124,7 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
               <div className="flex items-center justify-between">
                 <span className="text-lg font-bold text-foreground">{formatFCFA(p.montant)}</span>
                 <Badge variant="secondary" className="text-[10px]">
-                  {p.modePaiement === "MOBILE_MONEY" ? "🟠 Mobile" : p.modePaiement === "ESPECES" ? "💵 Espèces" : "🏦 Virement"}
+                  {p.modePaiement === "MOBILE_MONEY" ? "Mobile" : p.modePaiement === "ESPECES" ? "Espèces" : "Virement"}
                 </Badge>
               </div>
               {(p.montantLoyer > 0 || p.montantCharges > 0) && (
@@ -182,7 +182,7 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
                   <td className="p-3 text-right font-semibold text-foreground text-xs">{formatFCFA(p.montant)}</td>
                   <td className="p-3">
                     <Badge variant="secondary" className="text-[10px] font-normal">
-                      {p.modePaiement === "MOBILE_MONEY" ? "🟠 Mobile" : p.modePaiement === "ESPECES" ? "💵 Espèces" : "🏦 Vir."}
+                      {p.modePaiement === "MOBILE_MONEY" ? "Mobile" : p.modePaiement === "ESPECES" ? "Espèces" : "Virement"}
                     </Badge>
                   </td>
                   <td className="p-3">
