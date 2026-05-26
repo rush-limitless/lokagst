@@ -158,22 +158,22 @@ export async function modifierBail(id: string, formData: FormData) {
     try { const raw = formData.get("impotsTaxes") as string; if (raw) impotsTaxes = JSON.parse(raw); } catch {}
     const totalImpotsTaxes = impotsTaxes.reduce((s, c) => s + c.montant, 0);
 
-    await prisma.bail.update({
-      where: { id },
-      data: { dateDebut, dateFin, montantLoyer, montantCaution, renouvellementAuto, periodicite: periodicite as any, chargesLocatives: charges, totalCharges, impotsTaxes, totalImpotsTaxes, totalMensuel: montantLoyer + totalCharges },
-    });
+    await prisma.$transaction(async (tx) => {
+      await tx.bail.update({
+        where: { id },
+        data: { dateDebut, dateFin, montantLoyer, montantCaution, renouvellementAuto, periodicite: periodicite as any, chargesLocatives: charges, totalCharges, impotsTaxes, totalImpotsTaxes, totalMensuel: montantLoyer + totalCharges },
+      });
 
-    // Recaler le jour de moisConcerne de tous les paiements sur le nouveau jour d'entrée
-    const jourEntree = new Date(dateDebut).getDate();
-    const paiements = await prisma.paiement.findMany({ where: { bailId: id }, select: { id: true, moisConcerne: true } });
-    await prisma.$transaction(
-      paiements
-        .filter((p) => new Date(p.moisConcerne).getDate() !== jourEntree)
-        .map((p) => {
+      // Recaler le jour de moisConcerne de tous les paiements sur le nouveau jour d'entrée
+      const jourEntree = new Date(dateDebut).getDate();
+      const paiements = await tx.paiement.findMany({ where: { bailId: id }, select: { id: true, moisConcerne: true } });
+      for (const p of paiements) {
+        if (new Date(p.moisConcerne).getDate() !== jourEntree) {
           const mc = new Date(p.moisConcerne);
-          return prisma.paiement.update({ where: { id: p.id }, data: { moisConcerne: new Date(mc.getFullYear(), mc.getMonth(), jourEntree) } });
-        })
-    );
+          await tx.paiement.update({ where: { id: p.id }, data: { moisConcerne: new Date(mc.getFullYear(), mc.getMonth(), jourEntree) } });
+        }
+      }
+    });
 
     revalidatePath(`/baux/${id}`);
     return { success: true };
