@@ -5,6 +5,10 @@
       "schedule": "0 6 * * *"
     },
     {
+      "path": "/api/cron/resume-jour",
+      "schedule": "0 5 * * *"
+    },
+    {
       "path": "/api/cron/rapport-mensuel",
       "schedule": "0 18 28-31 * *"
     }
