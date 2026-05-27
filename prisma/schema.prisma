@@ -154,6 +154,8 @@ model Penalite {
   payee        Boolean  @default(false)
   bail         Bail     @relation(fields: [bailId], references: [id])
 
+  @@index([bailId])
+  @@index([moisConcerne])
   @@map("penalites")
 }
 
@@ -167,6 +169,8 @@ model EmailLog {
   envoyeLe     DateTime  @default(now())
   locataire    Locataire @relation(fields: [locataireId], references: [id])
 
+  @@index([locataireId, type, envoyeLe])
+  @@index([envoyeLe])
   @@map("email_logs")
 }
 
@@ -186,6 +190,8 @@ model Maintenance {
   appartement   Appartement       @relation(fields: [appartementId], references: [id])
   locataire     Locataire         @relation(fields: [locataireId], references: [id])
 
+  @@index([statut])
+  @@index([locataireId])
   @@map("maintenances")
 }
 
@@ -198,6 +204,7 @@ model Message {
   creeLe      DateTime   @default(now())
   locataire   Locataire  @relation(fields: [locataireId], references: [id])
 
+  @@index([locataireId])
   @@map("messages")
 }
 
@@ -214,6 +221,7 @@ model EtatDesLieux {
   creeLe                DateTime @default(now())
   bail                  Bail     @relation(fields: [bailId], references: [id])
 
+  @@index([bailId])
   @@map("etats_des_lieux")
 }
 
@@ -226,6 +234,7 @@ model AuditLog {
   details     String?
   creeLe      DateTime @default(now())
 
+  @@index([creeLe])
   @@map("audit_logs")
 }
 
@@ -256,6 +265,8 @@ model Depense {
   creeLe       DateTime         @default(now())
   immeuble     Immeuble?        @relation(fields: [immeubleId], references: [id])
 
+  @@index([immeubleId])
+  @@index([date])
   @@map("depenses")
 }
 

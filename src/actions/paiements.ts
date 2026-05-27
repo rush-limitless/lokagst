@@ -5,6 +5,7 @@ import { paiementSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
 import { envoyerRecuPaiement } from "./emails";
 import { logAction } from "@/lib/audit";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function getPaiements(filters?: { bailId?: string; locataireId?: string; page?: number; limit?: number; where?: any }) {
   const where: any = filters?.where || {};
@@ -31,6 +32,7 @@ export async function getPaiements(filters?: { bailId?: string; locataireId?: st
 
 export async function enregistrerPaiement(formData: FormData) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const data = Object.fromEntries(formData);
     const parsed = paiementSchema.safeParse(data);
     if (!parsed.success) return { error: parsed.error.issues[0].message };
@@ -174,6 +176,7 @@ export async function enregistrerPaiement(formData: FormData) {
 
 export async function modifierPaiement(id: string, formData: FormData) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const montant = parseInt(formData.get("montant") as string);
     const montantLoyer = parseInt(formData.get("montantLoyer") as string) || 0;
     const montantCharges = parseInt(formData.get("montantCharges") as string) || 0;
@@ -201,6 +204,7 @@ export async function modifierPaiement(id: string, formData: FormData) {
 
 export async function supprimerPaiement(id: string) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const p = await prisma.paiement.findUnique({ where: { id }, select: { montant: true, bailId: true, moisConcerne: true } });
     await prisma.paiement.delete({ where: { id } });
     if (p) logAction("Suppression", "Paiement", id, `${p.montant} FCFA — ${p.moisConcerne.toISOString().slice(0, 7)}`);
@@ -210,6 +214,7 @@ export async function supprimerPaiement(id: string) {
 }
 
 export async function validerPaiement(id: string) {
+  await requireGestionnaire();
   await prisma.paiement.update({ where: { id }, data: { valide: true } });
   revalidatePath("/paiements");
   return { success: true };
@@ -217,6 +222,7 @@ export async function validerPaiement(id: string) {
 
 export async function rejeterPaiement(id: string) {
   return safeAction(async () => {
+    await requireGestionnaire();
     await prisma.paiement.delete({ where: { id } });
     revalidatePath("/paiements");
     return { success: true };

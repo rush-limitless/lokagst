@@ -25,7 +25,10 @@ export async function getNotifications() {
   // Impayés : seulement si jour limite dépassé
   const impayes = bauxActifs.filter((b) => {
     if (jourDuMois <= b.jourLimitePaiement) return false;
-    return !b.paiements.some((p) => p.moisConcerne.getTime() === moisCourant.getTime() && p.statut === "PAYE");
+    return !b.paiements.some((p) => {
+      const mc = new Date(p.moisConcerne);
+      return mc.getMonth() === moisCourant.getMonth() && mc.getFullYear() === moisCourant.getFullYear() && p.statut === "PAYE";
+    });
   });
 
   const notifications: { type: string; icon: string; message: string; link: string; urgence: "haute" | "moyenne" | "basse"; date: Date }[] = [];

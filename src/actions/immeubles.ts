@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function getImmeubles() {
   return prisma.immeuble.findMany({
@@ -11,6 +12,7 @@ export async function getImmeubles() {
 }
 
 export async function creerImmeuble(formData: FormData) {
+  await requireGestionnaire();
   const nom = formData.get("nom") as string;
   const adresse = formData.get("adresse") as string;
   const ville = formData.get("ville") as string;
@@ -24,6 +26,7 @@ export async function creerImmeuble(formData: FormData) {
 }
 
 export async function modifierImmeuble(id: string, formData: FormData) {
+  await requireGestionnaire();
   const nom = formData.get("nom") as string;
   const adresse = formData.get("adresse") as string;
   const ville = formData.get("ville") as string;

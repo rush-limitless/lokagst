@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
+import { auth } from "@/lib/auth";
 
 export async function POST(req: Request) {
+  const session = await auth();
+  const role = (session?.user as any)?.role;
+  if (!role || !["GESTIONNAIRE", "SUPER_ADMIN"].includes(role)) {
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  }
+
   const { email, mdp } = await req.json();
   if (!email || !mdp) return NextResponse.json({ error: "Données manquantes" }, { status: 400 });
 

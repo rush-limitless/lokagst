@@ -3,6 +3,7 @@
 import { prisma, safeAction } from "@/lib/prisma";
 import { locataireSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function getLocataires(filters?: { recherche?: string; statut?: string }) {
   const where: any = {};
@@ -37,6 +38,7 @@ export async function getLocataire(id: string) {
 
 export async function creerLocataire(formData: FormData) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const data = Object.fromEntries(formData);
     const parsed = locataireSchema.safeParse(data);
     if (!parsed.success) return { error: parsed.error.issues[0].message };
@@ -63,39 +65,41 @@ export async function creerLocataire(formData: FormData) {
     try { charges = data.chargesLocatives ? JSON.parse(data.chargesLocatives as string) : []; } catch { charges = []; }
     const totalCharges = charges.reduce((s, c) => s + c.montant, 0);
 
-    const locataire = await prisma.locataire.create({
-      data: {
-        nom: parsed.data.nom, prenom: parsed.data.prenom || parsed.data.nom, telephone: parsed.data.telephone,
-        email: parsed.data.email || null, numeroCNI: parsed.data.numeroCNI || null,
-        photo: parsed.data.photo || null, dateEntree: parsed.data.dateEntree,
-      },
-    });
+    await prisma.$transaction(async (tx) => {
+      const loc = await tx.locataire.create({
+        data: {
+          nom: parsed.data.nom, prenom: parsed.data.prenom || parsed.data.nom, telephone: parsed.data.telephone,
+          email: parsed.data.email || null, numeroCNI: parsed.data.numeroCNI || null,
+          photo: parsed.data.photo || null, dateEntree: parsed.data.dateEntree,
+        },
+      });
 
-    await prisma.bail.create({
-      data: {
-        locataireId: locataire.id, appartementId: parsed.data.appartementId,
-        dateDebut, dureeMois: dureeMoisFinal, dateFin, datePremierLoyer,
-        montantLoyer,
-        montantCaution: parseInt(data.montantCaution as string) || 0,
-        chargesLocatives: charges, totalCharges, totalMensuel: montantLoyer + totalCharges,
-        periodicite: ((data.periodicite as string) || "MENSUEL") as any,
-        jourLimitePaiement: parseInt(data.jourLimitePaiement as string) || 5,
-        delaiGrace: parseInt(data.delaiGrace as string) || 5,
-        penaliteType: (data.penaliteType as string) === "MONTANT_FIXE" ? "MONTANT_FIXE" : "POURCENTAGE",
-        penaliteMontant: parseInt(data.penaliteMontant as string) || 5,
-        penaliteRecurrente: data.penaliteRecurrente === "on" || data.penaliteRecurrente === "true",
-        renouvellementAuto: data.renouvellementAuto === "on" || data.renouvellementAuto === "true",
-        dureeRenouvellement: parseInt(data.dureeRenouvellement as string) || null,
-        augmentationLoyer: parseInt(data.augmentationLoyer as string) || null,
-        preavisNonRenouv: parseInt(data.preavisNonRenouv as string) || 30,
-        preavisResiliation: parseInt(data.preavisResiliation as string) || 30,
-        seuilMiseEnDemeure: parseInt(data.seuilMiseEnDemeure as string) || 2,
-        seuilSuspension: parseInt(data.seuilSuspension as string) || 3,
-        clausesParticulieres: (data.clausesParticulieres as string) || null,
-      },
-    });
+      await tx.bail.create({
+        data: {
+          locataireId: loc.id, appartementId: parsed.data.appartementId,
+          dateDebut, dureeMois: dureeMoisFinal, dateFin, datePremierLoyer,
+          montantLoyer,
+          montantCaution: parseInt(data.montantCaution as string) || 0,
+          chargesLocatives: charges, totalCharges, totalMensuel: montantLoyer + totalCharges,
+          periodicite: ((data.periodicite as string) || "MENSUEL") as any,
+          jourLimitePaiement: parseInt(data.jourLimitePaiement as string) || 5,
+          delaiGrace: parseInt(data.delaiGrace as string) || 5,
+          penaliteType: (data.penaliteType as string) === "MONTANT_FIXE" ? "MONTANT_FIXE" : "POURCENTAGE",
+          penaliteMontant: parseInt(data.penaliteMontant as string) || 5,
+          penaliteRecurrente: data.penaliteRecurrente === "on" || data.penaliteRecurrente === "true",
+          renouvellementAuto: data.renouvellementAuto === "on" || data.renouvellementAuto === "true",
+          dureeRenouvellement: parseInt(data.dureeRenouvellement as string) || null,
+          augmentationLoyer: parseInt(data.augmentationLoyer as string) || null,
+          preavisNonRenouv: parseInt(data.preavisNonRenouv as string) || 30,
+          preavisResiliation: parseInt(data.preavisResiliation as string) || 30,
+          seuilMiseEnDemeure: parseInt(data.seuilMiseEnDemeure as string) || 2,
+          seuilSuspension: parseInt(data.seuilSuspension as string) || 3,
+          clausesParticulieres: (data.clausesParticulieres as string) || null,
+        },
+      });
 
-    await prisma.appartement.update({ where: { id: parsed.data.appartementId }, data: { statut: "OCCUPE" } });
+      await tx.appartement.update({ where: { id: parsed.data.appartementId }, data: { statut: "OCCUPE" } });
+    });
 
     revalidatePath("/locataires");
     return { success: true };
@@ -104,6 +108,7 @@ export async function creerLocataire(formData: FormData) {
 
 export async function modifierLocataire(id: string, formData: FormData) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const data = Object.fromEntries(formData);
     const updateData: any = {};
     if (data.nom) updateData.nom = data.nom;
@@ -121,6 +126,7 @@ export async function modifierLocataire(id: string, formData: FormData) {
 
 export async function creerCompteLocataire(locataireId: string, email: string) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const { hash } = await import("bcryptjs");
     const existing = await prisma.utilisateur.findUnique({ where: { email } });
     if (existing) return { error: "Un compte avec cet email existe déjà" };
@@ -141,6 +147,7 @@ export async function creerCompteLocataire(locataireId: string, email: string) {
 
 export async function archiverLocataire(id: string) {
   return safeAction(async () => {
+    await requireGestionnaire();
     await prisma.$transaction(async (tx) => {
       const bailActif = await tx.bail.findFirst({ where: { locataireId: id, statut: "ACTIF" } });
       if (bailActif) {
@@ -156,6 +163,7 @@ export async function archiverLocataire(id: string) {
 
 export async function supprimerLocataire(id: string) {
   return safeAction(async () => {
+    await requireGestionnaire();
     await prisma.$transaction(async (tx) => {
       // Libérer les appartements des baux actifs
       const baux = await tx.bail.findMany({ where: { locataireId: id } });

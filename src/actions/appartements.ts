@@ -4,6 +4,7 @@ import { prisma, safeAction } from "@/lib/prisma";
 import { appartementSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
 import { logAction } from "@/lib/audit";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function getAppartements(filters?: { etage?: string; statut?: string; recherche?: string; immeubleId?: string }) {
   const where: any = {};
@@ -33,6 +34,7 @@ export async function getAppartement(id: string) {
 
 export async function creerAppartement(formData: FormData) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const data = Object.fromEntries(formData);
     const parsed = appartementSchema.safeParse(data);
     if (!parsed.success) return { error: parsed.error.issues[0].message };
@@ -50,6 +52,7 @@ export async function creerAppartement(formData: FormData) {
 
 export async function modifierAppartement(id: string, formData: FormData) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const data = Object.fromEntries(formData);
     const parsed = appartementSchema.safeParse(data);
     if (!parsed.success) return { error: parsed.error.issues[0].message };
@@ -63,6 +66,7 @@ export async function modifierAppartement(id: string, formData: FormData) {
 
 export async function supprimerAppartement(id: string) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const bailActif = await prisma.bail.findFirst({ where: { appartementId: id, statut: "ACTIF" } });
     if (bailActif) return { error: "Cet appartement a un bail actif. Résiliez d'abord le bail." };
 

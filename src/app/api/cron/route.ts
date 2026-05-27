@@ -169,22 +169,24 @@ export async function GET(req: NextRequest) {
         const dateFin = new Date(bail.dateFin);
         dateFin.setMonth(dateFin.getMonth() + duree);
 
-        await prisma.bail.update({ where: { id: bail.id }, data: { statut: "TERMINE" } });
-        await prisma.bail.create({
-          data: {
-            locataireId: bail.locataireId, appartementId: bail.appartementId,
-            dateDebut: bail.dateFin, dureeMois: duree, dateFin, montantLoyer: nouveauLoyer,
-            montantCaution: bail.montantCaution, chargesLocatives: bail.chargesLocatives as any,
-            totalCharges: bail.totalCharges, totalMensuel: nouveauLoyer + bail.totalCharges,
-            impotsTaxes: bail.impotsTaxes as any, totalImpotsTaxes: bail.totalImpotsTaxes,
-            jourLimitePaiement: bail.jourLimitePaiement, delaiGrace: bail.delaiGrace,
-            penaliteType: bail.penaliteType, penaliteMontant: bail.penaliteMontant,
-            penaliteRecurrente: bail.penaliteRecurrente, renouvellementAuto: bail.renouvellementAuto,
-            dureeRenouvellement: bail.dureeRenouvellement, augmentationLoyer: bail.augmentationLoyer,
-            preavisNonRenouv: bail.preavisNonRenouv, preavisResiliation: bail.preavisResiliation,
-            seuilMiseEnDemeure: bail.seuilMiseEnDemeure, seuilSuspension: bail.seuilSuspension,
-            clausesParticulieres: bail.clausesParticulieres,
-          },
+        await prisma.$transaction(async (tx) => {
+          await tx.bail.update({ where: { id: bail.id }, data: { statut: "TERMINE" } });
+          await tx.bail.create({
+            data: {
+              locataireId: bail.locataireId, appartementId: bail.appartementId,
+              dateDebut: bail.dateFin, dureeMois: duree, dateFin, montantLoyer: nouveauLoyer,
+              montantCaution: bail.montantCaution, chargesLocatives: bail.chargesLocatives as any,
+              totalCharges: bail.totalCharges, totalMensuel: nouveauLoyer + bail.totalCharges,
+              impotsTaxes: bail.impotsTaxes as any, totalImpotsTaxes: bail.totalImpotsTaxes,
+              jourLimitePaiement: bail.jourLimitePaiement, delaiGrace: bail.delaiGrace,
+              penaliteType: bail.penaliteType, penaliteMontant: bail.penaliteMontant,
+              penaliteRecurrente: bail.penaliteRecurrente, renouvellementAuto: bail.renouvellementAuto,
+              dureeRenouvellement: bail.dureeRenouvellement, augmentationLoyer: bail.augmentationLoyer,
+              preavisNonRenouv: bail.preavisNonRenouv, preavisResiliation: bail.preavisResiliation,
+              seuilMiseEnDemeure: bail.seuilMiseEnDemeure, seuilSuspension: bail.seuilSuspension,
+              clausesParticulieres: bail.clausesParticulieres,
+            },
+          });
         });
 
         const sujet = `Bail renouvelé — ${duree} mois`;
@@ -195,8 +197,11 @@ export async function GET(req: NextRequest) {
         } catch {}
         results.renouvellements++;
       } else {
-        await prisma.bail.update({ where: { id: bail.id }, data: { statut: "EXPIRE" } });
-        await prisma.appartement.update({ where: { id: bail.appartementId }, data: { statut: "LIBRE" } });
+        await prisma.$transaction(async (tx) => {
+          await tx.bail.update({ where: { id: bail.id }, data: { statut: "EXPIRE" } });
+          await tx.appartement.update({ where: { id: bail.appartementId }, data: { statut: "LIBRE" } });
+        });
+
         const sujet = "Bail non renouvelé";
         const contenu = `<p>Votre bail pour l'appartement ${bail.appartement.numero} n'a pas été renouvelé en raison d'impayés.</p>`;
         try {

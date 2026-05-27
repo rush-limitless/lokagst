@@ -4,6 +4,7 @@ import { prisma, safeAction } from "@/lib/prisma";
 import { bailSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
 import { logAction } from "@/lib/audit";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function getBaux(filters?: { statut?: string; expirantDans?: number }) {
   const where: any = {};
@@ -31,6 +32,7 @@ export async function getBail(id: string) {
 
 export async function creerBail(formData: FormData) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const raw = Object.fromEntries(formData);
     raw.renouvellementAuto = raw.renouvellementAuto === "on" ? "true" : "false";
     raw.penaliteRecurrente = raw.penaliteRecurrente === "on" ? "true" : "false";
@@ -110,6 +112,7 @@ export async function signerBail(id: string, signatureDataUrl: string) {
 }
 
 export async function uploaderContrat(id: string, contratUrl: string) {
+  await requireGestionnaire();
   await prisma.bail.update({ where: { id }, data: { contratUpload: contratUrl } });
   revalidatePath(`/baux/${id}`);
   return { success: true };
@@ -117,6 +120,7 @@ export async function uploaderContrat(id: string, contratUrl: string) {
 
 export async function resilierBail(id: string) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const bail = await prisma.bail.findUnique({ where: { id } });
     if (!bail) return { error: "Bail introuvable" };
 
@@ -133,6 +137,7 @@ export async function resilierBail(id: string) {
 }
 
 export async function leverSuspension(id: string) {
+  await requireGestionnaire();
   await prisma.bail.update({ where: { id }, data: { statut: "ACTIF" } });
   revalidatePath("/baux");
   return { success: true };
@@ -140,6 +145,7 @@ export async function leverSuspension(id: string) {
 
 export async function modifierBail(id: string, formData: FormData) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const bail = await prisma.bail.findUnique({ where: { id } });
     if (!bail) return { error: "Bail introuvable" };
 
@@ -182,6 +188,7 @@ export async function modifierBail(id: string, formData: FormData) {
 
 export async function supprimerBail(id: string) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const bail = await prisma.bail.findUnique({ where: { id } });
     if (!bail) return { error: "Bail introuvable" };
 
@@ -202,6 +209,7 @@ export async function supprimerBail(id: string) {
 
 export async function renouvelerBail(id: string, formData: FormData) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const bail = await prisma.bail.findUnique({ where: { id } });
     if (!bail) return { error: "Bail introuvable" };
 
@@ -218,6 +226,7 @@ export async function renouvelerBail(id: string, formData: FormData) {
           locataireId: bail.locataireId, appartementId: bail.appartementId,
           dateDebut, dureeMois, dateFin, montantLoyer, montantCaution: bail.montantCaution,
           chargesLocatives: bail.chargesLocatives as any, totalCharges: bail.totalCharges,
+          impotsTaxes: bail.impotsTaxes as any, totalImpotsTaxes: bail.totalImpotsTaxes,
           totalMensuel: montantLoyer + bail.totalCharges,
           jourLimitePaiement: bail.jourLimitePaiement, delaiGrace: bail.delaiGrace,
           penaliteType: bail.penaliteType, penaliteMontant: bail.penaliteMontant,

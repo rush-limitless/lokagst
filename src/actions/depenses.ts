@@ -3,6 +3,7 @@
 import { prisma, safeAction } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { logAction } from "@/lib/audit";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function getDepenses(filters?: { immeubleId?: string; categorie?: string; annee?: number }) {
   const where: any = {};
@@ -21,6 +22,7 @@ export async function getDepenses(filters?: { immeubleId?: string; categorie?: s
 
 export async function creerDepense(formData: FormData) {
   return safeAction(async () => {
+    await requireGestionnaire();
     const categorie = formData.get("categorie") as string;
     const description = formData.get("description") as string;
     const montant = parseInt(formData.get("montant") as string);
@@ -41,6 +43,7 @@ export async function creerDepense(formData: FormData) {
 
 export async function supprimerDepense(id: string) {
   return safeAction(async () => {
+    await requireGestionnaire();
     await prisma.depense.delete({ where: { id } });
     revalidatePath("/depenses");
     return { success: true };

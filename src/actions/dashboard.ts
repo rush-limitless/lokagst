@@ -149,8 +149,8 @@ export async function getRevenusEvolution(mois: number = 6) {
       .reduce((s, p) => s + p.montant, 0);
 
     const attendus = baux
-      .filter((b) => b.dateDebut <= mFin && b.dateFin >= mDebut)
-      .reduce((s, b) => s + b.totalMensuel, 0);
+      .filter((b) => b.dateDebut <= mFin && b.dateFin >= mDebut && isMoisEcheance(mDebut, b.dateDebut, b.periodicite))
+      .reduce((s, b) => s + b.totalMensuel * (PERIODICITE_MOIS[b.periodicite] || 1), 0);
 
     result.push({ mois: moisLabel, revenus, attendus });
   }

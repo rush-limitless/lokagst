@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { isMoisEcheance, nbEcheancesEntre, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getBilanImpayes() {
   const now = new Date();
@@ -10,16 +11,18 @@ export async function getBilanImpayes() {
   });
 
   return bauxActifs.map((b) => {
-    // Sommer tous les paiements des 12 derniers mois
+    const freq = PERIODICITE_MOIS[b.periodicite] || 1;
     let moisImpayes = 0;
     let montantDu = 0;
     for (let i = 0; i < 12; i++) {
       const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
       if (m < new Date(b.dateDebut)) break;
+      if (!isMoisEcheance(m, b.dateDebut, b.periodicite)) continue;
       const montantPaye = b.paiements
         .filter((pay) => new Date(pay.moisConcerne).getMonth() === m.getMonth() && new Date(pay.moisConcerne).getFullYear() === m.getFullYear())
         .reduce((s, p) => s + p.montant, 0);
-      if (montantPaye < b.totalMensuel) { moisImpayes++; montantDu += b.totalMensuel - montantPaye; }
+      const attenduPeriode = b.totalMensuel * freq;
+      if (montantPaye < attenduPeriode) { moisImpayes++; montantDu += attenduPeriode - montantPaye; }
     }
     const penalites = b.penalites.reduce((s, p) => s + p.montant, 0);
     return {
@@ -78,8 +81,9 @@ export async function getRecouvrementParEtage() {
   bauxActifs.forEach((b) => {
     const e = b.appartement.etage;
     if (!etages[e]) etages[e] = { attendu: 0, regle: 0 };
-    const mois = Math.ceil((now.getTime() - new Date(b.dateDebut).getTime()) / (30.5 * 86400000));
-    etages[e].attendu += b.totalMensuel * Math.max(1, mois);
+    const freq = PERIODICITE_MOIS[b.periodicite] || 1;
+    const echeances = nbEcheancesEntre(new Date(b.dateDebut), now, new Date(b.dateDebut), b.periodicite);
+    etages[e].attendu += b.totalMensuel * freq * echeances;
     etages[e].regle += b.paiements.reduce((s, p) => s + p.montant, 0);
   });
 
@@ -102,8 +106,9 @@ export async function getTopPayeurs() {
 
   const now = new Date();
   return bauxActifs.map((b) => {
-    const mois = Math.ceil((now.getTime() - new Date(b.dateDebut).getTime()) / (30.5 * 86400000));
-    const attendu = b.totalMensuel * mois;
+    const freq = PERIODICITE_MOIS[b.periodicite] || 1;
+    const echeances = nbEcheancesEntre(new Date(b.dateDebut), now, new Date(b.dateDebut), b.periodicite);
+    const attendu = b.totalMensuel * freq * echeances;
     const regle = b.paiements.reduce((s, p) => s + p.montant, 0);
     return {
       locataire: `${b.locataire.prenom} ${b.locataire.nom}`,
@@ -123,8 +128,10 @@ export async function getRentabiliteParAppartement() {
 
   const now = new Date();
   return baux.map((b) => {
+    const freq = PERIODICITE_MOIS[b.periodicite] || 1;
+    const echeances = nbEcheancesEntre(new Date(b.dateDebut), now, new Date(b.dateDebut), b.periodicite);
     const mois = Math.max(1, Math.ceil((now.getTime() - new Date(b.dateDebut).getTime()) / (30.5 * 86400000)));
-    const attendu = b.totalMensuel * mois;
+    const attendu = b.totalMensuel * freq * echeances;
     const regle = b.paiements.reduce((s, p) => s + p.montant, 0);
     const rentabilite = attendu > 0 ? Math.round(regle / attendu * 100) : 0;
     return {
@@ -144,20 +151,29 @@ export async function getRentabiliteParAppartement() {
 
 export async function getRevenusVsImpayes(moisCount: number = 12) {
   const now = new Date();
+  const debut = new Date(now.getFullYear(), now.getMonth() - moisCount + 1, 1);
+  const fin = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+  const [paiements, bauxActifs] = await Promise.all([
+    prisma.paiement.findMany({ where: { moisConcerne: { gte: debut, lt: fin } } }),
+    prisma.bail.findMany({ where: { statut: { in: ["ACTIF", "SUSPENDU"] }, dateDebut: { lt: fin }, dateFin: { gte: debut } } }),
+  ]);
+
   const result = [];
-
   for (let i = moisCount - 1; i >= 0; i--) {
-    const debut = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const fin = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-    const moisLabel = debut.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
+    const mDebut = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const mFin = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+    const moisLabel = mDebut.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
 
-    const paiements = await prisma.paiement.findMany({ where: { moisConcerne: { gte: debut, lt: fin } } });
-    const bauxActifs = await prisma.bail.findMany({ where: { statut: { in: ["ACTIF", "SUSPENDU"] }, dateDebut: { lte: fin }, dateFin: { gte: debut } } });
+    const revenus = paiements
+      .filter((p) => { const mc = new Date(p.moisConcerne); return mc >= mDebut && mc < mFin; })
+      .reduce((s, p) => s + p.montant, 0);
 
-    const revenus = paiements.reduce((s, p) => s + p.montant, 0);
-    const attendu = bauxActifs.reduce((s, b) => s + b.totalMensuel, 0);
+    const attendu = bauxActifs
+      .filter((b) => new Date(b.dateDebut) <= mFin && new Date(b.dateFin) >= mDebut && isMoisEcheance(mDebut, b.dateDebut, b.periodicite))
+      .reduce((s, b) => s + b.totalMensuel * (PERIODICITE_MOIS[b.periodicite] || 1), 0);
+
     const impayes = Math.max(0, attendu - revenus);
-
     result.push({ mois: moisLabel, revenus, impayes, attendu });
   }
   return result;

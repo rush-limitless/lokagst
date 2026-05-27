@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function getMaintenances(filters?: { statut?: string; appartementId?: string }) {
   const where: any = {};
@@ -41,6 +42,7 @@ export async function creerMaintenance(formData: FormData) {
 }
 
 export async function mettreAJourMaintenance(id: string, formData: FormData) {
+  await requireGestionnaire();
   const statut = formData.get("statut") as string;
   const technicien = formData.get("technicien") as string;
   const commentaire = formData.get("commentaire") as string;

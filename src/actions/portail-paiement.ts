@@ -25,22 +25,24 @@ export async function soumettrePreuvePaiement(formData: FormData) {
   });
   if (!bail) return { error: "Aucun bail actif" };
 
-  // Vérifier que le montant ne dépasse pas le total mensuel
-  const existing = await prisma.paiement.findFirst({
-    where: { bailId: bail.id, moisConcerne },
+  // Transaction pour éviter les race conditions (doublons)
+  await prisma.$transaction(async (tx) => {
+    const existing = await tx.paiement.findFirst({
+      where: { bailId: bail.id, moisConcerne },
+    });
+    const dejaRegle = existing?.montant || 0;
+    if (montantRaw + dejaRegle > bail.totalMensuel * 2) throw new Error("Montant trop élevé");
+
+    const montantTotal = dejaRegle + montantRaw;
+    const resteDu = Math.max(0, bail.totalMensuel - montantTotal);
+    const statut = resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE";
+
+    if (existing) {
+      await tx.paiement.update({ where: { id: existing.id }, data: { montant: montantTotal, resteDu, statut, preuvePaiement, modePaiement: modePaiement as any, notes } });
+    } else {
+      await tx.paiement.create({ data: { bailId: bail.id, montant: montantRaw, moisConcerne, modePaiement: modePaiement as any, resteDu, statut, preuvePaiement, notes, valide: false } });
+    }
   });
-  const dejaRegle = existing?.montant || 0;
-  if (montantRaw + dejaRegle > bail.totalMensuel * 2) return { error: "Montant trop élevé" };
-
-  const montantTotal = dejaRegle + montantRaw;
-  const resteDu = Math.max(0, bail.totalMensuel - montantTotal);
-  const statut = resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE";
-
-  if (existing) {
-    await prisma.paiement.update({ where: { id: existing.id }, data: { montant: montantTotal, resteDu, statut, preuvePaiement, modePaiement: modePaiement as any, notes } });
-  } else {
-    await prisma.paiement.create({ data: { bailId: bail.id, montant: montantRaw, moisConcerne, modePaiement: modePaiement as any, resteDu, statut, preuvePaiement, notes, valide: false } });
-  }
 
   revalidatePath("/mon-espace/paiements");
   return { success: true };

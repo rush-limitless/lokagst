@@ -1,11 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { getReportingComplet } from "@/actions/reporting-complet";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const authHeader = req.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET || process.env.NEXTAUTH_SECRET}`) {
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  }
   const data = await getReportingComplet();
   const now = new Date();
   const moisLabel = now.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
