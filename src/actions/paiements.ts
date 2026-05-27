@@ -7,10 +7,13 @@ import { envoyerRecuPaiement } from "./emails";
 import { logAction } from "@/lib/audit";
 import { requireGestionnaire } from "@/lib/auth-guard";
 
-export async function getPaiements(filters?: { bailId?: string; locataireId?: string; page?: number; limit?: number; where?: any }) {
-  const where: any = filters?.where || {};
+export async function getPaiements(filters?: { bailId?: string; locataireId?: string; page?: number; limit?: number; valide?: boolean; moisConcerne?: { gte: Date; lt: Date }; bail?: any }) {
+  const where: any = {};
   if (filters?.bailId) where.bailId = filters.bailId;
   if (filters?.locataireId) where.bail = { locataireId: filters.locataireId };
+  if (filters?.valide !== undefined) where.valide = filters.valide;
+  if (filters?.moisConcerne) where.moisConcerne = filters.moisConcerne;
+  if (filters?.bail) where.bail = { ...where.bail, ...filters.bail };
 
   const limit = filters?.limit || 50;
   const page = filters?.page || 1;

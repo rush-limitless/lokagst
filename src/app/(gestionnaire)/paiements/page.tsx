@@ -15,17 +15,19 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
   const currentPage = parseInt(page || "1");
 
   // Filtre côté serveur
-  const where: any = {};
-  if (q) where.bail = { locataire: { OR: [{ nom: { contains: q, mode: "insensitive" } }, { prenom: { contains: q, mode: "insensitive" } }] } };
-  if (appart) where.bail = { ...where.bail, appartement: { numero: { contains: appart, mode: "insensitive" } } };
+  const bail: any = {};
+  if (q) bail.locataire = { OR: [{ nom: { contains: q, mode: "insensitive" } }, { prenom: { contains: q, mode: "insensitive" } }] };
+  if (appart) bail.appartement = { numero: { contains: appart, mode: "insensitive" } };
+
+  let moisConcerne: { gte: Date; lt: Date } | undefined;
   if (mois) {
     const [y, m] = mois.split("-").map(Number);
-    where.moisConcerne = { gte: new Date(y, m - 1, 1), lt: new Date(y, m, 1) };
+    moisConcerne = { gte: new Date(y, m - 1, 1), lt: new Date(y, m, 1) };
   }
-  if (valide === "oui") where.valide = true;
-  else if (valide === "non") where.valide = false;
 
-  const { paiements: allPaiements, total, pages } = await getPaiements({ page: currentPage, limit: 50, where });
+  const valideFilter = valide === "oui" ? true : valide === "non" ? false : undefined;
+
+  const { paiements: allPaiements, total, pages } = await getPaiements({ page: currentPage, limit: 50, valide: valideFilter, moisConcerne, bail: Object.keys(bail).length > 0 ? bail : undefined });
   const filtered = allPaiements;
 
   const now = new Date();
