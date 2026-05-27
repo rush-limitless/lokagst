@@ -34,11 +34,11 @@ export function ChatBox({ locataireId, role }: { locataireId: string; role: "GES
   }
 
   return (
-    <div className="flex flex-col h-[500px] bg-card rounded-lg border">
+    <div className="flex flex-col flex-1 min-h-0">
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((m) => (
           <div key={m.id} className={`flex ${m.expediteur === role ? "justify-end" : "justify-start"}`}>
-            <div className={`max-w-[70%] rounded-xl px-3 py-2 text-sm ${m.expediteur === role ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}>
+            <div className={`max-w-[70%] rounded-2xl px-4 py-2.5 text-sm ${m.expediteur === role ? "bg-primary text-primary-foreground rounded-br-md" : "bg-muted text-foreground rounded-bl-md"}`}>
               <p>{m.contenu}</p>
               <p className={`text-[10px] mt-1 ${m.expediteur === role ? "opacity-70" : "text-muted-foreground"}`}>
                 {new Date(m.creeLe).toLocaleString("fr-FR", { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" })}
@@ -49,8 +49,8 @@ export function ChatBox({ locataireId, role }: { locataireId: string; role: "GES
         <div ref={bottomRef} />
       </div>
       <div className="border-t p-3 flex gap-2">
-        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Écrire un message..." onKeyDown={(e) => e.key === "Enter" && handleSend()} />
-        <Button onClick={handleSend} disabled={sending || !text.trim()}>{sending ? "..." : "Envoyer"}</Button>
+        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Écrire un message..." aria-label="Message" className="flex-1" onKeyDown={(e) => e.key === "Enter" && handleSend()} />
+        <Button onClick={handleSend} disabled={sending || !text.trim()} size="sm">{sending ? "..." : "Envoyer"}</Button>
       </div>
     </div>
   );
