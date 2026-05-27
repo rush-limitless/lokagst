@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 import { useState } from "react";
@@ -62,14 +63,14 @@ export function Sidebar({ email, badges }: { email: string; badges?: { messages?
       <div className={cn("h-[57px] border-b flex items-center px-3 shrink-0", collapsed ? "justify-center" : "justify-between")}>
         {!collapsed && (
           <Link href="/dashboard" className="flex items-center gap-2.5">
-            <img src="/logo.jpg" alt="IMMOSTAR SCI" className="w-8 h-8 rounded-lg" />
+            <Image src="/logo.jpg" alt="IMMOSTAR SCI" width={32} height={32} className="w-8 h-8 rounded-lg" />
             <div className="leading-tight">
               <p className="text-sm font-bold text-foreground tracking-tight">ImmoGest</p>
               <p className="text-[9px] text-muted-foreground">IMMOSTAR SCI</p>
             </div>
           </Link>
         )}
-        {collapsed && <img src="/logo.jpg" alt="" className="w-8 h-8 rounded-lg" />}
+        {collapsed && <Image src="/logo.jpg" alt="" width={32} height={32} className="w-8 h-8 rounded-lg" />}
         {!collapsed && (
           <button onClick={() => setCollapsed(true)} className="text-muted-foreground hover:text-foreground transition-colors">
             <PanelLeftClose className="size-4" />
@@ -151,7 +152,7 @@ export function MobileNav() {
       {/* Top header mobile */}
       <header className="bg-card border-b px-4 py-3 md:hidden flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <img src="/logo.jpg" alt="" className="w-7 h-7 rounded-lg" />
+          <Image src="/logo.jpg" alt="" width={28} height={28} className="w-7 h-7 rounded-lg" />
           <h1 className="text-base font-bold text-foreground">ImmoGest</h1>
         </div>
       </header>

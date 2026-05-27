@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const GRADIENTS = [
   "from-sky-400 to-blue-600",
   "from-emerald-400 to-teal-600",
@@ -28,7 +30,7 @@ export function UserAvatar({ nom, prenom, photo, size = "md", status }: { nom: s
   if (photo) {
     return (
       <div className="relative shrink-0">
-        <img src={photo} alt={`${prenom} ${nom}`} className={`${sizes[size]} rounded-full object-cover ring-2 ring-white dark:ring-gray-800`} />
+        <Image src={photo} alt={`${prenom} ${nom}`} width={64} height={64} className={`${sizes[size]} rounded-full object-cover ring-2 ring-white dark:ring-gray-800`} />
         {dot}
       </div>
     );

@@ -92,10 +92,10 @@ export default async function PaiementsPage({ searchParams }: { searchParams: Pr
         <CardContent className="pt-4 pb-3">
           <form className="flex gap-3 flex-wrap items-end">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><Filter className="size-3.5" /> Filtres</div>
-            <input name="q" defaultValue={q || ""} placeholder="Locataire..." className="h-8 px-2.5 text-xs border rounded-lg bg-background w-36 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
-            <input name="appart" defaultValue={appart || ""} placeholder="Appartement..." className="h-8 px-2.5 text-xs border rounded-lg bg-background w-32 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
-            <input name="mois" type="month" defaultValue={mois || ""} className="h-8 px-2.5 text-xs border rounded-lg bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
-            <select name="valide" defaultValue={valide || ""} className="h-8 px-2.5 text-xs border rounded-lg bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+            <input name="q" defaultValue={q || ""} placeholder="Locataire..." aria-label="Rechercher par locataire" className="h-8 px-2.5 text-xs border rounded-lg bg-background w-36 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
+            <input name="appart" defaultValue={appart || ""} placeholder="Appartement..." aria-label="Filtrer par appartement" className="h-8 px-2.5 text-xs border rounded-lg bg-background w-32 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
+            <input name="mois" type="month" defaultValue={mois || ""} aria-label="Filtrer par mois" className="h-8 px-2.5 text-xs border rounded-lg bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
+            <select name="valide" defaultValue={valide || ""} aria-label="Filtrer par statut de validation" className="h-8 px-2.5 text-xs border rounded-lg bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
               <option value="">Tous</option>
               <option value="oui">✅ Validés</option>
               <option value="non">⏳ En attente</option>

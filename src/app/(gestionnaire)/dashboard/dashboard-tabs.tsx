@@ -4,8 +4,9 @@ import { useState } from "react";
 import { cn, formatFCFA, formatDate } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { RevenusChart } from "@/components/charts/revenus-chart";
-import { OccupationPie } from "@/components/charts/occupation-pie";
+import dynamic from "next/dynamic";
+const RevenusChart = dynamic(() => import("@/components/charts/revenus-chart").then(m => m.RevenusChart), { ssr: false, loading: () => <div className="h-64 bg-muted animate-pulse rounded" /> });
+const OccupationPie = dynamic(() => import("@/components/charts/occupation-pie").then(m => m.OccupationPie), { ssr: false, loading: () => <div className="h-64 bg-muted animate-pulse rounded" /> });
 import Link from "next/link";
 import { Clock, AlertTriangle, Activity, BarChart3 } from "lucide-react";
 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useI18n } from "@/lib/i18n";
 import { Mail, Lock, Eye, EyeOff, Globe } from "lucide-react";
 import Link from "next/link";
@@ -45,7 +46,7 @@ export default function LoginPage() {
         <div className="absolute -top-32 -right-32 w-[400px] h-[400px] rounded-full bg-white/5" />
 
         <div className="relative z-10 text-white text-center px-12">
-          <img src="/logo.jpg" alt="IMMOSTAR SCI" className="w-24 h-24 mx-auto rounded-2xl shadow-2xl mb-8 animate-float" />
+          <Image src="/logo.jpg" alt="IMMOSTAR SCI" width={96} height={96} className="w-24 h-24 mx-auto rounded-2xl shadow-2xl mb-8 animate-float" />
           <h1 className="text-3xl font-bold">ImmoGest</h1>
           <p className="text-sky-200 text-sm mt-2">IMMOSTAR SCI</p>
           <p className="text-sky-100/60 text-sm mt-6 leading-relaxed max-w-xs mx-auto">
@@ -64,7 +65,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm animate-slide-up">
           {/* Logo mobile */}
           <div className="lg:hidden text-center mb-8">
-            <img src="/logo.jpg" alt="IMMOSTAR SCI" className="w-16 h-16 mx-auto rounded-xl shadow-lg mb-3" />
+            <Image src="/logo.jpg" alt="IMMOSTAR SCI" width={64} height={64} className="w-16 h-16 mx-auto rounded-xl shadow-lg mb-3" />
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">ImmoGest</h2>
           </div>
 

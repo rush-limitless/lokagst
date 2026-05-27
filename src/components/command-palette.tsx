@@ -43,12 +43,12 @@ export function CommandPalette() {
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm" onClick={() => setOpen(false)} />
-      <div className="fixed top-[15%] left-1/2 -translate-x-1/2 z-50 w-full max-w-lg">
+      <div className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm" onClick={() => setOpen(false)} aria-hidden="true" />
+      <div role="dialog" aria-modal="true" aria-label="Recherche globale" className="fixed top-[15%] left-1/2 -translate-x-1/2 z-50 w-full max-w-lg" onKeyDown={(e) => { if (e.key === "Escape") setOpen(false); }}>
         <div className="bg-card border rounded-2xl shadow-2xl overflow-hidden mx-4">
           <div className="flex items-center gap-3 px-4 py-3 border-b">
             <Search className="size-4 text-muted-foreground" />
-            <input ref={inputRef} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Rechercher un locataire, appartement, bail..." className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground" />
+            <input ref={inputRef} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Rechercher un locataire, appartement, bail..." aria-label="Rechercher" className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground" />
             <kbd className="text-[10px] text-muted-foreground bg-muted border rounded px-1.5 py-0.5 cursor-pointer" onClick={() => setOpen(false)}>ESC</kbd>
           </div>
 

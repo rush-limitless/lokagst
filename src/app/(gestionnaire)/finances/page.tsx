@@ -2,7 +2,7 @@ import { getFinancesStats } from "@/actions/finances";
 import { formatFCFA } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FinancesBarChart, ImpayesChart } from "@/components/charts/finances-charts";
+import { FinancesBarChart, ImpayesChart } from "@/components/charts/lazy-finances-charts";
 import Link from "next/link";
 import { ReportingNav } from "@/components/reporting-nav";
 import {
