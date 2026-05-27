@@ -29,13 +29,7 @@ export function DashboardTabs({ evolution, stats, activites }: { evolution: any;
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <Card className="lg:col-span-2">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium">Évolution des revenus</CardTitle>
-                  <Badge variant="outline" className="text-[10px]">6 mois</Badge>
-                </div>
-              </CardHeader>
-              <CardContent><RevenusChart data={evolution} /></CardContent>
+              <CardContent className="pt-6"><RevenusChart data={evolution} /></CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Occupation</CardTitle></CardHeader>
