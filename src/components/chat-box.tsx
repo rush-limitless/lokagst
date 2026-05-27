@@ -4,6 +4,7 @@ import { getMessages, envoyerMessage } from "@/actions/messagerie";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
+import { useI18n } from "@/lib/i18n";
 
 type Msg = { id: string; contenu: string; expediteur: string; creeLe: Date };
 
@@ -12,6 +13,7 @@ export function ChatBox({ locataireId, role }: { locataireId: string; role: "GES
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
 
   useEffect(() => {
     getMessages(locataireId).then(setMessages);
@@ -49,8 +51,8 @@ export function ChatBox({ locataireId, role }: { locataireId: string; role: "GES
         <div ref={bottomRef} />
       </div>
       <div className="border-t p-3 flex gap-2">
-        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Écrire un message..." aria-label="Message" className="flex-1" onKeyDown={(e) => e.key === "Enter" && handleSend()} />
-        <Button onClick={handleSend} disabled={sending || !text.trim()} size="sm">{sending ? "..." : "Envoyer"}</Button>
+        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder={t.messagerie_ecrire} aria-label="Message" className="flex-1" onKeyDown={(e) => e.key === "Enter" && handleSend()} />
+        <Button onClick={handleSend} disabled={sending || !text.trim()} size="sm">{sending ? "..." : t.messagerie_envoyer}</Button>
       </div>
     </div>
   );

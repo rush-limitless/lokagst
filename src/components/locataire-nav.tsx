@@ -4,18 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, FileText, Wallet, Wrench, MessageCircle, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const links = [
-  { href: "/mon-espace", label: "Accueil", icon: Home, exact: true },
-  { href: "/mon-espace/bail", label: "Bail", icon: FileText },
-  { href: "/mon-espace/paiements", label: "Paiements", icon: Wallet },
-  { href: "/mon-espace/maintenance", label: "Maintenance", icon: Wrench },
-  { href: "/mon-espace/messagerie", label: "Messages", icon: MessageCircle },
-  { href: "/mon-espace/parametres", label: "Paramètres", icon: Settings },
-];
+import { useI18n } from "@/lib/i18n";
 
 export function LocataireNav() {
   const pathname = usePathname();
+  const { t } = useI18n();
+
+  const links = [
+    { href: "/mon-espace", label: t.nav_accueil, icon: Home, exact: true },
+    { href: "/mon-espace/bail", label: t.nav_bail, icon: FileText },
+    { href: "/mon-espace/paiements", label: t.nav_paiements, icon: Wallet },
+    { href: "/mon-espace/maintenance", label: t.nav_maintenance, icon: Wrench },
+    { href: "/mon-espace/messagerie", label: t.nav_messages, icon: MessageCircle },
+    { href: "/mon-espace/parametres", label: t.nav_parametres, icon: Settings },
+  ];
 
   return (
     <nav aria-label="Navigation locataire" className="flex gap-1 px-4 pb-3 overflow-x-auto">

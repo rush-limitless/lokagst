@@ -295,6 +295,39 @@ export const frPages = {
   // Messagerie
   messagerie_titre: "Messagerie",
   messagerie_echangez: "Échangez avec la gestion IMMOSTAR SCI",
+  messagerie_chats: "Chats",
+  messagerie_rechercher: "Rechercher...",
+  messagerie_ecrire: "Écrire un message...",
+  messagerie_envoyer: "Envoyer",
+  messagerie_selectionner: "Sélectionnez une conversation",
+  messagerie_enLigne: "En ligne",
+  messagerie_aucunMessage: "Aucun message",
+
+  // Nav locataire
+  nav_accueil: "Accueil",
+  nav_bail: "Bail",
+  nav_paiements: "Paiements",
+  nav_maintenance: "Maintenance",
+  nav_messages: "Messages",
+  nav_parametres: "Paramètres",
+
+  // Charts
+  chart_evolutionRevenus: "Évolution des revenus",
+  chart_totalPeriode: "Total sur la période",
+  chart_6mois: "6 mois",
+  chart_3mois: "3 mois",
+  chart_1mois: "1 mois",
+
+  // Command palette
+  cmd_rechercher: "Rechercher un locataire, appartement, bail...",
+  cmd_actionsRapides: "Actions rapides",
+  cmd_enregistrerPaiement: "Enregistrer un paiement",
+  cmd_ajouterLocataire: "Ajouter un locataire",
+  cmd_creerBail: "Créer un bail",
+  cmd_voirSituation: "Voir la situation",
+  cmd_tableauFinancier: "Tableau financier",
+  cmd_signalerMaintenance: "Signaler une maintenance",
+  cmd_aucunResultat: "Aucun résultat pour",
 
   // Paramètres
   parametres_titre: "Paramètres",

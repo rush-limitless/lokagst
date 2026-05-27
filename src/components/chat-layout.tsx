@@ -7,6 +7,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { ChatBox } from "@/components/chat-box";
 import { Search, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 type Conversation = {
   id: string; nom: string; prenom: string; photo?: string | null;
@@ -16,6 +17,7 @@ type Conversation = {
 export function ChatLayout({ conversations, selectedId }: { conversations: Conversation[]; selectedId?: string }) {
   const [search, setSearch] = useState("");
   const router = useRouter();
+  const { t } = useI18n();
   const selected = conversations.find((c) => c.id === selectedId);
 
   const filtered = conversations.filter((c) =>
@@ -40,7 +42,7 @@ export function ChatLayout({ conversations, selectedId }: { conversations: Conve
         {/* Header */}
         <div className="p-4 border-b space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">Chats</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t.messagerie_chats}</h2>
             <span className="text-xs text-muted-foreground">{conversations.length}</span>
           </div>
           <div className="relative">
@@ -48,8 +50,8 @@ export function ChatLayout({ conversations, selectedId }: { conversations: Conve
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Rechercher..."
-              aria-label="Rechercher une conversation"
+              placeholder={t.messagerie_rechercher}
+              aria-label={t.messagerie_rechercher}
               className="pl-9 h-9 text-sm"
             />
           </div>
@@ -72,7 +74,7 @@ export function ChatLayout({ conversations, selectedId }: { conversations: Conve
                   <span className="text-sm font-medium text-foreground truncate">{c.prenom} {c.nom}</span>
                   <span className="text-[10px] text-muted-foreground shrink-0">{formatTime(c.dernierDate)}</span>
                 </div>
-                <p className="text-xs text-muted-foreground truncate mt-0.5">{c.dernierMessage || "Aucun message"}</p>
+                <p className="text-xs text-muted-foreground truncate mt-0.5">{c.dernierMessage || t.messagerie_aucunMessage}</p>
               </div>
               {c.nonLus > 0 && (
                 <span className="shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">{c.nonLus}</span>
@@ -92,7 +94,7 @@ export function ChatLayout({ conversations, selectedId }: { conversations: Conve
               <UserAvatar nom={selected.nom} prenom={selected.prenom} photo={selected.photo} size="md" status="ok" />
               <div className="flex-1">
                 <p className="text-sm font-semibold text-foreground">{selected.prenom} {selected.nom}</p>
-                <p className="text-[10px] text-emerald-500">En ligne</p>
+                <p className="text-[10px] text-emerald-500">{t.messagerie_enLigne}</p>
               </div>
             </div>
             {/* Messages */}
@@ -103,7 +105,7 @@ export function ChatLayout({ conversations, selectedId }: { conversations: Conve
             <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
               <MessageSquare className="size-7" />
             </div>
-            <p className="text-sm">Sélectionnez une conversation</p>
+            <p className="text-sm">{t.messagerie_selectionner}</p>
           </div>
         )}
       </div>

@@ -4,6 +4,7 @@ import { rechercheGlobale } from "@/actions/recherche";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
@@ -11,6 +12,7 @@ export function CommandPalette() {
   const [results, setResults] = useState<any>({ locataires: [], appartements: [], baux: [], paiements: [] });
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const { t } = useI18n();
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
@@ -48,13 +50,13 @@ export function CommandPalette() {
         <div className="bg-card border rounded-2xl shadow-2xl overflow-hidden mx-4">
           <div className="flex items-center gap-3 px-4 py-3 border-b">
             <Search className="size-4 text-muted-foreground" />
-            <input ref={inputRef} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Rechercher un locataire, appartement, bail..." aria-label="Rechercher" className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground" />
+            <input ref={inputRef} value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t.cmd_rechercher} aria-label={t.cmd_rechercher} className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground" />
             <kbd className="text-[10px] text-muted-foreground bg-muted border rounded px-1.5 py-0.5 cursor-pointer" onClick={() => setOpen(false)}>ESC</kbd>
           </div>
 
           {query.length >= 2 && (
             <div className="max-h-80 overflow-y-auto">
-              {!hasResults && <p className="p-6 text-center text-muted-foreground text-sm">Aucun résultat pour &quot;{query}&quot;</p>}
+              {!hasResults && <p className="p-6 text-center text-muted-foreground text-sm">{t.cmd_aucunResultat} &quot;{query}&quot;</p>}
 
               {results.locataires.length > 0 && (
                 <div>
@@ -124,24 +126,24 @@ export function CommandPalette() {
 
           {query.length < 2 && (
             <div className="py-2">
-              <p className="px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold bg-muted/30">Actions rapides</p>
+              <p className="px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold bg-muted/30">{t.cmd_actionsRapides}</p>
               <button onClick={() => navigate("/paiements/nouveau")} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left">
-                <span className="text-lg">💰</span><span className="text-sm text-foreground">Enregistrer un paiement</span>
+                <span className="text-lg">💰</span><span className="text-sm text-foreground">{t.cmd_enregistrerPaiement}</span>
               </button>
               <button onClick={() => navigate("/locataires/nouveau")} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left">
-                <span className="text-lg">👤</span><span className="text-sm text-foreground">Ajouter un locataire</span>
+                <span className="text-lg">👤</span><span className="text-sm text-foreground">{t.cmd_ajouterLocataire}</span>
               </button>
               <button onClick={() => navigate("/baux/nouveau")} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left">
-                <span className="text-lg">📄</span><span className="text-sm text-foreground">Créer un bail</span>
+                <span className="text-lg">📄</span><span className="text-sm text-foreground">{t.cmd_creerBail}</span>
               </button>
               <button onClick={() => navigate("/situation")} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left">
-                <span className="text-lg">📊</span><span className="text-sm text-foreground">Voir la situation</span>
+                <span className="text-lg">📊</span><span className="text-sm text-foreground">{t.cmd_voirSituation}</span>
               </button>
               <button onClick={() => navigate("/finances")} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left">
-                <span className="text-lg">📈</span><span className="text-sm text-foreground">Tableau financier</span>
+                <span className="text-lg">📈</span><span className="text-sm text-foreground">{t.cmd_tableauFinancier}</span>
               </button>
               <button onClick={() => navigate("/maintenance/nouveau")} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left">
-                <span className="text-lg">🔧</span><span className="text-sm text-foreground">Signaler une maintenance</span>
+                <span className="text-lg">🔧</span><span className="text-sm text-foreground">{t.cmd_signalerMaintenance}</span>
               </button>
             </div>
           )}

@@ -295,6 +295,39 @@ export const enPages = {
   // Messagerie
   messagerie_titre: "Messages",
   messagerie_echangez: "Chat with IMMOSTAR SCI management",
+  messagerie_chats: "Chats",
+  messagerie_rechercher: "Search...",
+  messagerie_ecrire: "Write a message...",
+  messagerie_envoyer: "Send",
+  messagerie_selectionner: "Select a conversation",
+  messagerie_enLigne: "Online",
+  messagerie_aucunMessage: "No messages",
+
+  // Nav locataire
+  nav_accueil: "Home",
+  nav_bail: "Lease",
+  nav_paiements: "Payments",
+  nav_maintenance: "Maintenance",
+  nav_messages: "Messages",
+  nav_parametres: "Settings",
+
+  // Charts
+  chart_evolutionRevenus: "Revenue evolution",
+  chart_totalPeriode: "Total for the period",
+  chart_6mois: "6 months",
+  chart_3mois: "3 months",
+  chart_1mois: "1 month",
+
+  // Command palette
+  cmd_rechercher: "Search for a tenant, apartment, lease...",
+  cmd_actionsRapides: "Quick actions",
+  cmd_enregistrerPaiement: "Record a payment",
+  cmd_ajouterLocataire: "Add a tenant",
+  cmd_creerBail: "Create a lease",
+  cmd_voirSituation: "View situation",
+  cmd_tableauFinancier: "Financial dashboard",
+  cmd_signalerMaintenance: "Report maintenance",
+  cmd_aucunResultat: "No results for",
 
   // Paramètres
   parametres_titre: "Settings",

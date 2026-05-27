@@ -2,11 +2,13 @@
 
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useState } from "react";
+import { useI18n } from "@/lib/i18n";
 
 type DataPoint = { mois: string; revenus: number; attendus: number };
 
 export function RevenusChart({ data }: { data: DataPoint[] }) {
   const [period, setPeriod] = useState<"all" | "30" | "7">("all");
+  const { t } = useI18n();
 
   const filtered = period === "7" ? data.slice(-2) : period === "30" ? data.slice(-3) : data;
 
@@ -14,13 +16,13 @@ export function RevenusChart({ data }: { data: DataPoint[] }) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <p className="text-sm font-medium text-foreground">Évolution des revenus</p>
-          <p className="text-xs text-muted-foreground">Total sur la période</p>
+          <p className="text-sm font-medium text-foreground">{t.chart_evolutionRevenus}</p>
+          <p className="text-xs text-muted-foreground">{t.chart_totalPeriode}</p>
         </div>
         <div className="flex border rounded-lg overflow-hidden text-xs">
-          <button onClick={() => setPeriod("all")} className={`px-3 py-1.5 transition-colors ${period === "all" ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:bg-muted"}`}>6 mois</button>
-          <button onClick={() => setPeriod("30")} className={`px-3 py-1.5 transition-colors border-x ${period === "30" ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:bg-muted"}`}>3 mois</button>
-          <button onClick={() => setPeriod("7")} className={`px-3 py-1.5 transition-colors ${period === "7" ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:bg-muted"}`}>1 mois</button>
+          <button onClick={() => setPeriod("all")} className={`px-3 py-1.5 transition-colors ${period === "all" ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:bg-muted"}`}>{t.chart_6mois}</button>
+          <button onClick={() => setPeriod("30")} className={`px-3 py-1.5 transition-colors border-x ${period === "30" ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:bg-muted"}`}>{t.chart_3mois}</button>
+          <button onClick={() => setPeriod("7")} className={`px-3 py-1.5 transition-colors ${period === "7" ? "bg-foreground text-background font-medium" : "text-muted-foreground hover:bg-muted"}`}>{t.chart_1mois}</button>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={220}>
