@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { signOut } from "next-auth/react";
 import { toast } from "sonner";
 
-const TIMEOUT = 30 * 60 * 1000; // 30 min
+const TIMEOUT = 2 * 60 * 60 * 1000; // 2h inactivité
 
 export function SessionTimeout() {
   const timer = useRef<NodeJS.Timeout>();

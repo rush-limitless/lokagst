@@ -25,7 +25,14 @@ export async function getSituationLocataire(locataireId: string) {
   });
   const premierDebut = allBaux.length > 0 ? new Date(allBaux[0].dateDebut) : debut;
   const joursHabitation = Math.ceil((now.getTime() - premierDebut.getTime()) / 86400000);
-  const totalAttendu = Math.round((joursHabitation / 30.44) * (bail.montantLoyer + bail.totalCharges));
+  // Attendu = nombre d'échéances dues × totalMensuel × fréquence
+  let nbEcheances = 0;
+  const dAtt = new Date(premierDebut.getFullYear(), premierDebut.getMonth(), 1);
+  while (dAtt <= now) {
+    if (isMoisEcheance(dAtt, premierDebut, bail.periodicite)) nbEcheances++;
+    dAtt.setMonth(dAtt.getMonth() + 1);
+  }
+  const totalAttendu = Math.round(nbEcheances * (bail.montantLoyer + bail.totalCharges) * freq);
 
   // Total réglé = tous les paiements de tous les baux sur cet appartement
   const totalRegle = allBaux.reduce((s, b) => s + b.paiements.reduce((sp, p) => sp + p.montant, 0), 0);
