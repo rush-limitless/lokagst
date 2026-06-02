@@ -1,9 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 import { ETAGE_LABELS, PERIODICITE_LABELS } from "@/lib/utils";
 
 export async function genererContratData(bailId: string) {
+  await requireGestionnaire();
   const bail = await prisma.bail.findUnique({
     where: { id: bailId },
     include: { locataire: true, appartement: true },

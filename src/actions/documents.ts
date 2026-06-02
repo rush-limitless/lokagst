@@ -1,8 +1,10 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function getDocumentsLocataire(locataireId: string) {
+  await requireGestionnaire();
   const locataire = await prisma.locataire.findUnique({
     where: { id: locataireId },
     include: {

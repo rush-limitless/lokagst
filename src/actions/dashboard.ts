@@ -1,9 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getDashboardStats() {
+  await requireGestionnaire();
   const [appartements, bauxActifs, paiementsMois] = await Promise.all([
     prisma.appartement.groupBy({ by: ["statut"], _count: true }),
     prisma.bail.findMany({ where: { statut: "ACTIF" }, include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true } }, paiements: true } }),
@@ -124,6 +126,7 @@ export async function getDashboardStats() {
 }
 
 export async function getRevenusEvolution(mois: number = 6) {
+  await requireGestionnaire();
   const now = new Date();
   const debut = new Date(now.getFullYear(), now.getMonth() - mois + 1, 1);
   const fin = new Date(now.getFullYear(), now.getMonth() + 1, 1);

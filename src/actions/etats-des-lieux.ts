@@ -1,13 +1,16 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 import { revalidatePath } from "next/cache";
 
 export async function getEtatsDesLieux(bailId: string) {
+  await requireGestionnaire();
   return prisma.etatDesLieux.findMany({ where: { bailId }, orderBy: { date: "desc" } });
 }
 
 export async function creerEtatDesLieux(formData: FormData) {
+  await requireGestionnaire();
   const bailId = formData.get("bailId") as string;
   const type = formData.get("type") as string;
   const observations = formData.get("observations") as string;

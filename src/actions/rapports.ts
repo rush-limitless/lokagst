@@ -1,9 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 import { isMoisEcheance, nbEcheancesEntre, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getBilanImpayes() {
+  await requireGestionnaire();
   const now = new Date();
   const bauxActifs = await prisma.bail.findMany({
     where: { statut: { in: ["ACTIF", "SUSPENDU"] } },
@@ -41,6 +43,7 @@ export async function getBilanImpayes() {
 }
 
 export async function getRapportCautions() {
+  await requireGestionnaire();
   const baux = await prisma.bail.findMany({
     include: { locataire: true, appartement: { include: { immeuble: true } } },
     orderBy: [{ appartement: { immeuble: { nom: "asc" } } }, { appartement: { etage: "asc" } }, { appartement: { numero: "asc" } }],
@@ -70,6 +73,7 @@ export async function getRapportCautions() {
 }
 
 export async function getRecouvrementParEtage() {
+  await requireGestionnaire();
   const bauxActifs = await prisma.bail.findMany({
     where: { statut: { in: ["ACTIF", "SUSPENDU"] } },
     include: { appartement: true, paiements: true },
@@ -99,6 +103,7 @@ export async function getRecouvrementParEtage() {
 }
 
 export async function getTopPayeurs() {
+  await requireGestionnaire();
   const bauxActifs = await prisma.bail.findMany({
     where: { statut: { in: ["ACTIF", "SUSPENDU"] } },
     include: { locataire: true, appartement: true, paiements: true },
@@ -121,6 +126,7 @@ export async function getTopPayeurs() {
 }
 
 export async function getRentabiliteParAppartement() {
+  await requireGestionnaire();
   const baux = await prisma.bail.findMany({
     where: { statut: { in: ["ACTIF", "SUSPENDU"] } },
     include: { appartement: true, paiements: true, locataire: true },
@@ -150,6 +156,7 @@ export async function getRentabiliteParAppartement() {
 }
 
 export async function getRevenusVsImpayes(moisCount: number = 12) {
+  await requireGestionnaire();
   const now = new Date();
   const debut = new Date(now.getFullYear(), now.getMonth() - moisCount + 1, 1);
   const fin = new Date(now.getFullYear(), now.getMonth() + 1, 1);
@@ -180,6 +187,7 @@ export async function getRevenusVsImpayes(moisCount: number = 12) {
 }
 
 export async function getComparaisonPeriodes(debut1: string, fin1: string, debut2: string, fin2: string) {
+  await requireGestionnaire();
   async function getPeriodeData(debut: string, fin: string) {
     const d = new Date(debut);
     const f = new Date(fin);

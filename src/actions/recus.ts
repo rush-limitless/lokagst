@@ -1,8 +1,10 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function genererRecuData(paiementId: string) {
+  await requireGestionnaire();
   const paiement = await prisma.paiement.findUnique({
     where: { id: paiementId },
     include: { bail: { include: { locataire: true, appartement: true } } },

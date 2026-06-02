@@ -1,6 +1,5 @@
 "use client";
 
-import XLSX from "xlsx-js-style";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 
@@ -24,7 +23,8 @@ type Paiement = {
 const MODE_LABELS: Record<string, string> = { VIREMENT_BANCAIRE: "Virement", MOBILE_MONEY: "Mobile Money", ESPECES: "Espèces" };
 
 export function ExportPaiementsButton({ paiements, filtres }: { paiements: Paiement[]; filtres?: string }) {
-  function handleExport() {
+  async function handleExport() {
+    const XLSX = (await import("xlsx-js-style")).default;
     const wb = XLSX.utils.book_new();
     const now = new Date().toLocaleDateString("fr-FR");
 

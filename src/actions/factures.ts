@@ -1,9 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 import { sendEmail } from "@/lib/email";
 
 export async function envoyerFacturesMensuelles() {
+  await requireGestionnaire();
   const bauxActifs = await prisma.bail.findMany({
     where: { statut: "ACTIF" },
     include: { locataire: true, appartement: true },

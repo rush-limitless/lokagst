@@ -1,9 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 import { formatFCFA } from "@/lib/utils";
 
 export async function genererMiseEnDemeureData(locataireId: string) {
+  await requireGestionnaire();
   const bail = await prisma.bail.findFirst({
     where: { locataireId, statut: { in: ["ACTIF", "SUSPENDU"] } },
     include: { locataire: true, appartement: { include: { immeuble: true } }, penalites: { where: { payee: false } } },

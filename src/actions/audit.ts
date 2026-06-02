@@ -1,8 +1,10 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function getAuditLogs(limit: number = 100, filters?: { action?: string; entite?: string; utilisateur?: string }) {
+  await requireGestionnaire();
   const where: any = {};
   if (filters?.action) where.action = filters.action;
   if (filters?.entite) where.entite = filters.entite;
@@ -12,6 +14,7 @@ export async function getAuditLogs(limit: number = 100, filters?: { action?: str
 }
 
 export async function getAuditStats(utilisateur?: string) {
+  await requireGestionnaire();
   const where: any = utilisateur ? { utilisateur } : {};
   const total = await prisma.auditLog.count({ where });
   const today = new Date(); today.setHours(0, 0, 0, 0);

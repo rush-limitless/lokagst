@@ -1,8 +1,10 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function getNotifications() {
+  await requireGestionnaire();
   try {
   const now = new Date();
   const jourDuMois = now.getDate();

@@ -1,9 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getSituationGlobale() {
+  await requireGestionnaire();
   const now = new Date();
   const bauxActifs = await prisma.bail.findMany({
     where: { statut: { in: ["ACTIF", "SUSPENDU"] } },

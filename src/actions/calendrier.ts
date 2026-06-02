@@ -1,9 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getEcheancesMois(annee: number, mois: number) {
+  await requireGestionnaire();
   const moisDate = new Date(annee, mois, 1);
 
   const baux = await prisma.bail.findMany({

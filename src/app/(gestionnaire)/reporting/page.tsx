@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
-import XLSX from "xlsx-js-style";
 
 import { ReportingNav } from "@/components/reporting-nav";
 
@@ -38,6 +37,7 @@ export default function ReportingPage() {
     setLoading(true);
     try {
       const data = await getReportingComplet();
+      const XLSX = (await import("xlsx-js-style")).default;
       const wb = XLSX.utils.book_new();
 
       // === SUIVI DES PAIEMENTS ===

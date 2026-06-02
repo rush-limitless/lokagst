@@ -29,12 +29,12 @@ export function RevenusChart({ data }: { data: DataPoint[] }) {
         <AreaChart data={filtered} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="gradAttendus" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="currentColor" stopOpacity={0.15} />
-              <stop offset="100%" stopColor="currentColor" stopOpacity={0.01} />
+              <stop offset="0%" stopColor="#29ABE2" stopOpacity={0.25} />
+              <stop offset="100%" stopColor="#29ABE2" stopOpacity={0.02} />
             </linearGradient>
             <linearGradient id="gradRevenus" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="currentColor" stopOpacity={0.35} />
-              <stop offset="100%" stopColor="currentColor" stopOpacity={0.05} />
+              <stop offset="0%" stopColor="#10b981" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
             </linearGradient>
           </defs>
           <XAxis dataKey="mois" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} dy={10} />
@@ -42,8 +42,8 @@ export function RevenusChart({ data }: { data: DataPoint[] }) {
             contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }}
             formatter={(value) => `${Number(value).toLocaleString("fr-FR")} FCFA`}
           />
-          <Area type="monotone" dataKey="attendus" name="Attendus" stroke="hsl(var(--muted-foreground))" strokeWidth={1.5} fill="url(#gradAttendus)" fillOpacity={1} />
-          <Area type="monotone" dataKey="revenus" name="Encaissés" stroke="hsl(var(--foreground))" strokeWidth={2} fill="url(#gradRevenus)" fillOpacity={1} />
+          <Area type="monotone" dataKey="attendus" name="Attendus" stroke="#29ABE2" strokeWidth={1.5} fill="url(#gradAttendus)" fillOpacity={1} />
+          <Area type="monotone" dataKey="revenus" name="Encaissés" stroke="#10b981" strokeWidth={2} fill="url(#gradRevenus)" fillOpacity={1} />
         </AreaChart>
       </ResponsiveContainer>
     </div>

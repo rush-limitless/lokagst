@@ -1,8 +1,10 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function rechercheGlobale(query: string) {
+  await requireGestionnaire();
   if (!query || query.length < 2) return { locataires: [], appartements: [], baux: [], paiements: [] };
 
   const [locataires, appartements, baux, paiements] = await Promise.all([

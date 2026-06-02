@@ -1,8 +1,10 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function exportPaiementsCSV(dateDebut?: string, dateFin?: string) {
+  await requireGestionnaire();
   const where: any = {};
   if (dateDebut) where.datePaiement = { ...where.datePaiement, gte: new Date(dateDebut) };
   if (dateFin) where.datePaiement = { ...where.datePaiement, lte: new Date(dateFin) };
@@ -23,6 +25,7 @@ export async function exportPaiementsCSV(dateDebut?: string, dateFin?: string) {
 }
 
 export async function getRapportMensuel(mois?: number, annee?: number) {
+  await requireGestionnaire();
   const now = new Date();
   const m = mois ?? now.getMonth();
   const a = annee ?? now.getFullYear();

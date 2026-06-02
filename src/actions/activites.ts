@@ -1,8 +1,10 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 
 export async function getDernieresActivites() {
+  await requireGestionnaire();
   const [paiements, baux] = await Promise.all([
     prisma.paiement.findMany({
       take: 5, orderBy: { creeLe: "desc" },

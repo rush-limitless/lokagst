@@ -1,9 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { requireGestionnaire } from "@/lib/auth-guard";
 import { isMoisEcheance, nbEcheancesEntre, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getFinancesStats(annee?: number) {
+  await requireGestionnaire();
   const year = annee || new Date().getFullYear();
   const debut = new Date(year, 0, 1);
   const fin = new Date(year + 1, 0, 1);
