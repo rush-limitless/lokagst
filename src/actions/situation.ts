@@ -17,18 +17,18 @@ export async function getSituationLocataire(locataireId: string) {
   const loyerParEcheance = bail.montantLoyer * freq;
   const chargesParEcheance = bail.totalCharges * freq;
 
-  // Calculate total attendu up to current month
-  let totalAttendu = 0;
-  const d = new Date(debut.getFullYear(), debut.getMonth(), 1);
-  while (d <= now) {
-    if (isMoisEcheance(d, debut, bail.periodicite)) {
-      totalAttendu += loyerParEcheance + chargesParEcheance;
-    }
-    d.setMonth(d.getMonth() + 1);
-  }
+  // Chercher la date d'entrée originale (premier bail sur cet appartement)
+  const allBaux = await prisma.bail.findMany({
+    where: { locataireId, appartementId: bail.appartementId, statut: { in: ["ACTIF", "SUSPENDU", "TERMINE", "RESILIE", "EXPIRE"] } },
+    include: { paiements: true },
+    orderBy: { dateDebut: "asc" },
+  });
+  const premierDebut = allBaux.length > 0 ? new Date(allBaux[0].dateDebut) : debut;
+  const joursHabitation = Math.ceil((now.getTime() - premierDebut.getTime()) / 86400000);
+  const totalAttendu = Math.round((joursHabitation / 30.44) * (bail.montantLoyer + bail.totalCharges));
 
-  // Total réglé (all payments)
-  const totalRegle = bail.paiements.reduce((s, p) => s + p.montant, 0);
+  // Total réglé = tous les paiements de tous les baux sur cet appartement
+  const totalRegle = allBaux.reduce((s, b) => s + b.paiements.reduce((sp, p) => sp + p.montant, 0), 0);
 
   // Difference: positive = dû, negative = avance
   const difference = totalAttendu - totalRegle;
