@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { DashboardTabs } from "./dashboard-tabs";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
+import { PredictionWidget } from "./prediction-widget";
 
 import { Sparkline } from "@/components/sparkline";
 
@@ -122,6 +123,9 @@ export default async function DashboardPage() {
 
       {/* Onboarding */}
       <OnboardingChecklist counts={{ immeubles: stats.appartements.total > 0 ? 1 : 0, appartements: stats.appartements.total, locataires: stats.appartements.occupes, baux: stats.appartements.occupes, paiements: stats.finances.revenusMois > 0 ? 1 : 0 }} />
+
+      {/* Prédiction d'impayés IA */}
+      <PredictionWidget />
 
       {/* Onglets : Vue d'ensemble / Alertes / Activités */}
       <DashboardTabs
