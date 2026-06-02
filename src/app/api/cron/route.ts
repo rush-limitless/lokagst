@@ -162,7 +162,7 @@ export async function GET(req: NextRequest) {
 
     // 8. Renouvellement automatique
     if (bail.dateFin <= now) {
-      if (bail.renouvellementAuto && moisImpayes === 0) {
+      if (bail.renouvellementAuto) {
         const duree = bail.dureeRenouvellement || bail.dureeMois;
         const augmentation = bail.augmentationLoyer || 0;
         const nouveauLoyer = Math.round(bail.montantLoyer * (1 + augmentation / 100));
