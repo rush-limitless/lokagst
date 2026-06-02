@@ -23,15 +23,15 @@ export async function getSituationLocataire(locataireId: string) {
     include: { paiements: true },
     orderBy: { dateDebut: "asc" },
   });
-  const premierDebut = allBaux.length > 0 ? new Date(allBaux[0].dateDebut) : debut;
-  // Attendu = nombre d'échéances dues × totalMensuel × fréquence
-  let nbEcheances = 0;
-  const dAtt = new Date(premierDebut.getFullYear(), premierDebut.getMonth(), 1);
-  while (dAtt <= now) {
-    if (isMoisEcheance(dAtt, premierDebut, bail.periodicite)) nbEcheances++;
-    dAtt.setMonth(dAtt.getMonth() + 1);
+  // Attendu = Σ (loyer+charges de chaque bail) × (jours de ce bail ÷ 30)
+  let totalAttendu = 0;
+  for (const ab of allBaux) {
+    const deb = new Date(ab.dateDebut);
+    const fin = ab.statut === "ACTIF" || ab.statut === "SUSPENDU" ? now : new Date(ab.dateFin);
+    const jours = Math.max(0, Math.ceil((fin.getTime() - deb.getTime()) / 86400000));
+    totalAttendu += (ab.montantLoyer + ab.totalCharges) * (jours / 30);
   }
-  const totalAttendu = Math.round(nbEcheances * (bail.montantLoyer + bail.totalCharges) * freq);
+  totalAttendu = Math.round(totalAttendu);
 
   // Total réglé = tous les paiements de tous les baux sur cet appartement
   const totalRegle = allBaux.reduce((s, b) => s + b.paiements.reduce((sp, p) => sp + p.montant, 0), 0);

@@ -1,7 +1,6 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
 
 export async function getReportingComplet() {
   const now = new Date();
@@ -32,21 +31,20 @@ export async function getReportingComplet() {
 
   // Suivi des paiements
   const suiviPaiements = bauxActifs.map((b) => {
-    const loyerCharges = b.totalMensuel || (b.montantLoyer + b.totalCharges);
     // Date d'entrée = premier bail du locataire sur cet appartement
     const allBauxForLoc = allBaux.filter((ab) => ab.locataireId === b.locataireId && ab.appartementId === b.appartementId);
     const premierDebut = allBauxForLoc.reduce((min, ab) => ab.dateDebut < min ? ab.dateDebut : min, b.dateDebut);
     const joursHabitation = Math.ceil((now.getTime() - new Date(premierDebut).getTime()) / 86400000);
-    const moisHabitation = joursHabitation / 30.44;
-    // Attendu = nombre d'échéances dues × totalMensuel × fréquence
-    const freq = PERIODICITE_MOIS[b.periodicite] || 1;
-    let nbEcheances = 0;
-    const d = new Date(new Date(premierDebut).getFullYear(), new Date(premierDebut).getMonth(), 1);
-    while (d <= now) {
-      if (isMoisEcheance(d, new Date(premierDebut), b.periodicite)) nbEcheances++;
-      d.setMonth(d.getMonth() + 1);
+    const moisHabitation = joursHabitation / 30;
+    // Attendu = Σ (loyer+charges de chaque bail) × (jours de ce bail ÷ 30)
+    let attendu = 0;
+    for (const ab of allBauxForLoc) {
+      const deb = new Date(ab.dateDebut);
+      const fin = ab.statut === "ACTIF" || ab.statut === "SUSPENDU" ? now : new Date(ab.dateFin);
+      const jours = Math.max(0, Math.ceil((fin.getTime() - deb.getTime()) / 86400000));
+      attendu += (ab.montantLoyer + ab.totalCharges) * (jours / 30);
     }
-    const attendu = Math.round(nbEcheances * loyerCharges * freq);
+    attendu = Math.round(attendu);
     // Réglé = ALL paiements across all baux for this locataire+appartement
     const allKey = `${b.locataireId}_${b.appartementId}`;
     const regle = allPaiementsMap.get(allKey) || 0;
@@ -116,17 +114,9 @@ export async function getReportingComplet() {
   const anciens = bauxAnciens.map((b) => {
     const regle = b.paiements.reduce((s, p) => s + p.montant, 0);
     const joursHab = Math.ceil((new Date(b.dateFin).getTime() - new Date(b.dateDebut).getTime()) / 86400000);
-    const moisHab = joursHab / 30.44;
-    // Attendu = nombre d'échéances × totalMensuel × fréquence
-    const freq = PERIODICITE_MOIS[b.periodicite] || 1;
-    let nbEcheances = 0;
-    const d2 = new Date(new Date(b.dateDebut).getFullYear(), new Date(b.dateDebut).getMonth(), 1);
-    const fin = new Date(b.dateFin);
-    while (d2 <= fin) {
-      if (isMoisEcheance(d2, new Date(b.dateDebut), b.periodicite)) nbEcheances++;
-      d2.setMonth(d2.getMonth() + 1);
-    }
-    const attendu = Math.round(nbEcheances * b.totalMensuel * freq);
+    const moisHab = joursHab / 30;
+    // Attendu = (loyer + charges) × (jours / 30) — formule Excel boss
+    const attendu = Math.round(b.totalMensuel * moisHab);
 
     return {
       logement: b.appartement.numero,
