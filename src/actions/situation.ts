@@ -24,7 +24,6 @@ export async function getSituationLocataire(locataireId: string) {
     orderBy: { dateDebut: "asc" },
   });
   const premierDebut = allBaux.length > 0 ? new Date(allBaux[0].dateDebut) : debut;
-  const joursHabitation = Math.ceil((now.getTime() - premierDebut.getTime()) / 86400000);
   // Attendu = nombre d'échéances dues × totalMensuel × fréquence
   let nbEcheances = 0;
   const dAtt = new Date(premierDebut.getFullYear(), premierDebut.getMonth(), 1);
