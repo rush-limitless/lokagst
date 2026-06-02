@@ -2,7 +2,7 @@
 
 import { prisma, safeAction } from "@/lib/prisma";
 import { paiementSchema } from "@/lib/validations";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { envoyerRecuPaiement } from "./emails";
 import { logAction } from "@/lib/audit";
 import { requireGestionnaire } from "@/lib/auth-guard";
@@ -172,7 +172,7 @@ export async function enregistrerPaiement(formData: FormData) {
     const firstId = result.paiements.length > 0 ? result.paiements[0].id : result.updatedIds[0] || "unknown";
     if (result.paiements.length > 0) envoyerRecuPaiement(result.paiements[0].id).catch(() => {});
     logAction("Paiement", "Paiement", firstId, `${parsed.data.nbMois || 1} mois — ${montantServeur} FCFA — Bail ${parsed.data.bailId.slice(0, 8)}`);
-    revalidatePath("/paiements");
+    revalidatePath("/paiements"); revalidateTag("dashboard"); revalidateTag("situation");
     return { success: true };
   });
 }
@@ -200,7 +200,7 @@ export async function modifierPaiement(id: string, formData: FormData) {
       data: { montant, montantLoyer, montantCharges, montantCaution, montantAutres, notes, moisConcerne, resteDu, statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE" },
     });
 
-    revalidatePath("/paiements");
+    revalidatePath("/paiements"); revalidateTag("dashboard"); revalidateTag("situation");
     return { success: true };
   });
 }
@@ -211,7 +211,7 @@ export async function supprimerPaiement(id: string) {
     const p = await prisma.paiement.findUnique({ where: { id }, select: { montant: true, bailId: true, moisConcerne: true } });
     await prisma.paiement.delete({ where: { id } });
     if (p) logAction("Suppression", "Paiement", id, `${p.montant} FCFA — ${p.moisConcerne.toISOString().slice(0, 7)}`);
-    revalidatePath("/paiements");
+    revalidatePath("/paiements"); revalidateTag("dashboard"); revalidateTag("situation");
     return { success: true };
   });
 }
@@ -219,7 +219,7 @@ export async function supprimerPaiement(id: string) {
 export async function validerPaiement(id: string) {
   await requireGestionnaire();
   await prisma.paiement.update({ where: { id }, data: { valide: true } });
-  revalidatePath("/paiements");
+  revalidatePath("/paiements"); revalidateTag("dashboard"); revalidateTag("situation");
   return { success: true };
 }
 
@@ -227,7 +227,7 @@ export async function rejeterPaiement(id: string) {
   return safeAction(async () => {
     await requireGestionnaire();
     await prisma.paiement.delete({ where: { id } });
-    revalidatePath("/paiements");
+    revalidatePath("/paiements"); revalidateTag("dashboard"); revalidateTag("situation");
     return { success: true };
   });
 }

@@ -3,9 +3,9 @@
 import { prisma } from "@/lib/prisma";
 import { requireGestionnaire } from "@/lib/auth-guard";
 import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
+import { unstable_cache } from "next/cache";
 
-export async function getSituationGlobale() {
-  await requireGestionnaire();
+const getCachedSituationGlobale = unstable_cache(async () => {
   const now = new Date();
   const bauxActifs = await prisma.bail.findMany({
     where: { statut: { in: ["ACTIF", "SUSPENDU"] } },
@@ -103,4 +103,9 @@ export async function getSituationGlobale() {
       dernierPaiement: dernierPaiement ? { date: dernierPaiement.datePaiement, montant: dernierPaiement.montant } : null,
     };
   }); // already sorted by immeuble/etage from DB
+}, ["situation-globale"], { revalidate: 120, tags: ["situation"] });
+
+export async function getSituationGlobale() {
+  await requireGestionnaire();
+  return getCachedSituationGlobale();
 }

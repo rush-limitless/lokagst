@@ -3,12 +3,13 @@
 import { prisma } from "@/lib/prisma";
 import { requireGestionnaire } from "@/lib/auth-guard";
 import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
+import { unstable_cache } from "next/cache";
 
-export async function getDashboardStats() {
-  await requireGestionnaire();
+const getCachedDashboardStats = unstable_cache(async () => {
+  const douzeMAv = new Date(new Date().getFullYear(), new Date().getMonth() - 11, 1);
   const [appartements, bauxActifs, paiementsMois] = await Promise.all([
     prisma.appartement.groupBy({ by: ["statut"], _count: true }),
-    prisma.bail.findMany({ where: { statut: "ACTIF" }, include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true } }, paiements: true } }),
+    prisma.bail.findMany({ where: { statut: "ACTIF" }, include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true } }, paiements: { where: { moisConcerne: { gte: douzeMAv } } } } }),
     prisma.paiement.findMany({ where: { datePaiement: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1), lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1) } } }),
   ]);
 
@@ -123,6 +124,11 @@ export async function getDashboardStats() {
     },
     alertes: { bauxExpirants, impayesLocataires, aEncaisserSemaine },
   };
+}, ["dashboard-stats"], { revalidate: 60, tags: ["dashboard"] });
+
+export async function getDashboardStats() {
+  await requireGestionnaire();
+  return getCachedDashboardStats();
 }
 
 export async function getRevenusEvolution(mois: number = 6) {

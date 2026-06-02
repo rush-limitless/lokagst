@@ -2,7 +2,7 @@
 
 import { prisma, safeAction } from "@/lib/prisma";
 import { bailSchema } from "@/lib/validations";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { logAction } from "@/lib/audit";
 import { requireGestionnaire } from "@/lib/auth-guard";
 
@@ -100,7 +100,7 @@ export async function creerBail(formData: FormData) {
       prisma.appartement.update({ where: { id: parsed.data.appartementId }, data: { statut: "OCCUPE" } }),
     ]);
 
-    revalidatePath("/baux");
+    revalidatePath("/baux"); revalidateTag("dashboard"); revalidateTag("situation");
     return { success: true };
   });
 }
@@ -131,7 +131,7 @@ export async function resilierBail(id: string) {
       if (!autreBail) await tx.locataire.update({ where: { id: bail.locataireId }, data: { statut: "ARCHIVE", dateSortie: new Date() } });
     });
 
-    revalidatePath("/baux");
+    revalidatePath("/baux"); revalidateTag("dashboard"); revalidateTag("situation");
     return { success: true };
   });
 }
@@ -139,7 +139,7 @@ export async function resilierBail(id: string) {
 export async function leverSuspension(id: string) {
   await requireGestionnaire();
   await prisma.bail.update({ where: { id }, data: { statut: "ACTIF" } });
-  revalidatePath("/baux");
+  revalidatePath("/baux"); revalidateTag("dashboard"); revalidateTag("situation");
   return { success: true };
 }
 
@@ -202,7 +202,7 @@ export async function supprimerBail(id: string) {
       if (!autreBail) await tx.appartement.update({ where: { id: bail.appartementId }, data: { statut: "LIBRE" } });
     });
 
-    revalidatePath("/baux");
+    revalidatePath("/baux"); revalidateTag("dashboard"); revalidateTag("situation");
     return { success: true };
   });
 }
@@ -239,7 +239,7 @@ export async function renouvelerBail(id: string, formData: FormData) {
       }),
     ]);
 
-    revalidatePath("/baux");
+    revalidatePath("/baux"); revalidateTag("dashboard"); revalidateTag("situation");
     return { success: true };
   });
 }

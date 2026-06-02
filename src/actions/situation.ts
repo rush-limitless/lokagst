@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireGestionnaire } from "@/lib/auth-guard";
 import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
+import { calculerAttenduMultiBaux } from "@/lib/calculs-loyer";
 
 export async function getSituationLocataire(locataireId: string) {
   await requireGestionnaire();
@@ -26,14 +27,7 @@ export async function getSituationLocataire(locataireId: string) {
     orderBy: { dateDebut: "asc" },
   });
   // Attendu = Σ (loyer+charges de chaque bail) × (jours de ce bail ÷ 30)
-  let totalAttendu = 0;
-  for (const ab of allBaux) {
-    const deb = new Date(ab.dateDebut);
-    const fin = ab.statut === "ACTIF" || ab.statut === "SUSPENDU" ? now : new Date(ab.dateFin);
-    const jours = Math.max(0, Math.ceil((fin.getTime() - deb.getTime()) / 86400000));
-    totalAttendu += (ab.montantLoyer + ab.totalCharges) * (jours / 30);
-  }
-  totalAttendu = Math.round(totalAttendu);
+  const totalAttendu = calculerAttenduMultiBaux(allBaux, now);
 
   // Total réglé = tous les paiements de tous les baux sur cet appartement
   const totalRegle = allBaux.reduce((s, b) => s + b.paiements.reduce((sp, p) => sp + p.montant, 0), 0);

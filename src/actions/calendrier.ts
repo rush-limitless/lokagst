@@ -7,10 +7,11 @@ import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
 export async function getEcheancesMois(annee: number, mois: number) {
   await requireGestionnaire();
   const moisDate = new Date(annee, mois, 1);
+  const freq12 = new Date(annee, mois - 12, 1);
 
   const baux = await prisma.bail.findMany({
     where: { statut: "ACTIF" },
-    include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true } }, paiements: true },
+    include: { locataire: { select: { nom: true, prenom: true } }, appartement: { select: { numero: true } }, paiements: { where: { moisConcerne: { gte: freq12 } } } },
   });
 
   return baux

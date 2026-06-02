@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireGestionnaire } from "@/lib/auth-guard";
+import { calculerAttenduMultiBaux } from "@/lib/calculs-loyer";
 
 export async function getReportingComplet() {
   await requireGestionnaire();
@@ -39,14 +40,7 @@ export async function getReportingComplet() {
     const joursHabitation = Math.ceil((now.getTime() - new Date(premierDebut).getTime()) / 86400000);
     const moisHabitation = joursHabitation / 30;
     // Attendu = Σ (loyer+charges de chaque bail) × (jours de ce bail ÷ 30)
-    let attendu = 0;
-    for (const ab of allBauxForLoc) {
-      const deb = new Date(ab.dateDebut);
-      const fin = ab.statut === "ACTIF" || ab.statut === "SUSPENDU" ? now : new Date(ab.dateFin);
-      const jours = Math.max(0, Math.ceil((fin.getTime() - deb.getTime()) / 86400000));
-      attendu += (ab.montantLoyer + ab.totalCharges) * (jours / 30);
-    }
-    attendu = Math.round(attendu);
+    const attendu = calculerAttenduMultiBaux(allBauxForLoc, now);
     // Réglé = ALL paiements across all baux for this locataire+appartement
     const allKey = `${b.locataireId}_${b.appartementId}`;
     const regle = allPaiementsMap.get(allKey) || 0;
