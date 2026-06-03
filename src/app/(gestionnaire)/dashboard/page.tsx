@@ -6,7 +6,6 @@ import { Building2, TrendingUp, AlertTriangle, Key, Plus, FileText } from "lucid
 import { DashboardTabs } from "./dashboard-tabs";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { AnimatedStatCard } from "@/components/animated-stat-card";
-import { SmartAlerts } from "@/components/smart-alerts";
 import { ActivityTimeline } from "@/components/activity-timeline";
 import { PrevisionTresorerie } from "@/components/prevision-tresorerie";
 
@@ -44,7 +43,6 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stat cards */}
-      <SmartAlerts />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 stagger-in">
         <AnimatedStatCard
           icon={<Building2 className="size-5 text-sky-600" />}
