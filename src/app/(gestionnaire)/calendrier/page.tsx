@@ -52,11 +52,11 @@ export default async function CalendrierPage({ searchParams }: { searchParams: P
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-[400px]">
         {/* Colonne PAYÉS */}
-        <div className="bg-emerald-50/50 dark:bg-emerald-950/10 rounded-2xl border-2 border-emerald-200 dark:border-emerald-900 p-3 flex flex-col">
+        <div className="bg-card rounded-2xl border p-3 flex flex-col">
           <div className="flex items-center justify-between mb-3 px-1">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-emerald-500" />
-              <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Payés</span>
+              <span className="text-sm font-bold text-foreground">Payés</span>
             </div>
             <span className="text-xs font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full">{payes.length}</span>
           </div>
@@ -73,11 +73,11 @@ export default async function CalendrierPage({ searchParams }: { searchParams: P
         </div>
 
         {/* Colonne PARTIELS */}
-        <div className="bg-orange-50/50 dark:bg-orange-950/10 rounded-2xl border-2 border-orange-200 dark:border-orange-900 p-3 flex flex-col">
+        <div className="bg-card rounded-2xl border p-3 flex flex-col">
           <div className="flex items-center justify-between mb-3 px-1">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-orange-500" />
-              <span className="text-sm font-bold text-orange-700 dark:text-orange-400">Partiels</span>
+              <span className="text-sm font-bold text-foreground">Partiels</span>
             </div>
             <span className="text-xs font-bold bg-orange-500 text-white px-2 py-0.5 rounded-full">{partiels.length}</span>
           </div>
@@ -102,11 +102,11 @@ export default async function CalendrierPage({ searchParams }: { searchParams: P
         </div>
 
         {/* Colonne IMPAYÉS */}
-        <div className="bg-red-50/50 dark:bg-red-950/10 rounded-2xl border-2 border-red-200 dark:border-red-900 p-3 flex flex-col">
+        <div className="bg-card rounded-2xl border p-3 flex flex-col">
           <div className="flex items-center justify-between mb-3 px-1">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-sm font-bold text-red-700 dark:text-red-400">Impayés</span>
+              <span className="text-sm font-bold text-foreground">Impayés</span>
             </div>
             <span className="text-xs font-bold bg-red-500 text-white px-2 py-0.5 rounded-full">{impayes.length}</span>
           </div>
