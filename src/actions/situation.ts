@@ -26,7 +26,7 @@ export async function getSituationLocataire(locataireId: string) {
     include: { paiements: true },
     orderBy: { dateDebut: "asc" },
   });
-  // Attendu = Σ (loyer+charges de chaque bail) × (jours de ce bail ÷ 30)
+  // Attendu = Σ échéances entières passées par bail
   const totalAttendu = calculerAttenduMultiBaux(allBaux, now);
 
   // Total réglé = tous les paiements de tous les baux sur cet appartement

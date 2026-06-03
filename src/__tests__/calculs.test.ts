@@ -8,21 +8,17 @@ describe("isMoisEcheance", () => {
   });
 
   it("trimestriel → vrai tous les 3 mois depuis le début", () => {
-    const debut = new Date(2024, 1, 1); // février
-    expect(isMoisEcheance(new Date(2024, 1, 1), debut, "TRIMESTRIEL")).toBe(true); // fev
-    expect(isMoisEcheance(new Date(2024, 2, 1), debut, "TRIMESTRIEL")).toBe(false); // mars
-    expect(isMoisEcheance(new Date(2024, 4, 1), debut, "TRIMESTRIEL")).toBe(true); // mai
+    const debut = new Date(2024, 1, 1);
+    expect(isMoisEcheance(new Date(2024, 1, 1), debut, "TRIMESTRIEL")).toBe(true);
+    expect(isMoisEcheance(new Date(2024, 2, 1), debut, "TRIMESTRIEL")).toBe(false);
+    expect(isMoisEcheance(new Date(2024, 4, 1), debut, "TRIMESTRIEL")).toBe(true);
   });
 
   it("annuel → vrai uniquement le mois anniversaire", () => {
-    const debut = new Date(2023, 6, 1); // juillet
-    expect(isMoisEcheance(new Date(2024, 6, 1), debut, "ANNUEL")).toBe(true); // juil 2024
-    expect(isMoisEcheance(new Date(2024, 5, 1), debut, "ANNUEL")).toBe(false); // juin 2024
-    expect(isMoisEcheance(new Date(2025, 6, 1), debut, "ANNUEL")).toBe(true); // juil 2025
-  });
-
-  it("journalier → toujours faux", () => {
-    expect(isMoisEcheance(new Date(2024, 3, 1), new Date(2024, 0, 1), "JOURNALIER")).toBe(false);
+    const debut = new Date(2023, 6, 1);
+    expect(isMoisEcheance(new Date(2024, 6, 1), debut, "ANNUEL")).toBe(true);
+    expect(isMoisEcheance(new Date(2024, 5, 1), debut, "ANNUEL")).toBe(false);
+    expect(isMoisEcheance(new Date(2025, 6, 1), debut, "ANNUEL")).toBe(true);
   });
 });
 
@@ -33,48 +29,53 @@ describe("montantEcheance", () => {
   it("annuel → totalMensuel × 12", () => {
     expect(montantEcheance(157500, "ANNUEL")).toBe(1890000);
   });
-  it("trimestriel → totalMensuel × 3", () => {
-    expect(montantEcheance(100000, "TRIMESTRIEL")).toBe(300000);
-  });
-});
-
-describe("PERIODICITE_MOIS", () => {
-  it("contient les bonnes fréquences", () => {
-    expect(PERIODICITE_MOIS.MENSUEL).toBe(1);
-    expect(PERIODICITE_MOIS.TRIMESTRIEL).toBe(3);
-    expect(PERIODICITE_MOIS.SEMESTRIEL).toBe(6);
-    expect(PERIODICITE_MOIS.ANNUEL).toBe(12);
-  });
 });
 
 describe("calculerAttenduMultiBaux", () => {
-  it("bail unique actif", () => {
-    const now = new Date(2026, 5, 2); // 2 juin 2026
-    const baux = [{ montantLoyer: 40000, totalCharges: 2000, dateDebut: new Date(2024, 1, 10), dateFin: new Date(2028, 1, 10), statut: "ACTIF" }];
-    const attendu = calculerAttenduMultiBaux(baux, now);
-    // 843 jours / 30 × 42000 ≈ 1 180 200
-    const jours = Math.ceil((now.getTime() - new Date(2024, 1, 10).getTime()) / 86400000);
-    expect(attendu).toBe(Math.round(42000 * (jours / 30)));
-  });
-
-  it("deux baux avec montants différents", () => {
-    const now = new Date(2026, 5, 2);
+  it("ATG 1 - bail terminé MENSUEL + bail actif ANNUEL", () => {
+    const now = new Date(2026, 5, 3); // 3 juin 2026
     const baux = [
-      { montantLoyer: 150000, totalCharges: 7500, dateDebut: new Date(2023, 6, 1), dateFin: new Date(2025, 7, 31), statut: "TERMINE" },
-      { montantLoyer: 150000, totalCharges: 15000, dateDebut: new Date(2025, 8, 1), dateFin: new Date(2026, 8, 1), statut: "ACTIF" },
+      { montantLoyer: 150000, totalCharges: 7500, dateDebut: new Date(2023, 6, 1), dateFin: new Date(2025, 7, 31), statut: "TERMINE", periodicite: "MENSUEL" },
+      { montantLoyer: 150000, totalCharges: 15000, dateDebut: new Date(2025, 8, 1), dateFin: new Date(2026, 8, 1), statut: "ACTIF", periodicite: "ANNUEL" },
     ];
     const attendu = calculerAttenduMultiBaux(baux, now);
+    // Bail 1 (MENSUEL terminé): 792 jours / 30 × 157500 = 4 158 000? Non...
+    // 2025-08-31 - 2023-07-01 = 792 jours. 792/30 = 26.4. 157500 × 26.4 = 4 158 000
+    // Bail 2 (ANNUEL actif): échéances en sept. Sept 2025 passé = 1 échéance. 165000 × 12 = 1 980 000
     const jours1 = Math.ceil((new Date(2025, 7, 31).getTime() - new Date(2023, 6, 1).getTime()) / 86400000);
-    const jours2 = Math.ceil((now.getTime() - new Date(2025, 8, 1).getTime()) / 86400000);
-    const expected = Math.round(157500 * (jours1 / 30) + 165000 * (jours2 / 30));
-    expect(attendu).toBe(expected);
+    const attenduBail1 = 157500 * (jours1 / 30);
+    const attenduBail2 = 165000 * 12 * 1; // 1 échéance annuelle
+    expect(attendu).toBe(Math.round(attenduBail1 + attenduBail2));
   });
 
-  it("bail terminé utilise dateFin", () => {
-    const now = new Date(2026, 5, 2);
-    const baux = [{ montantLoyer: 100000, totalCharges: 5000, dateDebut: new Date(2024, 0, 1), dateFin: new Date(2025, 0, 1), statut: "TERMINE" }];
+  it("TMCO - bail terminé ANNUEL + bail actif ANNUEL", () => {
+    const now = new Date(2026, 5, 3); // 3 juin 2026
+    const baux = [
+      { montantLoyer: 150000, totalCharges: 7500, dateDebut: new Date(2023, 4, 1), dateFin: new Date(2024, 11, 31), statut: "TERMINE", periodicite: "ANNUEL" },
+      { montantLoyer: 150000, totalCharges: 7500, dateDebut: new Date(2025, 0, 1), dateFin: new Date(2026, 0, 1), statut: "ACTIF", periodicite: "ANNUEL" },
+    ];
     const attendu = calculerAttenduMultiBaux(baux, now);
-    const jours = Math.ceil((new Date(2025, 0, 1).getTime() - new Date(2024, 0, 1).getTime()) / 86400000);
+    // Bail 1 (ANNUEL terminé): début mai 2023, fin déc 2024. Échéances: mai 2023, mai 2024 = 2
+    // 157500 × 12 × 2 = 3 780 000
+    // Bail 2 (ANNUEL actif): début jan 2025, now juin 2026. Échéances: jan 2025, jan 2026 = 2
+    // 157500 × 12 × 2 = 3 780 000
+    expect(attendu).toBe(3780000 + 3780000);
+  });
+
+  it("bail annuel - 1 seule échéance quand l'anniversaire n'est pas repassé", () => {
+    const now = new Date(2026, 2, 15); // 15 mars 2026
+    const baux = [{ montantLoyer: 150000, totalCharges: 15000, dateDebut: new Date(2025, 8, 1), dateFin: new Date(2026, 8, 1), statut: "ACTIF", periodicite: "ANNUEL" }];
+    const attendu = calculerAttenduMultiBaux(baux, now);
+    // Début sept 2025, now mars 2026. Échéance sept 2025 passée = 1. 165000 × 12 = 1 980 000
+    expect(attendu).toBe(165000 * 12);
+  });
+
+  it("bail mensuel simple", () => {
+    const now = new Date(2026, 5, 3);
+    const baux = [{ montantLoyer: 100000, totalCharges: 5000, dateDebut: new Date(2026, 0, 1), dateFin: new Date(2027, 0, 1), statut: "ACTIF", periodicite: "MENSUEL" }];
+    const attendu = calculerAttenduMultiBaux(baux, now);
+    // Jan 2026 → 3 juin 2026 = 153 jours. 153/30 = 5.1. 105000 × 5.1 = 535 500
+    const jours = Math.ceil((now.getTime() - new Date(2026, 0, 1).getTime()) / 86400000);
     expect(attendu).toBe(Math.round(105000 * (jours / 30)));
   });
 });

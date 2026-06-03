@@ -39,13 +39,13 @@ export async function getReportingComplet() {
     const premierDebut = allBauxForLoc.reduce((min, ab) => ab.dateDebut < min ? ab.dateDebut : min, b.dateDebut);
     const joursHabitation = Math.ceil((now.getTime() - new Date(premierDebut).getTime()) / 86400000);
     const moisHabitation = joursHabitation / 30;
-    // Attendu = Σ (loyer+charges de chaque bail) × (jours de ce bail ÷ 30)
     const attendu = calculerAttenduMultiBaux(allBauxForLoc, now);
     // Réglé = ALL paiements across all baux for this locataire+appartement
     const allKey = `${b.locataireId}_${b.appartementId}`;
     const regle = allPaiementsMap.get(allKey) || 0;
-    const regleLoyerCharges = regle; // Already includes all baux
-    const difference = regleLoyerCharges - attendu;
+    const difference = regle - attendu;
+    // Caution totale payée sur tous les baux du locataire sur cet appartement
+    const cautionTotalePayee = allBauxForLoc.reduce((s, ab) => s + (ab.cautionPayee ? ab.montantCaution : 0), 0);
     const joursRestants = Math.ceil((new Date(b.dateFin).getTime() - now.getTime()) / 86400000);
     const moisRestants = joursRestants / 30.5;
     const penalitesTotal = b.penalites.reduce((s, p) => s + p.montant, 0);
@@ -71,8 +71,8 @@ export async function getReportingComplet() {
       moisRestants: Math.round(moisRestants * 10) / 10,
       caution: b.montantCaution,
       cautionPayee: b.cautionPayee,
-      totalPercu: regle + (b.cautionPayee ? b.montantCaution : 0),
-      totalEncaisse: regle + (b.cautionPayee ? b.montantCaution : 0),
+      totalPercu: regle + cautionTotalePayee,
+      totalEncaisse: regle + cautionTotalePayee,
       penalites: penalitesTotal,
       periodicite: b.periodicite,
       statut: b.statut,
@@ -109,10 +109,9 @@ export async function getReportingComplet() {
   // Anciens locataires
   const anciens = bauxAnciens.map((b) => {
     const regle = b.paiements.reduce((s, p) => s + p.montant, 0);
+    const attendu = calculerAttenduMultiBaux([b], new Date(b.dateFin));
     const joursHab = Math.ceil((new Date(b.dateFin).getTime() - new Date(b.dateDebut).getTime()) / 86400000);
     const moisHab = joursHab / 30;
-    // Attendu = (loyer + charges) × (jours / 30) — formule Excel boss
-    const attendu = Math.round(b.totalMensuel * moisHab);
 
     return {
       logement: b.appartement.numero,
