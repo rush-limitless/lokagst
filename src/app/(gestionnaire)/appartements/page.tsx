@@ -3,10 +3,9 @@ import { getImmeubles } from "@/actions/immeubles";
 import { formatFCFA, ETAGE_LABELS, TYPE_LABELS } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/search-bar";
-import { StatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/empty-state";
 import Link from "next/link";
-import { Home, Plus } from "lucide-react";
+import { Home, Plus, Building2 } from "lucide-react";
 
 export default async function AppartementsPage({ searchParams }: { searchParams: Promise<{ q?: string; statut?: string; immeuble?: string }> }) {
   const { q, statut, immeuble } = await searchParams;
@@ -15,113 +14,119 @@ export default async function AppartementsPage({ searchParams }: { searchParams:
     getImmeubles(),
   ]);
 
+  // Group by immeuble then by etage
+  const etageOrder = ["CINQUIEME", "QUATRIEME", "TROISIEME", "DEUXIEME", "PREMIER", "RDC"];
+  const grouped: { imm: typeof immeubles[0]; etages: { etage: string; apparts: typeof appartements }[] }[] = [];
+  for (const im of immeubles) {
+    const apps = appartements.filter((a) => a.immeuble?.id === im.id);
+    if (apps.length === 0) continue;
+    const etages = etageOrder
+      .map((e) => ({ etage: e, apparts: apps.filter((a) => a.etage === e) }))
+      .filter((g) => g.apparts.length > 0);
+    grouped.push({ imm: im, etages });
+  }
+
+  const totalLibres = appartements.filter(a => a.statut === "LIBRE").length;
+  const totalOccupes = appartements.filter(a => a.statut === "OCCUPE").length;
+
   return (
     <div className="space-y-6 animate-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2"><Home className="w-6 h-6 text-primary" /> Appartements</h1>
-          <p className="text-sm text-muted-foreground mt-1">Catalogue complet — Recherchez, filtrez et gérez chaque logement</p>
+          <p className="text-sm text-muted-foreground mt-1">{appartements.length} logements — {totalOccupes} occupés, {totalLibres} libres</p>
         </div>
         <Link href="/appartements/nouveau"><Button className="gap-1.5"><Plus className="w-4 h-4" /> Ajouter</Button></Link>
       </div>
+
+      {/* Filtres */}
       <div className="flex flex-wrap gap-3 items-center">
         <SearchBar placeholder="Rechercher par numéro..." />
         <div className="flex gap-1">
           <Link href="/appartements" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!statut && !immeuble ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Tous</Link>
-          <Link href="/appartements?statut=LIBRE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "LIBRE" ? "bg-emerald-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Libres</Link>
-          <Link href="/appartements?statut=OCCUPE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "OCCUPE" ? "bg-sky-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>Occupés</Link>
+          <Link href="/appartements?statut=LIBRE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "LIBRE" ? "bg-emerald-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>🟢 Libres</Link>
+          <Link href="/appartements?statut=OCCUPE" className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statut === "OCCUPE" ? "bg-sky-500 text-white" : "text-muted-foreground hover:bg-muted"}`}>🔵 Occupés</Link>
         </div>
       </div>
-      {/* Filtre par immeuble */}
-      <div className="flex gap-2 flex-wrap">
-        <span className="text-xs text-muted-foreground py-1">Immeuble :</span>
-        <Link href={`/appartements${statut ? `?statut=${statut}` : ""}`} className={`text-xs px-3 py-1 rounded-full border transition-colors ${!immeuble ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>Tous</Link>
-        {immeubles.map((i) => (
-          <Link key={i.id} href={`/appartements?immeuble=${i.id}${statut ? `&statut=${statut}` : ""}`} className={`text-xs px-3 py-1 rounded-full border transition-colors ${immeuble === i.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`}>
-            {i.nom} ({i._count.appartements})
-          </Link>
-        ))}
-      </div>
-      <p className="text-sm text-muted-foreground">{appartements.length} appartement(s)</p>
 
       {appartements.length === 0 ? (
         <EmptyState icon="" title="Aucun appartement" description="Ajoutez votre premier appartement pour commencer" />
       ) : (
-        (() => {
-          const IMM_COLORS: Record<string, { border: string; bg: string }> = {};
-          const COLOR_LIST = [
-            { border: "border-sky-300 dark:border-sky-700", bg: "bg-sky-50/50 dark:bg-sky-950/10" },
-            { border: "border-emerald-300 dark:border-emerald-700", bg: "bg-emerald-50/50 dark:bg-emerald-950/10" },
-            { border: "border-violet-300 dark:border-violet-700", bg: "bg-violet-50/50 dark:bg-violet-950/10" },
-            { border: "border-amber-300 dark:border-amber-700", bg: "bg-amber-50/50 dark:bg-amber-950/10" },
-          ];
-          const BADGE_COLORS = ["bg-sky-500", "bg-emerald-500", "bg-violet-500", "bg-amber-500"];
-          immeubles.forEach((im, i) => { IMM_COLORS[im.id] = COLOR_LIST[i % COLOR_LIST.length]; });
-
-          // Group by immeuble
-          const grouped: { imm: typeof immeubles[0] | null; apps: typeof appartements }[] = [];
-          for (const im of immeubles) {
-            const apps = appartements.filter((a) => a.immeuble?.id === im.id);
-            if (apps.length > 0) grouped.push({ imm: im, apps });
-          }
-          const sansImm = appartements.filter((a) => !a.immeuble);
-          if (sansImm.length > 0) grouped.push({ imm: null, apps: sansImm });
-
-          return (
-            <div className="space-y-6">
-              {grouped.map(({ imm: grpImm, apps }) => {
-                const colors = grpImm ? IMM_COLORS[grpImm.id] : COLOR_LIST[0];
-                const badgeColor = grpImm ? BADGE_COLORS[immeubles.findIndex((i) => i.id === grpImm.id) % BADGE_COLORS.length] : "bg-muted/500";
-                return (
-                  <div key={grpImm?.id || "sans"}>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className={`w-3 h-3 rounded-full ${badgeColor}`} />
-                      <h2 className="text-sm font-semibold text-foreground">{grpImm?.nom || "Sans immeuble"}</h2>
-                      <span className="text-xs text-muted-foreground">({apps.length})</span>
-                    </div>
-                    {/* Grouper par étage */}
-                    {(() => {
-                      const etageOrder = ["CINQUIEME", "QUATRIEME", "TROISIEME", "DEUXIEME", "PREMIER", "RDC"];
-                      const parEtage = etageOrder
-                        .map((e) => ({ etage: e, apparts: apps.filter((a) => a.etage === e) }))
-                        .filter((g) => g.apparts.length > 0);
-                      return (
-                        <div className="space-y-4">
-                          {parEtage.map(({ etage, apparts: etageApps }) => (
-                            <div key={etage}>
-                              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 pl-1">{ETAGE_LABELS[etage]}</p>
-                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                                {etageApps.map((a) => (
-                                  <Link key={a.id} href={`/appartements/${a.id}`} className="group">
-                                    <div className={`bg-card border rounded-xl p-4 hover:shadow-lg transition-all hover:-translate-y-1 relative overflow-hidden ${a.statut === "LIBRE" ? "border-emerald-200 dark:border-emerald-900" : colors.border}`}>
-                                      <div className={`absolute top-0 right-0 w-16 h-16 rounded-bl-[40px] ${a.statut === "LIBRE" ? "bg-emerald-50 dark:bg-emerald-950/30" : colors.bg}`} />
-                                      <div className="relative">
-                                        <div className="text-2xl font-bold text-foreground">{a.numero}</div>
-                                        <p className="text-xs text-muted-foreground">{TYPE_LABELS[a.type] || a.type}</p>
-                                        <p className="text-sm font-semibold text-foreground mt-3">{formatFCFA(a.loyerBase)}</p>
-                                        {a.baux[0]?.totalCharges > 0 && <p className="text-xs text-muted-foreground">Charges : {formatFCFA(a.baux[0].totalCharges)}</p>}
-                                        <div className="mt-2">
-                                          <StatusBadge status={a.statut === "LIBRE" ? "libre" : "occupe"} label={a.statut === "LIBRE" ? "Libre" : "Occupé"} />
-                                        </div>
-                                        {a.locataireActuel && (
-                                          <p className="text-[10px] text-muted-foreground mt-2 truncate">{a.locataireActuel.prenom} {a.locataireActuel.nom}</p>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </Link>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })()}
+        <div className="space-y-8">
+          {grouped.map(({ imm, etages }) => (
+            <div key={imm.id} className="bg-card border rounded-2xl overflow-hidden shadow-sm">
+              {/* Toit */}
+              <div className="bg-gradient-to-r from-slate-700 to-slate-800 dark:from-slate-800 dark:to-slate-900 px-6 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Building2 className="w-6 h-6 text-white/80" />
+                  <div>
+                    <h2 className="text-white font-bold text-lg">{imm.nom}</h2>
+                    <p className="text-white/60 text-xs">{imm._count.appartements} logements</p>
                   </div>
-                );
-              })}
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">
+                    {appartements.filter(a => a.immeuble?.id === imm.id && a.statut === "LIBRE").length} libres
+                  </span>
+                  <span className="text-xs bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full">
+                    {appartements.filter(a => a.immeuble?.id === imm.id && a.statut === "OCCUPE").length} occupés
+                  </span>
+                </div>
+              </div>
+
+              {/* Étages (vue en coupe) */}
+              <div className="divide-y divide-border">
+                {etages.map(({ etage, apparts }) => (
+                  <div key={etage} className="flex items-stretch">
+                    {/* Label étage */}
+                    <div className="w-24 md:w-32 flex-shrink-0 bg-muted/30 flex items-center justify-center border-r">
+                      <span className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-wider text-center px-2">
+                        {ETAGE_LABELS[etage] || etage}
+                      </span>
+                    </div>
+                    {/* Appartements de l'étage */}
+                    <div className="flex-1 flex flex-wrap gap-2 p-3">
+                      {apparts.map((a) => (
+                        <Link key={a.id} href={`/appartements/${a.id}`} className="group relative">
+                          <div className={`
+                            min-w-[140px] md:min-w-[160px] rounded-xl p-3 border-2 transition-all
+                            hover:shadow-md hover:-translate-y-0.5
+                            ${a.statut === "LIBRE"
+                              ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 dark:border-emerald-700"
+                              : "border-sky-300 bg-sky-50 dark:bg-sky-950/20 dark:border-sky-700"
+                            }
+                          `}>
+                            {/* Indicateur statut */}
+                            <div className={`absolute top-2 right-2 w-2.5 h-2.5 rounded-full ${a.statut === "LIBRE" ? "bg-emerald-500 animate-pulse" : "bg-sky-500"}`} />
+
+                            <p className="font-bold text-sm text-foreground truncate">{a.numero}</p>
+                            <p className="text-[10px] text-muted-foreground">{TYPE_LABELS[a.type] || a.type}</p>
+
+                            <div className="mt-2 pt-2 border-t border-current/10">
+                              {a.statut === "LIBRE" ? (
+                                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Disponible</p>
+                              ) : (
+                                <>
+                                  <p className="text-[10px] text-muted-foreground truncate">
+                                    {a.locataireActuel ? `${a.locataireActuel.prenom} ${a.locataireActuel.nom}` : "Occupé"}
+                                  </p>
+                                  <p className="text-xs font-semibold text-foreground mt-0.5">{formatFCFA(a.loyerBase)}</p>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Base / fondation */}
+              <div className="h-2 bg-gradient-to-r from-slate-400 to-slate-500 dark:from-slate-600 dark:to-slate-700" />
             </div>
-          );
-        })()
+          ))}
+        </div>
       )}
     </div>
   );
