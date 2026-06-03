@@ -10,6 +10,7 @@ import { Breadcrumb } from "@/components/breadcrumb";
 import { KeyboardShortcuts } from "@/components/keyboard-shortcuts";
 import { TopLoader } from "@/components/top-loader";
 import { SessionTimeout } from "@/components/session-timeout";
+import { AssistantChat } from "@/components/assistant-chat";
 import { prisma } from "@/lib/prisma";
 
 export default async function GestionnaireLayout({ children }: { children: React.ReactNode }) {
@@ -43,6 +44,7 @@ export default async function GestionnaireLayout({ children }: { children: React
         </div>
         <KeyboardShortcuts />
         <SessionTimeout />
+        <AssistantChat />
       </main>
     </div>
   );
