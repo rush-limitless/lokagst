@@ -1,6 +1,5 @@
 import { getEcheancesMois } from "@/actions/calendrier";
 import { formatFCFA } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 
 export default async function CalendrierPage({ searchParams }: { searchParams: Promise<{ m?: string; y?: string; vue?: string }> }) {
@@ -51,45 +50,77 @@ export default async function CalendrierPage({ searchParams }: { searchParams: P
         <div className="glass rounded-xl p-4 text-center"><div className="text-xl font-bold text-primary">{totalAttendu > 0 ? Math.round(totalPaye / totalAttendu * 100) : 0}%</div><p className="text-xs text-muted-foreground">Recouvrement</p></div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-emerald-600">Payés ({payes.length})</CardTitle></CardHeader>
-          <CardContent className="max-h-64 overflow-y-auto space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-[400px]">
+        {/* Colonne PAYÉS */}
+        <div className="bg-emerald-50/50 dark:bg-emerald-950/10 rounded-2xl border-2 border-emerald-200 dark:border-emerald-900 p-3 flex flex-col">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-emerald-500" />
+              <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Payés</span>
+            </div>
+            <span className="text-xs font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full">{payes.length}</span>
+          </div>
+          <div className="flex-1 overflow-y-auto space-y-2">
             {payes.map((e) => (
-              <Link key={e.id} href={`/baux/${e.id}`} className="flex justify-between items-center p-2 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/10 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors">
-                <div><p className="text-sm font-medium text-foreground">{e.locataire}</p><p className="text-[10px] text-muted-foreground">{e.appartement}{e.periodicite !== "MENSUEL" ? ` · ${e.periodicite.toLowerCase()}` : ""}</p></div>
-                <span className="text-xs font-bold text-emerald-600">{formatFCFA(e.montant)}</span>
+              <Link key={e.id} href={`/baux/${e.id}`} className="block p-3 bg-white dark:bg-gray-900 rounded-xl border border-emerald-100 dark:border-emerald-900 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                <p className="text-sm font-semibold text-foreground">{e.locataire}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{e.appartement}{e.periodicite !== "MENSUEL" ? ` · ${e.periodicite.toLowerCase()}` : ""}</p>
+                <p className="text-xs font-bold text-emerald-600 mt-2">{formatFCFA(e.montant)} ✓</p>
               </Link>
             ))}
-            {payes.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">Aucun</p>}
-          </CardContent>
-        </Card>
+            {payes.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">Aucun paiement</p>}
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-orange-600">Partiels ({partiels.length})</CardTitle></CardHeader>
-          <CardContent className="max-h-64 overflow-y-auto space-y-2">
+        {/* Colonne PARTIELS */}
+        <div className="bg-orange-50/50 dark:bg-orange-950/10 rounded-2xl border-2 border-orange-200 dark:border-orange-900 p-3 flex flex-col">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-orange-500" />
+              <span className="text-sm font-bold text-orange-700 dark:text-orange-400">Partiels</span>
+            </div>
+            <span className="text-xs font-bold bg-orange-500 text-white px-2 py-0.5 rounded-full">{partiels.length}</span>
+          </div>
+          <div className="flex-1 overflow-y-auto space-y-2">
             {partiels.map((e) => (
-              <Link key={e.id} href={`/baux/${e.id}`} className="flex justify-between items-center p-2 rounded-lg bg-orange-50/50 dark:bg-orange-950/10 hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-colors">
-                <div><p className="text-sm font-medium text-foreground">{e.locataire}</p><p className="text-[10px] text-muted-foreground">{e.appartement}</p></div>
-                <div className="text-right"><span className="text-xs font-bold text-orange-600">{formatFCFA(e.montantPaye)}</span><p className="text-[10px] text-muted-foreground">/ {formatFCFA(e.montant)}</p></div>
+              <Link key={e.id} href={`/baux/${e.id}`} className="block p-3 bg-white dark:bg-gray-900 rounded-xl border border-orange-100 dark:border-orange-900 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                <p className="text-sm font-semibold text-foreground">{e.locataire}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{e.appartement}</p>
+                <div className="mt-2">
+                  <div className="flex justify-between text-[10px] mb-1">
+                    <span className="text-orange-600 font-bold">{formatFCFA(e.montantPaye)}</span>
+                    <span className="text-muted-foreground">/ {formatFCFA(e.montant)}</span>
+                  </div>
+                  <div className="h-1.5 bg-orange-100 dark:bg-orange-900/30 rounded-full overflow-hidden">
+                    <div className="h-full bg-orange-500 rounded-full" style={{ width: `${Math.round(e.montantPaye / e.montant * 100)}%` }} />
+                  </div>
+                </div>
               </Link>
             ))}
-            {partiels.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">Aucun</p>}
-          </CardContent>
-        </Card>
+            {partiels.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">Aucun</p>}
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-red-600">Impayés ({impayes.length})</CardTitle></CardHeader>
-          <CardContent className="max-h-64 overflow-y-auto space-y-2">
+        {/* Colonne IMPAYÉS */}
+        <div className="bg-red-50/50 dark:bg-red-950/10 rounded-2xl border-2 border-red-200 dark:border-red-900 p-3 flex flex-col">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-sm font-bold text-red-700 dark:text-red-400">Impayés</span>
+            </div>
+            <span className="text-xs font-bold bg-red-500 text-white px-2 py-0.5 rounded-full">{impayes.length}</span>
+          </div>
+          <div className="flex-1 overflow-y-auto space-y-2">
             {impayes.map((e) => (
-              <Link key={e.id} href={`/baux/${e.id}`} className="flex justify-between items-center p-2 rounded-lg bg-red-50/50 dark:bg-red-950/10 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
-                <div><p className="text-sm font-medium text-foreground">{e.locataire}</p><p className="text-[10px] text-muted-foreground">{e.appartement} — dû le {e.jourLimite}{e.periodicite !== "MENSUEL" ? ` · ${e.periodicite.toLowerCase()}` : ""}</p></div>
-                <span className="text-xs font-bold text-red-600">{formatFCFA(e.montant)}</span>
+              <Link key={e.id} href={`/baux/${e.id}`} className="block p-3 bg-white dark:bg-gray-900 rounded-xl border border-red-100 dark:border-red-900 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                <p className="text-sm font-semibold text-foreground">{e.locataire}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{e.appartement} — dû le {e.jourLimite}</p>
+                <p className="text-xs font-bold text-red-600 mt-2">{formatFCFA(e.montant)}</p>
               </Link>
             ))}
-            {impayes.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">Tous payés</p>}
-          </CardContent>
-        </Card>
+            {impayes.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">✅ Tous payés !</p>}
+          </div>
+        </div>
       </div>
     </div>
   );
