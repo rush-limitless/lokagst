@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isMoisEcheance } from "@/lib/utils";
-import { getBauxActifs, envoyerRapportMensuel, getInfosPeriode, traiterRappels, traiterPenalites, traiterSuspensions, traiterRenouvellements } from "@/lib/cron-tasks";
+import { getBauxActifs, envoyerRapportMensuel, getInfosPeriode, traiterRappels, traiterPenalites, traiterSuspensions, traiterRenouvellements } from "@/lib/cron";
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
