@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isMoisEcheance, PERIODICITE_MOIS, montantEcheance } from "@/lib/utils";
+import { isMoisEcheance, montantEcheance } from "@/lib/utils";
 import { calculerAttenduMultiBaux } from "@/lib/calculs-loyer";
 
 describe("isMoisEcheance", () => {
