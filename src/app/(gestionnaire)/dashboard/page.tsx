@@ -6,8 +6,6 @@ import { Building2, TrendingUp, AlertTriangle, Key, Plus, FileText } from "lucid
 import { DashboardTabs } from "./dashboard-tabs";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { AnimatedStatCard } from "@/components/animated-stat-card";
-import { ActivityTimeline } from "@/components/activity-timeline";
-import { PrevisionTresorerie } from "@/components/prevision-tresorerie";
 
 
 export default async function DashboardPage() {
@@ -83,12 +81,6 @@ export default async function DashboardPage() {
 
       {/* Onboarding */}
       <OnboardingChecklist counts={{ immeubles: stats.appartements.total > 0 ? 1 : 0, appartements: stats.appartements.total, locataires: stats.appartements.occupes, baux: stats.appartements.occupes, paiements: stats.finances.revenusMois > 0 ? 1 : 0 }} />
-
-      {/* Timeline + Prévision */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="md:col-span-2"><ActivityTimeline /></div>
-        <PrevisionTresorerie />
-      </div>
 
       {/* Onglets */}
       <DashboardTabs
