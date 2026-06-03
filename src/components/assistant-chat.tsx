@@ -76,7 +76,7 @@ export function AssistantChat() {
 
       {/* Input */}
       <form onSubmit={(e) => { e.preventDefault(); send(); }} className="flex items-center gap-2 p-3 border-t border-gray-200 dark:border-gray-700">
-        <input value={input} onChange={e => setInput(e.target.value)} placeholder="Posez une question..." className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-transparent focus:outline-none focus:ring-2 focus:ring-[hsl(199,70%,32%)]" disabled={loading} />
+        <input value={input} onChange={e => setInput(e.target.value)} placeholder="Posez une question..." className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[hsl(199,70%,32%)]" disabled={loading} />
         <button type="submit" disabled={loading || !input.trim()} className="w-9 h-9 flex items-center justify-center bg-[hsl(199,70%,32%)] hover:bg-[hsl(199,70%,26%)] disabled:opacity-50 text-white rounded-lg transition-colors" aria-label="Envoyer">
           <Send className="size-4" />
         </button>
