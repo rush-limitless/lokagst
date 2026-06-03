@@ -52,12 +52,19 @@ const getCachedSituationGlobale = unstable_cache(async () => {
         const loyerPaye = montantPaye >= loyerAttendu;
         const chargesPaye = montantPaye >= totalAttendu;
 
-        if (!loyerPaye) { moisLoyerImpayes++; montantLoyerDu += loyerAttendu - Math.min(montantPaye, loyerAttendu); }
+        if (!loyerPaye) {
+          // Pour baux non-mensuels: ne compter que les mois échus depuis l'échéance
+          const moisEcoulesDepuis = Math.min(freq, (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth()) + 1);
+          const loyerDuProratis = b.montantLoyer * moisEcoulesDepuis;
+          moisLoyerImpayes += moisEcoulesDepuis;
+          montantLoyerDu += loyerDuProratis - Math.min(montantPaye, loyerDuProratis);
+        }
         if (!chargesPaye && b.totalCharges > 0) {
-          moisChargesImpayes++;
-          // Ce que le locataire a payé en charges = ce qui reste après avoir couvert le loyer (0 si loyer pas couvert)
-          const payePourCharges = montantPaye > loyerAttendu ? montantPaye - loyerAttendu : 0;
-          montantChargesDu += chargesAttendues - Math.min(payePourCharges, chargesAttendues);
+          const moisEcoulesDepuis = Math.min(freq, (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth()) + 1);
+          const chargesDuProratisees = b.totalCharges * moisEcoulesDepuis;
+          moisChargesImpayes += moisEcoulesDepuis;
+          const payePourCharges = montantPaye > b.montantLoyer * moisEcoulesDepuis ? montantPaye - b.montantLoyer * moisEcoulesDepuis : 0;
+          montantChargesDu += chargesDuProratisees - Math.min(payePourCharges, chargesDuProratisees);
         }
 
         detailMois.push({ mois: moisLabel, loyerPaye, chargesPaye, montantPaye, echeance: true });
