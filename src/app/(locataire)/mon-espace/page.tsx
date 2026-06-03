@@ -116,9 +116,12 @@ export default async function MonEspace() {
                         <p className="text-xs text-muted-foreground">{p.modePaiement === "VIREMENT_BANCAIRE" ? "Virement" : "Orange Money"}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-foreground">{formatFCFA(p.montant)}</p>
-                      <Badge variant="outline" className={`text-[10px] ${p.statut === "PAYE" ? "text-emerald-600 border-emerald-300" : "text-orange-600 border-orange-300"}`}>{p.statut === "PAYE" ? "Pay&eacute;" : "Partiel"}</Badge>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-foreground">{formatFCFA(p.montant)}</p>
+                        <Badge variant="outline" className={`text-[10px] ${p.statut === "PAYE" ? "text-emerald-600 border-emerald-300" : "text-orange-600 border-orange-300"}`}>{p.statut === "PAYE" ? "Pay&eacute;" : "Partiel"}</Badge>
+                      </div>
+                      <a href={`/api/quittance-pdf?id=${p.id}`} target="_blank" className="text-[10px] text-primary hover:underline">📄</a>
                     </div>
                   </div>
                 ))}

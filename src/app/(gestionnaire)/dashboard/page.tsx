@@ -6,6 +6,9 @@ import { Building2, TrendingUp, AlertTriangle, Key, Plus, FileText } from "lucid
 import { DashboardTabs } from "./dashboard-tabs";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { AnimatedStatCard } from "@/components/animated-stat-card";
+import { SmartAlerts } from "@/components/smart-alerts";
+import { ActivityTimeline } from "@/components/activity-timeline";
+import { PrevisionTresorerie } from "@/components/prevision-tresorerie";
 
 
 export default async function DashboardPage() {
@@ -41,6 +44,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stat cards */}
+      <SmartAlerts />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 stagger-in">
         <AnimatedStatCard
           icon={<Building2 className="size-5 text-sky-600" />}
@@ -82,7 +86,13 @@ export default async function DashboardPage() {
       {/* Onboarding */}
       <OnboardingChecklist counts={{ immeubles: stats.appartements.total > 0 ? 1 : 0, appartements: stats.appartements.total, locataires: stats.appartements.occupes, baux: stats.appartements.occupes, paiements: stats.finances.revenusMois > 0 ? 1 : 0 }} />
 
-      {/* Onglets : Vue d'ensemble / Alertes / Activités */}
+      {/* Timeline + Prévision */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="md:col-span-2"><ActivityTimeline /></div>
+        <PrevisionTresorerie />
+      </div>
+
+      {/* Onglets */}
       <DashboardTabs
         evolution={evolution}
         stats={stats}
