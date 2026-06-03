@@ -15,7 +15,7 @@ export default async function AppartementsPage({ searchParams }: { searchParams:
   ]);
 
   // Group by immeuble then by etage
-  const etageOrder = ["CINQUIEME", "QUATRIEME", "TROISIEME", "DEUXIEME", "PREMIER", "RDC"];
+  const etageOrder = ["CINQUIEME", "QUATRIEME", "TROISIEME", "DEUXIEME", "PREMIER", "RDC", "AUTRE"];
   const grouped: { imm: typeof immeubles[0]; etages: { etage: string; apparts: typeof appartements }[] }[] = [];
   for (const im of immeubles) {
     const apps = appartements.filter((a) => a.immeuble?.id === im.id);
