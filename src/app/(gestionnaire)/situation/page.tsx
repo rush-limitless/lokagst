@@ -120,22 +120,15 @@ export default async function SituationPage({ searchParams }: { searchParams: Pr
                               {s.moisChargesImpayes > 0 && <span className="text-orange-600">Charges : {s.moisChargesImpayes} mois — {formatFCFA(s.montantChargesDu)}</span>}
                             </div>
                           )}
-                          <div className="flex gap-0.5 mt-2">
-                            {s.detailMois.map((m, i) => (
-                              <div
-                                key={i}
-                                title={m.echeance ? `${m.mois} — ${m.montantPaye.toLocaleString()} FCFA` : `${m.mois} — hors échéance`}
-                                className={`w-3 h-3 rounded-sm ${
-                                  !m.echeance
-                                    ? "bg-muted-foreground/20"
-                                    : m.loyerPaye && m.chargesPaye
-                                    ? "bg-emerald-500"
-                                    : m.loyerPaye
-                                    ? "bg-orange-400"
-                                    : "bg-red-400"
-                                }`}
-                              />
-                            ))}
+                          <div className="flex items-end gap-0.5 mt-2 h-5">
+                            {s.detailMois.map((m, i) => {
+                              const pct = m.echeance ? Math.min(100, Math.round((m.montantPaye / (s.totalMensuel * (s.periodicite === "MENSUEL" ? 1 : s.periodicite === "TRIMESTRIEL" ? 3 : s.periodicite === "SEMESTRIEL" ? 6 : 12))) * 100)) : -1;
+                              const h = pct < 0 ? 4 : Math.max(4, Math.round(pct / 100 * 20));
+                              const color = pct < 0 ? "bg-muted-foreground/15" : pct >= 100 ? "bg-emerald-500" : pct > 0 ? "bg-orange-400" : "bg-red-400";
+                              return (
+                                <div key={i} title={m.echeance ? `${m.mois} — ${pct}% payé (${m.montantPaye.toLocaleString()} FCFA)` : `${m.mois}`} className={`w-2.5 rounded-t-sm transition-all ${color}`} style={{ height: `${h}px` }} />
+                              );
+                            })}
                           </div>
                         </div>
                         <div className="text-right">
