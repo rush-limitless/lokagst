@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 const LABELS: Record<string, string> = {
   dashboard: "Dashboard",
@@ -31,12 +32,16 @@ const LABELS: Record<string, string> = {
 
 export function Breadcrumb() {
   const pathname = usePathname();
+  const router = useRouter();
   const parts = pathname.split("/").filter(Boolean);
 
   if (parts.length <= 1) return null;
 
   return (
-    <nav className="text-sm text-muted-foreground mb-4 flex items-center gap-1">
+    <nav className="text-sm text-muted-foreground mb-4 flex items-center gap-2">
+      <button onClick={() => router.back()} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" aria-label="Retour">
+        <ArrowLeft className="size-4" />
+      </button>
       <Link href="/dashboard" className="hover:text-blue-600">Accueil</Link>
       {parts.map((part, i) => {
         const href = "/" + parts.slice(0, i + 1).join("/");
