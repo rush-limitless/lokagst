@@ -131,7 +131,8 @@ model Paiement {
   penalites      Int            @default(0)
   totalDu        Int            @default(0)
   modePaiement   ModePaiement
-  preuvePaiement String?
+  preuvePaiement       String?
+  referenceTransaction String?
   montantAutres  Int            @default(0)
   montantCaution Int            @default(0)
   notesAutres    String?

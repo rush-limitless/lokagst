@@ -134,6 +134,10 @@ export default function NouveauPaiement() {
               </select>
             </div>
             <div className="space-y-2">
+              <Label>Référence transaction (optionnel)</Label>
+              <Input name="referenceTransaction" placeholder="Ex: numéro Orange Money, ID virement..." />
+            </div>
+            <div className="space-y-2">
               <Label>Preuve de paiement</Label>
               <FileUpload onUploaded={setPreuveUrl} label="Joindre la preuve de paiement" />
             </div>

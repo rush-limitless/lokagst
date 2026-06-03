@@ -113,6 +113,7 @@ export async function enregistrerPaiement(formData: FormData) {
               modePaiement: parsed.data.modePaiement, resteDu,
               statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE",
               preuvePaiement: parsed.data.preuvePaiement || null,
+              referenceTransaction: parsed.data.referenceTransaction || null,
               notes: parsed.data.notes || `Paiement ${nbMois} jour(s)`,
             },
           });
@@ -135,6 +136,7 @@ export async function enregistrerPaiement(formData: FormData) {
               moisConcerne, modePaiement: parsed.data.modePaiement, resteDu,
               statut: resteDu > 0 ? "PARTIELLEMENT_PAYE" : "PAYE",
               preuvePaiement: parsed.data.preuvePaiement || null,
+              referenceTransaction: i === 0 ? (parsed.data.referenceTransaction || null) : null,
               notes: i === 0 ? (parsed.data.notes || null) : `Ventilation mois ${i + 1}/${nbMois}`,
             },
           });

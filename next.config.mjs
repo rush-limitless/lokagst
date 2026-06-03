@@ -1,7 +1,10 @@
 import { withSentryConfig } from "@sentry/nextjs";
+import withPWA from "@ducanh2912/next-pwa";
+
+const pwa = withPWA({ dest: "public", disable: process.env.NODE_ENV === "development", register: true, skipWaiting: true });
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig = pwa({
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
@@ -23,7 +26,7 @@ const nextConfig = {
       },
     ];
   },
-};
+});
 
 export default withSentryConfig(nextConfig, {
   silent: true,

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail, genererEmailRappel } from "@/lib/email";
 import { isMoisEcheance, PERIODICITE_MOIS } from "@/lib/utils";
 import { envoyerFacturesMensuelles } from "@/actions/factures";
+import { envoyerRappelWhatsApp } from "@/lib/whatsapp";
 
 type BailComplet = Awaited<ReturnType<typeof getBauxActifs>>[number];
 
@@ -49,6 +50,7 @@ export async function traiterRappels(bail: BailComplet, jour: number, moisCouran
     const moisLabel = moisCourant.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
     const { sujet, contenu } = genererEmailRappel(bail.locataire.prenom, bail.locataire.nom, attendu, moisLabel);
     try { await sendEmail(bail.locataire.email, sujet, contenu); await prisma.emailLog.create({ data: { locataireId: bail.locataireId, type: "RAPPEL_ECHEANCE", sujet, contenu, destinataire: bail.locataire.email } }); rappels++; } catch {}
+    if (bail.locataire.telephone) { try { await envoyerRappelWhatsApp(bail.locataire.telephone, bail.locataire.prenom, attendu, moisLabel); } catch {} }
   }
 
   if (jour === bail.jourLimitePaiement + 1 && !estPaye) {
