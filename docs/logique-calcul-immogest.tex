@@ -1,0 +1,279 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{tcolorbox}
+\usepackage{hyperref}
+
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhead[L]{\textsc{ImmoGest v1.0}}
+\fancyhead[R]{\textsc{Logique de Calcul}}
+\fancyfoot[C]{\thepage}
+
+\definecolor{formule}{RGB}{24,78,119}
+\definecolor{exemple}{RGB}{46,125,50}
+
+\newtcolorbox{formulebox}[1][]{colback=formule!5, colframe=formule!80, title=#1, fonttitle=\bfseries}
+\newtcolorbox{exemplebox}[1][]{colback=exemple!5, colframe=exemple!70, title=#1, fonttitle=\bfseries}
+
+\title{\vspace{-1cm}\textbf{\LARGE ImmoGest — Logique de Calcul} \\ \large Référentiel des formules de l'application}
+\author{IMMOSTAR SCI}
+\date{Juin 2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+% =================================================================
+\section{Montant Attendu (Multi-Baux)}
+% =================================================================
+
+Le montant attendu représente la totalité des loyers et charges qu'un locataire aurait dû payer depuis son entrée dans le logement. Pour un locataire ayant eu \textbf{plusieurs baux successifs} sur le même appartement, chaque bail contribue séparément.
+
+\begin{formulebox}[Formule générale]
+\begin{equation}
+\text{Attendu total} = \sum_{\text{chaque bail}} \text{Attendu}_{\text{bail}}
+\end{equation}
+\end{formulebox}
+
+\subsection{Bail MENSUEL}
+
+\begin{formulebox}[Attendu — Bail mensuel]
+\begin{equation}
+\text{Attendu} = (\text{loyer} + \text{charges}) \times \frac{\text{jours}}{30}
+\end{equation}
+\vspace{-0.3cm}
+\begin{itemize}[noitemsep]
+  \item Bail terminé : jours = dateFin $-$ dateDebut
+  \item Bail actif : jours = aujourd'hui $-$ dateDebut
+\end{itemize}
+\end{formulebox}
+
+\begin{exemplebox}[Exemple : ATG 1 — Bail 1 (mensuel)]
+Loyer = 150\,000, charges = 7\,500, du 01/07/2023 au 31/08/2025 (792 jours)
+$$\text{Attendu} = 157\,500 \times \frac{792}{30} = 4\,158\,000 \text{ FCFA}$$
+\end{exemplebox}
+
+\subsection{Bail ANNUEL}
+
+\begin{formulebox}[Attendu — Bail annuel]
+\begin{equation}
+\text{Attendu} = (\text{loyer} + \text{charges}) \times 12 \times \text{nombre d'échéances passées}
+\end{equation}
+\vspace{-0.3cm}
+\begin{itemize}[noitemsep]
+  \item L'échéance tombe le \textbf{mois de début du bail}, chaque année
+  \item On compte combien de ces mois anniversaires sont déjà passés
+\end{itemize}
+\end{formulebox}
+
+\begin{exemplebox}[Exemple : ATG 1 — Bail 2 (annuel, début sept 2025)]
+Au 03/06/2026 : échéance de septembre 2025 est passée $\Rightarrow$ 1 échéance.
+$$\text{Attendu} = 165\,000 \times 12 \times 1 = 1\,980\,000 \text{ FCFA}$$
+\end{exemplebox}
+
+\subsection{Bail TRIMESTRIEL}
+
+\begin{formulebox}[Attendu — Bail trimestriel]
+\begin{equation}
+\text{Attendu} = (\text{loyer} + \text{charges}) \times 3 \times \text{nombre d'échéances passées}
+\end{equation}
+\vspace{-0.3cm}
+\begin{itemize}[noitemsep]
+  \item L'échéance tombe tous les 3 mois à partir du mois de début
+  \item Ex: début mai $\Rightarrow$ échéances en mai, août, novembre, février...
+\end{itemize}
+\end{formulebox}
+
+\subsection{Bail SEMESTRIEL}
+
+\begin{formulebox}[Attendu — Bail semestriel]
+\begin{equation}
+\text{Attendu} = (\text{loyer} + \text{charges}) \times 6 \times \text{nombre d'échéances passées}
+\end{equation}
+\end{formulebox}
+
+% =================================================================
+\section{Total Réglé}
+% =================================================================
+
+\begin{formulebox}[Total réglé]
+\begin{equation}
+\text{Réglé} = \sum_{\text{tous les baux du locataire sur l'appartement}} \sum_{\text{paiements}} \text{montant}
+\end{equation}
+\vspace{-0.3cm}
+\begin{itemize}[noitemsep]
+  \item Inclut les paiements de \textbf{tous} les baux (terminés + actif)
+  \item N'inclut \textbf{pas} la caution (comptée séparément)
+\end{itemize}
+\end{formulebox}
+
+% =================================================================
+\section{Total Encaissé}
+% =================================================================
+
+\begin{formulebox}[Total encaissé]
+\begin{equation}
+\text{Encaissé} = \text{Réglé} + \sum_{\text{tous les baux}} \text{caution payée}
+\end{equation}
+\vspace{-0.3cm}
+\begin{itemize}[noitemsep]
+  \item La caution est comptée si \texttt{cautionPayee = true} sur le bail
+  \item On somme les cautions de \textbf{tous} les baux (pas seulement l'actif)
+\end{itemize}
+\end{formulebox}
+
+% =================================================================
+\section{Différence (Avance / Impayé)}
+% =================================================================
+
+\begin{formulebox}[Différence]
+\begin{equation}
+\text{Différence} = \text{Réglé} - \text{Attendu}
+\end{equation}
+\vspace{-0.3cm}
+\begin{itemize}[noitemsep]
+  \item Positif $\Rightarrow$ le locataire est en \textbf{avance}
+  \item Négatif $\Rightarrow$ le locataire a des \textbf{impayés}
+  \item Zéro $\Rightarrow$ \textbf{à jour}
+\end{itemize}
+\end{formulebox}
+
+% =================================================================
+\section{Total Dû (Situation Globale)}
+% =================================================================
+
+Le total dû est calculé différemment de la différence simple. Il représente les \textbf{mois échus non réglés} du bail actif.
+
+\subsection{Bail MENSUEL}
+
+\begin{formulebox}[Total dû — mensuel]
+Pour chaque mois passé depuis le début du bail :
+\begin{equation}
+\text{Si paiement du mois} < \text{loyer} + \text{charges} \Rightarrow \text{mois impayé}
+\end{equation}
+\begin{equation}
+\text{Total dû} = \sum_{\text{mois impayés}} (\text{montant attendu} - \text{montant payé})
+\end{equation}
+\end{formulebox}
+
+\subsection{Bail ANNUEL / TRIMESTRIEL / SEMESTRIEL}
+
+\begin{formulebox}[Total dû — non-mensuel (proratisé)]
+Pour une échéance impayée, on ne compte \textbf{pas} la totalité de l'échéance mais seulement les mois écoulés depuis :
+\begin{equation}
+\text{Total dû} = \text{totalMensuel} \times \min(\text{fréquence},\; \text{mois écoulés depuis l'échéance})
+\end{equation}
+\vspace{-0.3cm}
+\begin{itemize}[noitemsep]
+  \item La dette augmente \textbf{mois par mois}, pas d'un coup
+  \item Plafonné à la fréquence (ex: max 12 pour un annuel)
+\end{itemize}
+\end{formulebox}
+
+\begin{exemplebox}[Exemple : TMCO — Bail annuel, échéance jan 2026 impayée]
+Au 03/06/2026 : 6 mois écoulés depuis janvier 2026.
+$$\text{Total dû} = 157\,500 \times \min(12, 6) = 157\,500 \times 6 = 945\,000 \text{ FCFA}$$
+\end{exemplebox}
+
+\begin{exemplebox}[Exemple : BASS TECHNOLOGIES — Bail trimestriel, échéance mai 2026 impayée]
+Au 03/06/2026 : 1 mois écoulé depuis mai 2026.
+$$\text{Total dû} = 600\,000 \times \min(3, 1) = 600\,000 \text{ FCFA}$$
+\end{exemplebox}
+
+% =================================================================
+\section{Détermination des Mois d'Échéance}
+% =================================================================
+
+\begin{formulebox}[Règle d'échéance]
+Un mois $M$ est un mois d'échéance si :
+\begin{equation}
+(M_{\text{année}} - D_{\text{année}}) \times 12 + (M_{\text{mois}} - D_{\text{mois}}) \equiv 0 \pmod{\text{fréquence}}
+\end{equation}
+où $D$ = date de début du bail.
+
+\vspace{0.2cm}
+\begin{tabular}{ll}
+\toprule
+\textbf{Périodicité} & \textbf{Fréquence} \\
+\midrule
+Mensuel & 1 (tous les mois) \\
+Trimestriel & 3 (tous les 3 mois) \\
+Semestriel & 6 (tous les 6 mois) \\
+Annuel & 12 (une fois par an) \\
+\bottomrule
+\end{tabular}
+\end{formulebox}
+
+\begin{exemplebox}[Exemples]
+\begin{itemize}
+  \item Bail ANNUEL débutant en \textbf{septembre} $\Rightarrow$ échéances en sept. chaque année
+  \item Bail ANNUEL débutant en \textbf{janvier} $\Rightarrow$ échéances en janvier chaque année
+  \item Bail TRIMESTRIEL débutant en \textbf{mai} $\Rightarrow$ échéances en mai, août, nov, fév
+\end{itemize}
+\end{exemplebox}
+
+% =================================================================
+\section{Renouvellement Automatique des Baux}
+% =================================================================
+
+\begin{formulebox}[Logique du CRON quotidien]
+Chaque jour, pour chaque bail arrivant à expiration :
+\begin{enumerate}[noitemsep]
+  \item Vérifier \texttt{renouvellementAuto = true}
+  \item Si oui : créer un nouveau bail avec les mêmes conditions
+  \item Ancien bail $\rightarrow$ statut TERMINÉ
+  \item Nouveau bail $\rightarrow$ statut ACTIF, mêmes montants, nouvelle période
+\end{enumerate}
+\textbf{Pas de condition sur les impayés} — le bail est renouvelé même si le locataire a des dettes.
+\end{formulebox}
+
+% =================================================================
+\section{Reporting — Suivi des Paiements}
+% =================================================================
+
+\begin{formulebox}[Colonnes du tableau de reporting]
+\begin{align}
+\text{Jours d'habitation} &= \text{aujourd'hui} - \text{date du premier bail} \\
+\text{Mois d'habitation} &= \frac{\text{jours d'habitation}}{30} \\
+\text{Attendu} &= \text{formule multi-baux (§1)} \\
+\text{Réglé} &= \text{total paiements tous baux (§2)} \\
+\text{Différence} &= \text{Réglé} - \text{Attendu} \\
+\text{Total encaissé} &= \text{Réglé} + \text{cautions payées (§3)}
+\end{align}
+\end{formulebox}
+
+% =================================================================
+\section{Finances — Revenus et Bilan}
+% =================================================================
+
+\begin{formulebox}[Calculs financiers]
+\begin{align}
+\text{Revenus du mois} &= \sum_{\text{paiements du mois}} \text{montant} \\
+\text{Dépenses du mois} &= \sum_{\text{dépenses du mois}} \text{montant} \\
+\text{Bilan net} &= \text{Revenus} - \text{Dépenses}
+\end{align}
+\end{formulebox}
+
+% =================================================================
+\section{Dashboard — Indicateurs}
+% =================================================================
+
+\begin{formulebox}[Formules des indicateurs]
+\begin{align}
+\text{Taux d'occupation} &= \frac{\text{appartements occupés}}{\text{total appartements}} \times 100 \\
+\text{Total impayés} &= \sum_{\text{locataires}} \max(0,\; \text{Attendu} - \text{Réglé}) \\
+\text{Revenus mois courant} &= \sum_{\text{paiements ce mois}} \text{montant}
+\end{align}
+\end{formulebox}
+
+\end{document}

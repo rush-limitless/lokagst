@@ -1,0 +1,746 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french,english]{babel}
+\usepackage{geometry}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\geometry{margin=2cm}
+\pagestyle{fancy}
+\fancyhead[L]{ImmoGest v1.0 — Documentation}
+\fancyhead[R]{IMMOSTAR SCI}
+
+\title{\textbf{ImmoGest v1.0} \\ \large Documentation Complète / Complete Documentation \\ Application de Gestion Locative — IMMOSTAR SCI}
+\author{Arnaud CHEWA — Développeur}
+\date{03 Juin 2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+%% ============================
+%% PARTIE FRANÇAISE
+%% ============================
+\selectlanguage{french}
+\part{Documentation Française}
+
+\section{Présentation Générale}
+
+ImmoGest est une application web de gestion locative développée pour \textbf{IMMOSTAR SCI}, société civile immobilière basée à Yaoundé, Nkolfoulou. Elle permet la gestion complète de 3 biens immobiliers totalisant 32 logements.
+
+\subsection{Biens gérés}
+\begin{itemize}
+  \item \textbf{Résidence La'ag Tchang} — 28 logements (RDC + 5 étages)
+  \item \textbf{Santa Barbara} — 2 logements (RDC + Étage)
+  \item \textbf{Villa Omnisports} — 1 villa
+\end{itemize}
+
+\subsection{Stack Technique}
+\begin{itemize}
+  \item Next.js 14 (App Router, Server Components, Server Actions)
+  \item TypeScript, Tailwind CSS, shadcn/ui
+  \item Prisma 6 + PostgreSQL (Neon)
+  \item NextAuth v5 (JWT, rôles gestionnaire/locataire)
+  \item Déployé sur Vercel (auto-deploy depuis GitHub)
+\end{itemize}
+
+\section{Menus et Fonctionnalités}
+
+\subsection{Tableau de Bord (Dashboard)}
+
+Page d'accueil après connexion. Affiche les indicateurs clés en temps réel.
+
+\subsubsection{Indicateurs affichés}
+\begin{itemize}
+  \item Nombre total de locataires actifs
+  \item Nombre d'appartements libres / occupés
+  \item Total des revenus du mois en cours
+  \item Total des impayés
+  \item Graphique des revenus mensuels (12 derniers mois)
+  \item Taux d'occupation par immeuble (camembert)
+\end{itemize}
+
+\subsubsection{Logique de calcul}
+Les paiements sont filtrés sur les 12 derniers mois pour les performances. Le cache est invalidé à chaque nouveau paiement ou modification de bail (revalidateTag).
+
+\subsection{Situation Globale}
+
+Vue synthétique de tous les locataires avec leur statut de paiement (à jour ou en retard).
+
+\subsubsection{Logique de calcul du Total Dû}
+Pour chaque bail actif, le système :
+\begin{enumerate}
+  \item Identifie les mois d'échéance selon la périodicité du bail
+  \item Pour chaque échéance passée : vérifie si les paiements couvrent le montant attendu
+  \item \textbf{Bail MENSUEL} : 1 échéance = loyer + charges par mois
+  \item \textbf{Bail ANNUEL} : 1 échéance = (loyer + charges) $\times$ 12
+  \item \textbf{Bail TRIMESTRIEL} : 1 échéance = (loyer + charges) $\times$ 3
+\end{enumerate}
+
+\textbf{Proratisation du Total Dû} (baux non-mensuels) :
+
+Pour un bail ANNUEL/TRIMESTRIEL impayé, le total dû n'est \textbf{pas} l'échéance complète, mais le nombre de mois écoulés depuis l'échéance impayée multiplié par le mensuel :
+
+\begin{equation}
+\text{totalDû} = \text{totalMensuel} \times \min(\text{fréquence}, \text{mois écoulés depuis l'échéance})
+\end{equation}
+
+\textbf{Exemple TMCO} : Bail ANNUEL, échéance 01/01/2026 impayée. Au 03/06/2026 :
+$$\text{totalDû} = 157\,500 \times \min(12, 6) = 157\,500 \times 6 = 945\,000 \text{ FCFA}$$
+
+\subsection{Situation Locataire (détail)}
+
+Page individuelle accessible depuis la Situation Globale. Affiche pour un locataire donné :
+
+\subsubsection{Logique de calcul Attendu Multi-Baux}
+Pour les locataires ayant eu plusieurs baux successifs sur le même appartement :
+
+\begin{equation}
+\text{attendu} = \sum_{\text{bail}} \text{montant\_bail} \times \text{nb\_échéances\_bail}
+\end{equation}
+
+\begin{itemize}
+  \item \textbf{Baux MENSUELS} : $\text{attendu} = (\text{loyer} + \text{charges}) \times \frac{\text{jours}}{30}$
+  \item \textbf{Baux ANNUELS/TRIMESTRIELS} : $\text{attendu} = (\text{loyer} + \text{charges}) \times \text{fréquence} \times \text{nb échéances passées}$
+\end{itemize}
+
+Le \textbf{total réglé} = somme de TOUS les paiements de TOUS les baux du locataire sur l'appartement.
+
+Le \textbf{total encaissé} = total réglé + somme des cautions payées de tous les baux.
+
+\subsection{Paiements}
+
+Gestion complète des encaissements avec :
+\begin{itemize}
+  \item Enregistrement d'un paiement (montant, mode, mois concerné)
+  \item Validation par le gestionnaire
+  \item Génération de reçus et quittances
+  \item Export Excel des paiements
+  \item Historique par locataire
+\end{itemize}
+
+\textbf{Modes de paiement} : Virement bancaire, Mobile Money (Orange/MTN), Espèces.
+
+\subsection{Baux}
+
+Gestion des contrats de location :
+\begin{itemize}
+  \item Création de bail (locataire, appartement, dates, montants, périodicité)
+  \item Renouvellement automatique (CRON quotidien)
+  \item Résiliation / Terminaison
+  \item Historique multi-baux par locataire
+\end{itemize}
+
+\textbf{Périodicités supportées} : Mensuel, Trimestriel, Semestriel, Annuel, Non applicable.
+
+\textbf{Renouvellement automatique} : Un bail arrivant à expiration est automatiquement renouvelé si \texttt{renouvellementAuto = true}.
+
+\subsection{Locataires}
+
+Fiche locataire avec :
+\begin{itemize}
+  \item Informations personnelles (nom, prénom, téléphone, email, CNI, photo)
+  \item Baux associés (actifs et terminés)
+  \item Historique des paiements
+  \item Statut global (à jour / en retard)
+\end{itemize}
+
+\subsection{Appartements}
+
+Liste de tous les logements avec :
+\begin{itemize}
+  \item Numéro, étage, type, statut (Libre/Occupé)
+  \item Locataire actuel
+  \item Historique des occupants
+\end{itemize}
+
+\subsection{Reporting}
+
+Module complet de rapports financiers :
+
+\subsubsection{Suivi des Paiements}
+Tableau récapitulatif par locataire avec :
+\begin{itemize}
+  \item Date d'entrée (premier bail sur l'appartement)
+  \item Montant attendu (formule multi-baux)
+  \item Total réglé (tous paiements tous baux)
+  \item Différence (réglé $-$ attendu)
+  \item Caution totale payée (somme de toutes les cautions)
+  \item Total encaissé (réglé + cautions)
+\end{itemize}
+
+\subsubsection{Export Excel}
+Export avec \texttt{xlsx-js-style} (chargé dynamiquement pour ne pas alourdir le bundle).
+
+\subsection{Finances}
+
+Vue d'ensemble financière :
+\begin{itemize}
+  \item Revenus par mois (graphique)
+  \item Dépenses par catégorie
+  \item Bilan net (revenus $-$ dépenses)
+\end{itemize}
+
+\subsection{Dépenses}
+
+Enregistrement et suivi des dépenses :
+\begin{itemize}
+  \item Catégories : Maintenance, Taxes, Assurance, Autre
+  \item Association à un immeuble/appartement
+  \item Total mensuel et annuel
+\end{itemize}
+
+\subsection{Calendrier}
+
+Vue calendrier des :
+\begin{itemize}
+  \item Échéances de paiement à venir
+  \item Fins de bail
+  \item Maintenances planifiées
+\end{itemize}
+
+\subsection{Maintenance}
+
+Suivi des demandes de maintenance :
+\begin{itemize}
+  \item Création de ticket (description, priorité, photos)
+  \item Statuts : En attente, En cours, Terminé
+  \item Association à un appartement
+\end{itemize}
+
+\subsection{Emails}
+
+Envoi d'emails aux locataires :
+\begin{itemize}
+  \item Rappels de loyer impayé
+  \item Notifications de maintenance
+  \item Mises en demeure
+\end{itemize}
+
+\subsection{Audit}
+
+Journal de toutes les actions effectuées dans l'application :
+\begin{itemize}
+  \item Qui a fait quoi et quand
+  \item Détails des modifications (ancien/nouveau)
+\end{itemize}
+
+\subsection{Paramètres}
+
+\begin{itemize}
+  \item Gestion des gestionnaires (ajout/suppression)
+  \item Paramètres de notification
+  \item Configuration des immeubles
+\end{itemize}
+
+\subsection{Portail Locataire}
+
+Espace dédié aux locataires (rôle \texttt{locataire}) :
+\begin{itemize}
+  \item Voir son bail actif
+  \item Historique de ses paiements
+  \item Soumettre des demandes de maintenance
+  \item Messagerie avec le gestionnaire
+\end{itemize}
+
+\section{Détails par Locataire (au 03/06/2026)}
+
+\subsection{Résidence La'ag Tchang}
+
+\begin{longtable}{|p{3.5cm}|p{2.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|p{2cm}|p{2cm}|}
+\hline
+\textbf{Locataire} & \textbf{Logement} & \textbf{Loyer} & \textbf{Charges} & \textbf{Périodicité} & \textbf{Total payé} & \textbf{Caution} \\
+\hline
+\endhead
+ESSOUKA Line & A12 & 150\,000 & 7\,500 & Mensuel & 3\,780\,000 & 300k ✓ \\
+\hline
+TMCO & A21 & 150\,000 & 7\,500 & Annuel & 1\,890\,000 & 450k ✓ \\
+\hline
+NGA NDZANA Marie T. & A22 & 150\,000 & 7\,500 & Mensuel & 2\,990\,000 & 300k ✓ \\
+\hline
+ATG 1 & B13 & 150\,000 & 15\,000 & Annuel & 1\,980\,000 & 450k ✓ \\
+\hline
+ATG 2 & B14 & 150\,000 & 15\,000 & Annuel & 1\,980\,000 & 450k ✓ \\
+\hline
+ESSOUKA Line & B23 & 150\,000 & 7\,500 & Mensuel & 2\,205\,000 & 300k ✓ \\
+\hline
+TCHETGNIA Alex (N-SOFT) & B24 & 150\,000 & 7\,500 & Mensuel & 5\,670\,000 & 450k ✓ \\
+\hline
+SIPEWO J.L. & MEUBLÉ & 17\,391 & 0 & N/A & 0 & — \\
+\hline
+DJIETCHEU Yvan & A33 & 40\,000 & 2\,000 & Mensuel & 1\,216\,000 & 80k ✓ \\
+\hline
+ATCHANG Thérèse & A34 & 45\,000 & 2\,500 & Mensuel & 690\,000 & 90k ✓ \\
+\hline
+DJIMPONG Antoine & B35 & 40\,000 & 2\,000 & Mensuel & 1\,176\,000 & 80k ✓ \\
+\hline
+ADA BILE Christine & B36 & 40\,000 & 2\,000 & Mensuel & 0 & 80k ✓ \\
+\hline
+ANANFACK Aris & B44 & 45\,000 & 2\,500 & Mensuel & 1\,282\,500 & 90k ✓ \\
+\hline
+MOUMOITE Denise & B45 & 40\,000 & 2\,000 & Mensuel & 1\,342\,000 & 80k ✓ \\
+\hline
+DZALI Aimyll & B46 & 45\,000 & 2\,500 & Mensuel & 855\,000 & 90k ✓ \\
+\hline
+GAB AFRILAND & GAB & 50\,000 & 2\,500 & Mensuel & 1\,876\,800 & 100k ✓ \\
+\hline
+TRANSFER/IT & RDC IT & 300\,000 & 30\,000 & Annuel & 3\,960\,000 & 900k ✓ \\
+\hline
+MFOME Soulemanou & A31 & 90\,000 & 4\,500 & Mensuel & 1\,417\,500 & 180k ✓ \\
+\hline
+SAKME Ekuka & A32 & 90\,000 & 4\,500 & Mensuel & 1\,230\,000 & 180k ✓ \\
+\hline
+TOUA MEKA Michèle & A41 & 80\,000 & 4\,000 & Mensuel & 3\,024\,000 & 160k ✓ \\
+\hline
+SOP Gaël & A42 & 80\,000 & 4\,000 & Mensuel & 3\,023\,000 & 160k ✓ \\
+\hline
+BELLA BILAI Ghislain & B01 & 100\,000 & 5\,000 & Mensuel & 2\,695\,000 & 200k ✓ \\
+\hline
+MBAKOP Kevin & B38 & 90\,000 & 4\,500 & Mensuel & 2\,268\,000 & 180k ✓ \\
+\hline
+FOWE Bernard & B47 & 80\,000 & 4\,000 & Mensuel & 3\,026\,000 & 160k ✓ \\
+\hline
+KOUNCHOU Lévi & B48 & 80\,000 & 4\,000 & Mensuel & 3\,168\,000 & 160k ✓ \\
+\hline
+\end{longtable}
+
+\subsection{Santa Barbara}
+
+\begin{longtable}{|p{3.5cm}|p{3cm}|p{1.5cm}|p{1.5cm}|p{2cm}|p{2cm}|p{2cm}|}
+\hline
+\textbf{Locataire} & \textbf{Logement} & \textbf{Loyer} & \textbf{Charges} & \textbf{Périodicité} & \textbf{Total payé} & \textbf{Caution} \\
+\hline
+ONANA Lydie & Étage SB & 170\,000 & 5\,000 & Mensuel & 4\,375\,000 & 340k ✓ \\
+\hline
+MAMOUDOU Moussa & RDC SB & 155\,000 & 5\,000 & Mensuel & 1\,920\,000 & 310k ✓ \\
+\hline
+\end{longtable}
+
+\subsection{Villa Omnisports}
+
+\begin{longtable}{|p{4cm}|p{2cm}|p{1.5cm}|p{1.5cm}|p{2.5cm}|p{2cm}|p{2cm}|}
+\hline
+\textbf{Locataire} & \textbf{Logement} & \textbf{Loyer} & \textbf{Charges} & \textbf{Périodicité} & \textbf{Total payé} & \textbf{Caution} \\
+\hline
+BASS TECHNOLOGIES & Villa & 600\,000 & 0 & Trimestriel & 7\,200\,000 & 1\,200k ✓ \\
+\hline
+\end{longtable}
+
+\section{Cas Particuliers — Logique Multi-Baux}
+
+\subsection{ATG 1 (APPART B13)}
+
+\begin{itemize}
+  \item \textbf{Bail 1} : 01/07/2023 → 31/08/2025, MENSUEL, 157\,500/mois, TERMINÉ
+  \item \textbf{Bail 2} : 01/09/2025 → 01/09/2026, ANNUEL, 165\,000/mois, ACTIF
+\end{itemize}
+
+\textbf{Calcul attendu :}
+\begin{align*}
+\text{Bail 1} &= 157\,500 \times \frac{792 \text{ jours}}{30} = 4\,158\,000 \text{ FCFA} \\
+\text{Bail 2} &= 165\,000 \times 12 \times 1 \text{ échéance} = 1\,980\,000 \text{ FCFA} \\
+\text{Total attendu} &= 6\,138\,000 \text{ FCFA}
+\end{align*}
+
+Total payé : $4\,095\,000 + 1\,980\,000 = 6\,075\,000$ FCFA. \textbf{ATG 1 est à jour.}
+
+\subsection{TMCO (APPART A21)}
+
+\begin{itemize}
+  \item \textbf{Bail 1} : 01/05/2023 → 31/12/2024, ANNUEL, 157\,500/mois, TERMINÉ
+  \item \textbf{Bail 2} : 01/01/2025 → 01/01/2027, ANNUEL, 157\,500/mois, ACTIF
+\end{itemize}
+
+\textbf{Calcul attendu bail 2 :}
+\begin{itemize}
+  \item Échéance jan 2025 : $157\,500 \times 12 = 1\,890\,000$ — \textbf{payé} ✓
+  \item Échéance jan 2026 : $157\,500 \times 12 = 1\,890\,000$ — \textbf{impayé}
+\end{itemize}
+
+\textbf{Total dû} (au 03/06/2026) = $157\,500 \times 6 \text{ mois échus} = 945\,000$ FCFA
+
+\subsection{TRANSFER/IT (RDC IT)}
+
+\begin{itemize}
+  \item \textbf{Bail 1} : 01/05/2023 → 31/12/2024, ANNUEL, TERMINÉ (315k/mois)
+  \item \textbf{Bail 2} : 01/01/2025 → 31/12/2025, ANNUEL, TERMINÉ (315k/mois)
+  \item \textbf{Bail 3} : 01/01/2026 → 01/01/2027, ANNUEL, ACTIF (330k/mois)
+\end{itemize}
+
+\subsection{BASS TECHNOLOGIES (Villa)}
+
+Bail TRIMESTRIEL : 600\,000/mois, 0 charges. Échéance tous les 3 mois = $600\,000 \times 3 = 1\,800\,000$ FCFA par trimestre.
+
+%% ============================
+%% ENGLISH PART
+%% ============================
+\newpage
+\selectlanguage{english}
+\part{English Documentation}
+
+\section{General Overview}
+
+ImmoGest is a property management web application developed for \textbf{IMMOSTAR SCI}, a real estate company based in Yaoundé, Nkolfoulou (Cameroon). It manages 3 properties totaling 32 units.
+
+\subsection{Properties Managed}
+\begin{itemize}
+  \item \textbf{Résidence La'ag Tchang} — 28 units (Ground floor + 5 floors)
+  \item \textbf{Santa Barbara} — 2 units (Ground floor + 1st floor)
+  \item \textbf{Villa Omnisports} — 1 villa
+\end{itemize}
+
+\subsection{Tech Stack}
+\begin{itemize}
+  \item Next.js 14 (App Router, Server Components, Server Actions)
+  \item TypeScript, Tailwind CSS, shadcn/ui
+  \item Prisma 6 + PostgreSQL (Neon)
+  \item NextAuth v5 (JWT, manager/tenant roles)
+  \item Deployed on Vercel (auto-deploy from GitHub)
+\end{itemize}
+
+\section{Menus and Features}
+
+\subsection{Dashboard}
+
+Landing page after login. Displays key real-time indicators:
+\begin{itemize}
+  \item Total active tenants count
+  \item Available / occupied apartments
+  \item Current month revenue
+  \item Total unpaid amount
+  \item Monthly revenue chart (last 12 months)
+  \item Occupancy rate by building (pie chart)
+\end{itemize}
+
+\subsection{Global Situation}
+
+Overview of all tenants with their payment status (up to date or overdue).
+
+\subsubsection{Total Due Calculation Logic}
+
+For each active lease, the system:
+\begin{enumerate}
+  \item Identifies payment due dates based on lease periodicity
+  \item For each past due date: checks if payments cover the expected amount
+  \item \textbf{Monthly lease}: 1 due = rent + charges per month
+  \item \textbf{Annual lease}: 1 due = (rent + charges) $\times$ 12
+  \item \textbf{Quarterly lease}: 1 due = (rent + charges) $\times$ 3
+\end{enumerate}
+
+\textbf{Prorated Total Due} (non-monthly leases):
+
+For an unpaid annual/quarterly installment, the total due is \textbf{not} the full installment amount, but the number of months elapsed since the unpaid due date times the monthly amount:
+
+\begin{equation}
+\text{totalDue} = \text{monthlyTotal} \times \min(\text{frequency}, \text{months elapsed since due date})
+\end{equation}
+
+\textbf{Example TMCO}: Annual lease, installment due 01/01/2026 unpaid. As of 03/06/2026:
+$$\text{totalDue} = 157{,}500 \times \min(12, 6) = 157{,}500 \times 6 = 945{,}000 \text{ FCFA}$$
+
+\subsection{Tenant Detail (Situation)}
+
+Individual page showing for a given tenant:
+
+\subsubsection{Multi-Lease Expected Amount Formula}
+
+For tenants with multiple successive leases on the same apartment:
+
+\begin{equation}
+\text{expected} = \sum_{\text{lease}} \text{lease\_amount} \times \text{nb\_installments}
+\end{equation}
+
+\begin{itemize}
+  \item \textbf{Monthly leases}: $\text{expected} = (\text{rent} + \text{charges}) \times \frac{\text{days}}{30}$
+  \item \textbf{Annual/Quarterly}: $\text{expected} = (\text{rent} + \text{charges}) \times \text{freq} \times \text{past installments count}$
+\end{itemize}
+
+\textbf{Total collected} = sum of ALL payments from ALL leases for that tenant on the apartment.
+
+\textbf{Total received} = total collected + sum of all paid security deposits across all leases.
+
+\subsection{Payments}
+
+Full payment management:
+\begin{itemize}
+  \item Record payment (amount, method, concerned month)
+  \item Manager validation
+  \item Receipt and rent certificate generation
+  \item Excel export
+  \item History per tenant
+\end{itemize}
+
+\textbf{Payment methods}: Bank transfer, Mobile Money (Orange/MTN), Cash.
+
+\subsection{Leases}
+
+Lease contract management:
+\begin{itemize}
+  \item Create lease (tenant, apartment, dates, amounts, periodicity)
+  \item Automatic renewal (daily CRON)
+  \item Termination / Cancellation
+  \item Multi-lease history per tenant
+\end{itemize}
+
+\textbf{Supported periodicities}: Monthly, Quarterly, Semi-annual, Annual, Not applicable.
+
+\subsection{Tenants}
+
+Tenant profile with:
+\begin{itemize}
+  \item Personal information (name, phone, email, ID card, photo)
+  \item Associated leases (active and terminated)
+  \item Payment history
+  \item Overall status (up to date / overdue)
+\end{itemize}
+
+\subsection{Apartments}
+
+All units listing with:
+\begin{itemize}
+  \item Number, floor, type, status (Available/Occupied)
+  \item Current tenant
+  \item Occupancy history
+\end{itemize}
+
+\subsection{Reporting}
+
+Complete financial reporting module:
+
+\subsubsection{Payment Tracking}
+Summary table per tenant:
+\begin{itemize}
+  \item Entry date (first lease on apartment)
+  \item Expected amount (multi-lease formula)
+  \item Total paid (all payments across all leases)
+  \item Difference (paid $-$ expected)
+  \item Total security deposit paid (sum across all leases)
+  \item Total collected (paid + deposits)
+\end{itemize}
+
+\subsection{Finances}
+
+Financial overview:
+\begin{itemize}
+  \item Monthly revenue (chart)
+  \item Expenses by category
+  \item Net balance (revenue $-$ expenses)
+\end{itemize}
+
+\subsection{Expenses}
+
+Expense tracking:
+\begin{itemize}
+  \item Categories: Maintenance, Taxes, Insurance, Other
+  \item Association to building/apartment
+  \item Monthly and annual totals
+\end{itemize}
+
+\subsection{Calendar}
+
+Calendar view of:
+\begin{itemize}
+  \item Upcoming payment due dates
+  \item Lease expirations
+  \item Scheduled maintenance
+\end{itemize}
+
+\subsection{Maintenance}
+
+Maintenance request tracking:
+\begin{itemize}
+  \item Ticket creation (description, priority, photos)
+  \item Statuses: Pending, In progress, Completed
+  \item Association to an apartment
+\end{itemize}
+
+\subsection{Emails}
+
+Email sending to tenants:
+\begin{itemize}
+  \item Unpaid rent reminders
+  \item Maintenance notifications
+  \item Formal notices (mise en demeure)
+\end{itemize}
+
+\subsection{Audit}
+
+Log of all actions performed in the application:
+\begin{itemize}
+  \item Who did what and when
+  \item Modification details (old/new values)
+\end{itemize}
+
+\subsection{Settings}
+
+\begin{itemize}
+  \item Manager management (add/remove)
+  \item Notification settings
+  \item Building configuration
+\end{itemize}
+
+\subsection{Tenant Portal}
+
+Dedicated space for tenants (role: \texttt{locataire}):
+\begin{itemize}
+  \item View active lease
+  \item Payment history
+  \item Submit maintenance requests
+  \item Messaging with manager
+\end{itemize}
+
+\section{Tenant Details (as of 03/06/2026)}
+
+\subsection{Résidence La'ag Tchang}
+
+\begin{longtable}{|p{3.5cm}|p{2.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|p{2cm}|p{2cm}|}
+\hline
+\textbf{Tenant} & \textbf{Unit} & \textbf{Rent} & \textbf{Charges} & \textbf{Periodicity} & \textbf{Total paid} & \textbf{Deposit} \\
+\hline
+\endhead
+ESSOUKA Line & A12 & 150,000 & 7,500 & Monthly & 3,780,000 & 300k ✓ \\
+\hline
+TMCO & A21 & 150,000 & 7,500 & Annual & 1,890,000 & 450k ✓ \\
+\hline
+NGA NDZANA Marie T. & A22 & 150,000 & 7,500 & Monthly & 2,990,000 & 300k ✓ \\
+\hline
+ATG 1 & B13 & 150,000 & 15,000 & Annual & 1,980,000 & 450k ✓ \\
+\hline
+ATG 2 & B14 & 150,000 & 15,000 & Annual & 1,980,000 & 450k ✓ \\
+\hline
+ESSOUKA Line & B23 & 150,000 & 7,500 & Monthly & 2,205,000 & 300k ✓ \\
+\hline
+TCHETGNIA Alex & B24 & 150,000 & 7,500 & Monthly & 5,670,000 & 450k ✓ \\
+\hline
+SIPEWO J.L. & FURNISHED & 17,391 & 0 & N/A & 0 & — \\
+\hline
+DJIETCHEU Yvan & A33 & 40,000 & 2,000 & Monthly & 1,216,000 & 80k ✓ \\
+\hline
+ATCHANG Thérèse & A34 & 45,000 & 2,500 & Monthly & 690,000 & 90k ✓ \\
+\hline
+DJIMPONG Antoine & B35 & 40,000 & 2,000 & Monthly & 1,176,000 & 80k ✓ \\
+\hline
+ADA BILE Christine & B36 & 40,000 & 2,000 & Monthly & 0 & 80k ✓ \\
+\hline
+ANANFACK Aris & B44 & 45,000 & 2,500 & Monthly & 1,282,500 & 90k ✓ \\
+\hline
+MOUMOITE Denise & B45 & 40,000 & 2,000 & Monthly & 1,342,000 & 80k ✓ \\
+\hline
+DZALI Aimyll & B46 & 45,000 & 2,500 & Monthly & 855,000 & 90k ✓ \\
+\hline
+GAB AFRILAND & GAB & 50,000 & 2,500 & Monthly & 1,876,800 & 100k ✓ \\
+\hline
+TRANSFER/IT & RDC IT & 300,000 & 30,000 & Annual & 3,960,000 & 900k ✓ \\
+\hline
+MFOME Soulemanou & A31 & 90,000 & 4,500 & Monthly & 1,417,500 & 180k ✓ \\
+\hline
+SAKME Ekuka & A32 & 90,000 & 4,500 & Monthly & 1,230,000 & 180k ✓ \\
+\hline
+TOUA MEKA Michèle & A41 & 80,000 & 4,000 & Monthly & 3,024,000 & 160k ✓ \\
+\hline
+SOP Gaël & A42 & 80,000 & 4,000 & Monthly & 3,023,000 & 160k ✓ \\
+\hline
+BELLA BILAI Ghislain & B01 & 100,000 & 5,000 & Monthly & 2,695,000 & 200k ✓ \\
+\hline
+MBAKOP Kevin & B38 & 90,000 & 4,500 & Monthly & 2,268,000 & 180k ✓ \\
+\hline
+FOWE Bernard & B47 & 80,000 & 4,000 & Monthly & 3,026,000 & 160k ✓ \\
+\hline
+KOUNCHOU Lévi & B48 & 80,000 & 4,000 & Monthly & 3,168,000 & 160k ✓ \\
+\hline
+\end{longtable}
+
+\subsection{Santa Barbara}
+
+\begin{longtable}{|p{3.5cm}|p{3cm}|p{1.5cm}|p{1.5cm}|p{2cm}|p{2cm}|p{2cm}|}
+\hline
+\textbf{Tenant} & \textbf{Unit} & \textbf{Rent} & \textbf{Charges} & \textbf{Periodicity} & \textbf{Total paid} & \textbf{Deposit} \\
+\hline
+ONANA Lydie & Floor SB & 170,000 & 5,000 & Monthly & 4,375,000 & 340k ✓ \\
+\hline
+MAMOUDOU Moussa & Ground SB & 155,000 & 5,000 & Monthly & 1,920,000 & 310k ✓ \\
+\hline
+\end{longtable}
+
+\subsection{Villa Omnisports}
+
+\begin{longtable}{|p{4cm}|p{2cm}|p{1.5cm}|p{1.5cm}|p{2.5cm}|p{2cm}|p{2cm}|}
+\hline
+\textbf{Tenant} & \textbf{Unit} & \textbf{Rent} & \textbf{Charges} & \textbf{Periodicity} & \textbf{Total paid} & \textbf{Deposit} \\
+\hline
+BASS TECHNOLOGIES & Villa & 600,000 & 0 & Quarterly & 7,200,000 & 1,200k ✓ \\
+\hline
+\end{longtable}
+
+\section{Special Cases — Multi-Lease Logic}
+
+\subsection{ATG 1 (APPART B13)}
+
+\begin{itemize}
+  \item \textbf{Lease 1}: 01/07/2023 → 31/08/2025, Monthly, 157,500/month, TERMINATED
+  \item \textbf{Lease 2}: 01/09/2025 → 01/09/2026, Annual, 165,000/month, ACTIVE
+\end{itemize}
+
+\textbf{Expected calculation:}
+\begin{align*}
+\text{Lease 1} &= 157{,}500 \times \frac{792 \text{ days}}{30} = 4{,}158{,}000 \text{ FCFA} \\
+\text{Lease 2} &= 165{,}000 \times 12 \times 1 \text{ installment} = 1{,}980{,}000 \text{ FCFA} \\
+\text{Total expected} &= 6{,}138{,}000 \text{ FCFA}
+\end{align*}
+
+Total paid: $4{,}095{,}000 + 1{,}980{,}000 = 6{,}075{,}000$ FCFA. \textbf{ATG 1 is up to date.}
+
+\subsection{TMCO (APPART A21)}
+
+\begin{itemize}
+  \item \textbf{Lease 1}: 01/05/2023 → 31/12/2024, Annual, 157,500/month, TERMINATED
+  \item \textbf{Lease 2}: 01/01/2025 → 01/01/2027, Annual, 157,500/month, ACTIVE
+\end{itemize}
+
+\textbf{Active lease calculation:}
+\begin{itemize}
+  \item Installment Jan 2025: $157{,}500 \times 12 = 1{,}890{,}000$ — \textbf{paid} ✓
+  \item Installment Jan 2026: $157{,}500 \times 12 = 1{,}890{,}000$ — \textbf{unpaid}
+\end{itemize}
+
+\textbf{Total due} (as of 03/06/2026) = $157{,}500 \times 6 \text{ elapsed months} = 945{,}000$ FCFA
+
+\subsection{TRANSFER/IT (RDC IT)}
+
+\begin{itemize}
+  \item \textbf{Lease 1}: 01/05/2023 → 31/12/2024, Annual, TERMINATED (315k/month)
+  \item \textbf{Lease 2}: 01/01/2025 → 31/12/2025, Annual, TERMINATED (315k/month)
+  \item \textbf{Lease 3}: 01/01/2026 → 01/01/2027, Annual, ACTIVE (330k/month)
+\end{itemize}
+
+\subsection{BASS TECHNOLOGIES (Villa)}
+
+Quarterly lease: 600,000/month, 0 charges. Installment every 3 months = $600{,}000 \times 3 = 1{,}800{,}000$ FCFA per quarter.
+
+\section{Security \& Architecture}
+
+\subsection{Authentication}
+\begin{itemize}
+  \item JWT token with 8-hour expiry
+  \item Session timeout after 2 hours of inactivity
+  \item Two roles: \texttt{gestionnaire} (manager) and \texttt{locataire} (tenant)
+  \item 19 Server Actions protected by \texttt{requireGestionnaire()}
+\end{itemize}
+
+\subsection{Performance Optimizations}
+\begin{itemize}
+  \item Dashboard and situation data cached (60s / 120s TTL)
+  \item xlsx-js-style loaded dynamically (saves 500KB on client bundle)
+  \item Database queries filtered to last 12 months
+  \item WCAG AA contrast compliance
+\end{itemize}
+
+\end{document}
